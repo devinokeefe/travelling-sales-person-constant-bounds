@@ -1,0 +1,3 @@
+2026-10-10 01:49:47  == driver for k5s (module Results.K5S, 64 pieces), process id 102176, folder .
+2026-10-10 01:49:48  piece P000: start, 1 threads (no record)
+2026-10-10 01:49:54  == FAILED: piece P000, exit code 1 after 6 s; see runs/k5s_pieces/P000.out

@@ -1,0 +1,294 @@
+Mutation tests: wrong versions of each checker, and whether the tests detect them.
+What the commands of the README printed, run from the top folder on 2026-10-09.
+
+$ python checkers/mutation_test.py        (Windows)
+unmodified checker: passes tests, tiny, rounding, table and inputs
+ 1  series for exp(-1/M): both roundings reversed: detected by tests, rounding
+ 2  series for exp(-1/M): upper and lower bound exchanged: detected by tests, rounding
+ 3  powers of exp(-1/M): upper bounds rounded down: detected by tests, rounding
+ 4  powers of exp(-1/M): lower bounds rounded up: detected by tests, rounding
+ 5  lambda from the lower bound of exp(-1/M): detected by tests, rounding
+ 6  mu from the upper bound of exp(-1/M): detected by tests, rounding
+ 7  lambda and mu exchanged (mass moved to the wrong end of each mesh interval): detected by tests, tiny, rounding, table, inputs
+ 8  weights of a bounded cell: outer division rounded down: detected by tests, rounding, table
+ 9  weights of a bounded cell: divisor is an upper bound of the probability of the cell: detected by tests
+10  weights of the last cell rounded down: detected by tests, tiny, rounding, table, inputs
+11  the atom at the truncation point left out: detected by tests, tiny, rounding, table, inputs
+12  masses of the bounded cells from the wrong bounds: detected by tests, tiny, rounding, table, inputs
+13  mass of the last cell rounded down: detected by tests, tiny, rounding, table, inputs
+14  tail term rounded down: detected by tests, tiny, rounding, table, inputs
+15  tail term left out of the table: detected by tests, tiny, rounding, table, inputs
+16  convolution rounded down: detected by tests, tiny, rounding, table, inputs
+17  square root rounded down: detected by tests, tiny, inputs
+18  distance rounded down: detected by tests, tiny, rounding, table, inputs
+19  height weights of the midpoint rule in place of the chord weights: detected by tests, tiny, rounding, table, inputs
+20  average over the heights rounded down: detected by tests, tiny, rounding, table, inputs
+21  table rounded down: detected by tests, tiny, rounding, table, inputs
+22  offset of a key left out of the table: detected by tests, tiny, rounding, table, inputs
+23  shortest path: last segment left out: detected by tests
+24  shortest path: maximum in place of minimum at the end: detected by tests
+25  shortest path: maximum in place of minimum at the end (numpy): detected by tests
+26  shortest path: maximum in place of minimum within the dynamic programme: detected by tests
+27  shortest path: maximum in place of minimum within the dynamic programme (numpy): detected by tests
+28  paths between interior points: the block from u does not end at v: detected by tests
+29  paths between interior points: for three gaps the edge from 1 to 2 left out: detected by tests, tiny, rounding, inputs
+30  cell sums: maximum in place of minimum over the ends of the interior path: detected by tests, tiny, rounding, inputs
+31  cell sums: first edge left out: detected by tests, tiny, rounding, inputs
+32  cell sums: path between the interior points left out: detected by tests, tiny, rounding, inputs
+33  cell sums: last edge left out: detected by tests, tiny, rounding, inputs
+34  cell sums: a height of the second interior point left out when it is looped over: detected by tests
+35  cell sums: the sums of the arrays added up with 64-bit integers: detected by tests, tiny, rounding, inputs
+36  bound for the 64-bit integers: 2^64 in place of 2^63: detected by tests
+37  bound for the 64-bit integers: the number of edges of a path left out: detected by tests
+38  reflection: the two halves of the heights counted once: detected by tests, tiny, rounding, inputs
+39  reflection: the middle height counted twice when the number of heights is odd: detected by tests, tiny, rounding, inputs
+40  reflection: the middle height left out when the number of heights is odd: detected by tests, tiny, rounding, inputs
+41  shared paths: the edges from point 0 taken from a gap tuple with another g_1: detected by tests, tiny, rounding, inputs
+42  shared paths: the edges to point k taken from a gap tuple with another g_k: detected by tests, tiny, rounding, inputs
+43  shared paths: a job holds gap tuples that differ in g_2: detected by tests, tiny, rounding, inputs
+44  reversal: the gap tuple rotated, not read backwards: detected by tests, tiny, rounding, inputs
+45  reversal: the two end gaps exchanged, the gaps between them not reversed: detected by tests
+46  reversal: the gap tuples that read the same backwards are not computed: detected by tests, tiny, rounding, inputs
+47  reversal: a sum in a log is not copied to the tuple read backwards: detected by tests
+48  total rounded down: detected by tests, tiny, rounding, inputs
+49  final test reversed: detected by tiny, rounding, inputs
+50  final test without the strip height: detected by rounding, inputs
+51  final test with one height too few in the denominator: detected by tiny, rounding, inputs
+52  values file not compared: the entries of the table: detected by inputs
+53  values file not compared: the cell sums: detected by inputs
+54  values file not compared: the parameters: detected by inputs
+55  values file: the numbers of masses, table lines and cell sums not checked: detected by inputs
+56  text: a byte that is not allowed is taken for a blank: detected by inputs
+57  text: a number of 2^128 or more is accepted: detected by inputs
+58  spec file: a path of the values file that is not relative is accepted: detected by inputs
+59  spec file: the values file is sought from a rewritten path of the spec file: detected by tests
+60  log: the log of another computation is continued: detected by tests
+61  log: a second, different value for a cell sum is accepted: detected by tests
+62  log: the incomplete last line of an interrupted run is kept: detected by tests
+63  log: a byte outside ASCII is not treated as malformed input: detected by tests
+64  output: the printed bound is not that of the total: detected by tiny, rounding
+64 of 64 mutants detected
+
+$ python3 checkers/mutation_test_compiled.py c        (Linux under WSL 2, gcc)
+unmodified program: passes 67 tests
+ 1  Section 1: a threshold with a zero is accepted (theta_1 and theta_2 need not be positive): detected
+ 2  Section 1: h need not be in lowest terms: detected
+ 3  Section 2: ceil in place of floor in up_j, which lowers the upper bound up_1: detected
+ 4  Section 2: floor in place of ceil in lo_j, which raises the lower bound lo_1: detected
+ 5  Section 2: floor in place of ceil in Rup[i]: detected
+ 6  Section 2: lo_1 for up_1 in Rup[i] (a lower bound in place of the upper bound): detected
+ 7  Section 2: ceil in place of floor in Rlo[i]: detected
+ 8  Section 3: lo_1 for up_1 in C_lambda: detected
+ 9  Section 3: the term with C_mu left out of num_c(i): detected
+10  Section 3: the atom at the truncation point left out of W_{m-1}(N_T): detected
+11  Section 3: floor in place of the outer ceil in W_c(i) of a bounded cell: detected
+12  Section 3: W_c(i) of a bounded cell divided by Q - Rlo[n_c] in place of Q - Rup[n_c]: not detected, as stated in the list (the weights change by about one unit of 2^-48, which no stored number of the inputs shows; the unit tests of the Python and the Rust checker compare the weights themselves)
+13  Section 3: floor in place of ceil in W_{m-1}(i): detected
+14  Section 3: Rup for Rlo in the mass of a bounded cell (the upper bound subtracted instead of the lower): detected
+15  Section 3: floor in place of ceil in the mass of the last cell: detected
+16  Section 3: floor in place of ceil in the tail term E_T: detected
+17  Section 4: floor in place of ceil in V_kappa(s): detected
+18  Section 4: the last pair (i, j) left out of each sum for V_kappa(s): detected
+19  Section 5: floor in place of the outer ceil in Dist(j, tau): detected
+20  Section 5: gamma = M h_1 in place of M h_1^2 (heights scaled by h instead of h^2): detected
+21  Section 5: floor in place of ceil in G(j, d): detected
+22  Section 5: Dist(j, 0) in place of Dist(j, |d nu + t|) where d nu + t is negative: detected
+23  Section 6: the tail term kappa_{m-1} E_T left out of the table: detected
+24  Section 6: floor in place of ceil in Tab(kappa, d): detected
+25  Section 6: G(s, d) in place of G(b_kappa + s, d) (the offset of the key left out): detected
+26  Section 7: max for min between the first two choices of an end point of the path: detected
+27  Section 7: max for min in the dynamic programme over sets of interior points: detected
+28  Section 7: the height a_k = 0 left out of the sum S_g: detected
+29  Section 7: Tab(kappa, 0) in place of Tab(kappa, |a_i - a_j|) for every edge: detected
+30  Section 7, shared paths: a path may not start at the last interior point: detected
+31  Section 7, shared paths: the edge at point k is taken with the cell of g_1 on the side of point 0: detected
+32  Section 7, shared paths: the gap g_2 is left out of every key: detected
+33  Section 7, shared paths: the sums for g_1 = e, g_k = f are stored for g_1 = f, g_k = e: detected
+34  Section 7, reflection: the first interior point takes one height too many: detected
+35  Section 7, reflection: a height tuple and its mirror image count once together: detected
+36  Section 7, reflection: a tuple whose first interior height is its own mirror image counts twice: detected
+37  Section 7, reversal: a gap tuple that reads the same both ways is not computed: detected
+38  Section 7, reversal: the sum of a tuple that is not computed is taken from the tuple with the last gap moved to the front: detected
+39  Section 7, reversal: the reversed tuple lacks its last gap: detected
+40  Section 8: floor in place of ceil in A_{j-1}: detected
+41  Section 8: the final comparison reversed: detected
+42  Section 8: the final comparison rejects equality: detected
+43  Section 8: the final comparison without h_2: detected
+44  Section 8 and 10: the printed bound rounded down instead of up: detected
+45  Section 9: the overflow check of 64-bit products removed: not detected, as stated in the list (no input in data/ reaches a bound of Section 9; h = 2^32/1 does)
+46  Section 9: the bound 2 k max(Tab) n^2 < 2^64 for the sums over the end heights not checked: not detected, as stated in the list (no input in data/ reaches a bound of Section 9; k 2, h 30000/1, mesh 2, heights 2, height_mesh 1, tail 1 does)
+47  Section 9: the additions of the sums over the interior heights are not checked: not detected, as stated in the list (no input in data/ reaches a bound of Section 9; a cell sum of 2^64 or more needs a table that no small input has)
+48  Section 10, text: the bytes 127 to 255 are allowed: not detected, as stated in the list (names and numbers reject these bytes anyway; it needs a file whose name contains such a byte)
+49  Section 10, text: a number of 2^128 or more is accepted (it wraps): detected
+50  Section 10, text: names are compared by their length only: detected
+51  Section 10, values file: the second field of the first line may be 01: detected
+52  Section 10, spec file: the path of the values file may begin with /: detected
+53  Section 10, spec file: the path of the values file may contain a backslash: not detected, as stated in the list (a backslash separates folders only under Windows, where the mutant is detected)
+54  Section 10, step 3: the parameter lines of the values file are not compared with the spec file: detected
+55  Section 10, steps 3 and 4 in the wrong order: the counts are checked before the parameter lines: detected
+56  Section 10, step 4: the number of masses is not checked: detected
+57  Section 10, step 4: the number of numbers in a table line is not checked: detected
+58  Section 10, step 4: the number of cell sums is not checked: detected
+59  Section 10, step 5: the tail term is not compared: detected
+60  Section 10, step 5: the keys of the table lines are not compared: detected
+61  Section 10, step 5: the total is not compared: detected
+55 of 61 mutants detected
+
+$ python checkers/mutation_test_compiled.py rust        (Windows)
+unmodified program: passes 67 tests
+ 1  Section 1: h_1/h_2 not required to be in lowest terms: detected
+ 2  Section 1: h_1, h_2, theta_1, theta_2 may be 0: detected
+ 3  Section 1: the boundaries b_1 < ... < b_{m-1} not required to increase: detected
+ 4  Section 1: k = 10 allowed: detected
+ 5  Section 2: up_j with ceil instead of floor (an upper bound rounded down): detected
+ 6  Section 2: lo_j with floor instead of ceil (a lower bound rounded up): detected
+ 7  Section 2: Rup[i] with floor instead of ceil: detected
+ 8  Section 2: Rlo[i] with ceil instead of floor: detected
+ 9  Section 2: Rup[i] from lo_1 instead of up_1: detected
+10  Section 2: Rlo[i] from up_1 instead of lo_1: detected
+11  Section 3: C_lambda from lo_1 instead of up_1: detected
+12  Section 3: C_mu = M(Q - up_1) - lo_1, with up_1 for the first lo_1: detected
+13  Section 3: the term Rup[i-1]*C_mu of num_c(i) left out for i = 1: detected
+14  Section 3: W_c(i) of a bounded cell, inner quotient num_c(i)/2^14 rounded down: not detected, as stated in the list (a weight changes only if the quotient rounded down is a multiple of the divisor, which is of the order of 2^60; no parameters are known for which that happens)
+15  Section 3: W_c(i) of a bounded cell, outer quotient rounded down: detected
+16  Section 3: W_c(i) of a bounded cell divided by Q - Rlo[n_c] instead of Q - Rup[n_c]: detected by the unit tests only
+17  Section 3: the atom ceil(Rup[N_T]/2^14) at the truncation point left out: detected
+18  Section 3: W_{m-1}(i), quotient num/2^76 rounded down: detected
+19  Section 3: P_c from Rup[b_{c+1}] instead of Rlo[b_{c+1}]: detected
+20  Section 3: P_c rounded down: detected
+21  Section 3: E_T rounded down: detected
+22  Section 4: V_kappa(s) rounded down: detected
+23  Section 4: the last term (largest i) of every sum for V_kappa(s) left out: detected
+24  Section 4: kappa' formed at the smallest index c with kappa_c > 0 instead of the largest: detected
+25  Section 5: ceil_sqrt returns the root rounded down: detected
+26  Section 5: Dist(j, tau) rounded down: detected
+27  Section 5: G(j, d) rounded down: detected
+28  Section 5: gamma = M*h_1 instead of M*h_1^2: detected
+29  Section 5: G(j, d) from Dist(j, d*nu) alone, the offsets t left out: detected
+30  Section 6: Tab(kappa, d) rounded down: detected
+31  Section 6: the tail term kappa_{m-1}*E_T left out of the table: detected
+32  Section 6: G(s, d) instead of G(b_kappa + s, d): detected
+33  Section 7: max for min over the predecessors in the shortest path: detected
+34  Section 7: max for min over the last interior point of the path: detected
+35  Section 7: only the paths that end at interior point 1 are considered: detected
+36  Section 7: E_ij = Tab(kappa(i, j), 0) for 1 <= i < j < k, the height difference ignored: detected
+37  Section 7: E_0i = Tab(kappa(0, i), 0), the height difference ignored: detected
+38  Section 7: E_jk = Tab(kappa(j, k), 0), the height difference ignored: detected
+39  Section 7: the height 0 of the interior points 2, ..., k-1 left out of the sum over the height tuples: detected
+40  Section 7: the height 0 of interior point 1 left out of the sum over the height tuples: detected
+41  Section 7: the edges to the points 0 and k not set for the height 0 of those points (they stay 0): detected
+42  Section 7: P(1, j) taken as f(A, 2) for every j: detected
+43  Section 7: P(i, j) for 2 <= i < j from the first four sets S only: detected by the unit tests only
+44  Section 7: P(i, j) for 2 <= i < j from f(S, i) + f(S + {j}, j) instead of f(S, i) + f(A - S, j): detected
+45  Section 7: reach(j) also from i = j, as if no other interior point had to be visited: detected
+46  Section 7, Reflection: weight 1 instead of 2 for a height of point 1 that has a mirror image: detected
+47  Section 7, Reflection: weight 2 for the middle height of point 1 when n is odd: detected
+48  Section 7, Reflection: the middle height of point 1 left out when n is odd: detected
+49  Section 7, Reflection: the mirror image of the height c taken as n - c instead of n - 1 - c: detected
+50  Section 7, Reversal: the sum of g stored for (g_1, g_{k-1}, ..., g_2, g_k), the end gaps not exchanged: detected
+51  Section 7, Reversal: the sum of g stored for (g_k, g_2, ..., g_{k-1}, g_1), the inner gaps not read backwards: detected
+52  Section 7, Reversal: the inner tuple read backwards without its last gap: detected
+53  Section 7, Reversal: the inner tuple read backwards in base m + 1: detected
+54  Section 7, shared paths: E_0i taken for g_1 = 0 whatever g_1 is: detected
+55  Section 7, shared paths: E_jk taken for g_k = 0 whatever g_k is: detected
+56  Section 7, shared paths: E_jk taken from the other end gap, as Tab(kappa(0, j), .) with g_1 = g_k: detected
+57  Section 7, shared paths: kappa(j, k) counts g_j, ..., g_{k-2} and g_k instead of g_{j+1}, ..., g_k: detected
+58  Section 7, shared paths: the costs added to the sum of the gap tuple with g_1 and g_k exchanged: detected
+59  Section 8: A_{j-1} rounded down: detected
+60  Section 8: the final comparison reversed: detected
+61  Section 8: the final comparison strict: detected
+62  Section 8: h_2 left out of the bound and of the final comparison: detected
+63  Section 8: the factor k left out of the denominator: detected
+64  Section 8/10: the printed bound rounded down: detected
+65  Section 8: n^k instead of n^(k+1) in the denominator: detected
+66  Section 9: a product that does not fit in 128 bits wraps instead of giving status 2: detected by the unit tests only
+67  Section 9: a negative difference wraps instead of giving status 2: detected by the unit tests only
+68  Section 9: a value that does not fit in 64 bits is truncated instead of giving status 2: detected by the unit tests only
+69  Section 9: the bound n*k*max(Tab) < 2^64 that excludes overflow in Section 7 not checked: detected by the unit tests only
+70  Section 9: the bound checked is k*max(Tab) < 2^64, without the factor n for the sum over the heights of point k: detected by the unit tests only
+71  Section 9: the bound for cost(g, a) taken as max(Tab), without the factor k: detected by the unit tests only
+72  Section 10, step 4: the counts are not checked: detected
+73  Section 10, steps 3 and 4: the counts are checked before the parameter lines: detected
+74  Section 10, step 3: the parameter lines are not compared: detected
+75  Section 10, step 5: the keys of the table lines are not compared: detected
+76  Section 10, step 5: only the first entry of each table line is compared: detected
+77  Section 10, step 5: the cell sums are not compared: detected
+78  Section 10, step 5: the total is not compared: detected
+79  Section 10, step 6: exit status 0 although the test of Section 8 fails: detected
+80  Section 10: the second field of the first line of the values file is not compared: detected
+81  Section 10: a backslash accepted in the path of the values file: detected
+82  Section 10: a path of the values file that begins with / accepted: detected by the unit tests only
+83  Section 10: a colon accepted in the path of the values file: detected by the unit tests only
+84  Section 10: a carriage return accepted at the end of a last line without line feed: detected
+85  Section 10: form feed, carriage return and line feed accepted as blanks: detected
+86  Section 10: the bytes of a line are not checked (any byte accepted): detected by the unit tests only
+87  Section 10: names compared without regard to case: detected
+88  Section 10: empty lines and lines of blanks are skipped: detected
+89  Section 10: lines after the last prescribed line are ignored: detected
+90  Section 10: a number of 2^128 or more wraps instead of making the file malformed: detected
+89 of 90 mutants detected
+
+$ CC=cl python checkers/mutation_test_compiled.py c        (Windows, MSVC)
+unmodified program: passes 67 tests
+ 1  Section 1: a threshold with a zero is accepted (theta_1 and theta_2 need not be positive): detected
+ 2  Section 1: h need not be in lowest terms: detected
+ 3  Section 2: ceil in place of floor in up_j, which lowers the upper bound up_1: detected
+ 4  Section 2: floor in place of ceil in lo_j, which raises the lower bound lo_1: detected
+ 5  Section 2: floor in place of ceil in Rup[i]: detected
+ 6  Section 2: lo_1 for up_1 in Rup[i] (a lower bound in place of the upper bound): detected
+ 7  Section 2: ceil in place of floor in Rlo[i]: detected
+ 8  Section 3: lo_1 for up_1 in C_lambda: detected
+ 9  Section 3: the term with C_mu left out of num_c(i): detected
+10  Section 3: the atom at the truncation point left out of W_{m-1}(N_T): detected
+11  Section 3: floor in place of the outer ceil in W_c(i) of a bounded cell: detected
+12  Section 3: W_c(i) of a bounded cell divided by Q - Rlo[n_c] in place of Q - Rup[n_c]: not detected, as stated in the list (the weights change by about one unit of 2^-48, which no stored number of the inputs shows; the unit tests of the Python and the Rust checker compare the weights themselves)
+13  Section 3: floor in place of ceil in W_{m-1}(i): detected
+14  Section 3: Rup for Rlo in the mass of a bounded cell (the upper bound subtracted instead of the lower): detected
+15  Section 3: floor in place of ceil in the mass of the last cell: detected
+16  Section 3: floor in place of ceil in the tail term E_T: detected
+17  Section 4: floor in place of ceil in V_kappa(s): detected
+18  Section 4: the last pair (i, j) left out of each sum for V_kappa(s): detected
+19  Section 5: floor in place of the outer ceil in Dist(j, tau): detected
+20  Section 5: gamma = M h_1 in place of M h_1^2 (heights scaled by h instead of h^2): detected
+21  Section 5: floor in place of ceil in G(j, d): detected
+22  Section 5: Dist(j, 0) in place of Dist(j, |d nu + t|) where d nu + t is negative: detected
+23  Section 6: the tail term kappa_{m-1} E_T left out of the table: detected
+24  Section 6: floor in place of ceil in Tab(kappa, d): detected
+25  Section 6: G(s, d) in place of G(b_kappa + s, d) (the offset of the key left out): detected
+26  Section 7: max for min between the first two choices of an end point of the path: detected
+27  Section 7: max for min in the dynamic programme over sets of interior points: detected
+28  Section 7: the height a_k = 0 left out of the sum S_g: detected
+29  Section 7: Tab(kappa, 0) in place of Tab(kappa, |a_i - a_j|) for every edge: detected
+30  Section 7, shared paths: a path may not start at the last interior point: detected
+31  Section 7, shared paths: the edge at point k is taken with the cell of g_1 on the side of point 0: detected
+32  Section 7, shared paths: the gap g_2 is left out of every key: detected
+33  Section 7, shared paths: the sums for g_1 = e, g_k = f are stored for g_1 = f, g_k = e: detected
+34  Section 7, reflection: the first interior point takes one height too many: detected
+35  Section 7, reflection: a height tuple and its mirror image count once together: detected
+36  Section 7, reflection: a tuple whose first interior height is its own mirror image counts twice: detected
+37  Section 7, reversal: a gap tuple that reads the same both ways is not computed: detected
+38  Section 7, reversal: the sum of a tuple that is not computed is taken from the tuple with the last gap moved to the front: detected
+39  Section 7, reversal: the reversed tuple lacks its last gap: detected
+40  Section 8: floor in place of ceil in A_{j-1}: detected
+41  Section 8: the final comparison reversed: detected
+42  Section 8: the final comparison rejects equality: detected
+43  Section 8: the final comparison without h_2: detected
+44  Section 8 and 10: the printed bound rounded down instead of up: detected
+45  Section 9: the overflow check of 64-bit products removed: not detected, as stated in the list (no input in data/ reaches a bound of Section 9; h = 2^32/1 does)
+46  Section 9: the bound 2 k max(Tab) n^2 < 2^64 for the sums over the end heights not checked: not detected, as stated in the list (no input in data/ reaches a bound of Section 9; k 2, h 30000/1, mesh 2, heights 2, height_mesh 1, tail 1 does)
+47  Section 9: the additions of the sums over the interior heights are not checked: not detected, as stated in the list (no input in data/ reaches a bound of Section 9; a cell sum of 2^64 or more needs a table that no small input has)
+48  Section 10, text: the bytes 127 to 255 are allowed: not detected, as stated in the list (names and numbers reject these bytes anyway; it needs a file whose name contains such a byte)
+49  Section 10, text: a number of 2^128 or more is accepted (it wraps): detected
+50  Section 10, text: names are compared by their length only: detected
+51  Section 10, values file: the second field of the first line may be 01: detected
+52  Section 10, spec file: the path of the values file may begin with /: detected
+53  Section 10, spec file: the path of the values file may contain a backslash: detected
+54  Section 10, step 3: the parameter lines of the values file are not compared with the spec file: detected
+55  Section 10, steps 3 and 4 in the wrong order: the counts are checked before the parameter lines: detected
+56  Section 10, step 4: the number of masses is not checked: detected
+57  Section 10, step 4: the number of numbers in a table line is not checked: detected
+58  Section 10, step 4: the number of cell sums is not checked: detected
+59  Section 10, step 5: the tail term is not compared: detected
+60  Section 10, step 5: the keys of the table lines are not compared: detected
+61  Section 10, step 5: the total is not compared: detected
+56 of 61 mutants detected

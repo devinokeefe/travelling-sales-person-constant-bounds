@@ -1,0 +1,9 @@
+k 3
+h 2 1
+mesh 16
+gaps 11 28
+heights 3
+height_mesh 4
+tail 12
+threshold 95 100
+values empty_line_values.txt

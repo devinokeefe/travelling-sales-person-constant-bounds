@@ -1,0 +1,3 @@
+# No conversion of line ends: the files are checked byte for byte against SHA256SUMS.txt, and some
+# test inputs in data/tests/ contain carriage returns and other bytes on purpose.
+* -text

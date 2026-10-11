@@ -1,0 +1,9 @@
+k 2
+h 26 15
+mesh 128
+gaps
+heights 1
+height_mesh 256
+tail 16
+threshold 205732043099 223338299392
+values strip_threshold_below_values.txt

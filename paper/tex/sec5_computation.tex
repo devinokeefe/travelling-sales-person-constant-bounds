@@ -1,0 +1,60 @@
+\section{The computation}\label{sec:computation}
+
+\subsection{Parameters and results}
+
+We take $M=128$, so that $\delta=1/128$, and $m=4$ gap cells with $(b_1,b_2,b_3)=(48,112,208)$, that is
+\[
+[0,\tfrac38),\qquad[\tfrac38,\tfrac78),\qquad[\tfrac78,\tfrac{13}{8}),\qquad[\tfrac{13}{8},\infty),
+\]
+together with $n=6$ height cells, $\nu=64$ and $T=16$. With these parameters fixed, we ran the computation of \cref{sec:recipe} for \ResultCountWord{} choices of $k$ and $h$.
+
+\needspace{12\baselineskip}% the statement stays with its table
+\begin{thm}\label{thm:computation}
+For the parameters above, the total $\mathsf{A}_0$ of \cref{sec:recipe} has the following values. The last column is rounded up in its last digit.
+\begin{center}
+\input{results_table}
+\end{center}
+\end{thm}
+
+\Cref{thm:computation} states the result of a finite computation with integers, and its proof is that computation. \Cref{sec:programs} describes the programs that carried it out and the evidence that they did so correctly. Where a bound of \cref{thm:computation} is quoted below with six decimals, it is rounded up as well.
+
+\begin{proof}[Proof of \cref{thm:main}]
+By \cref{thm:integers} and the last row of the table in \cref{thm:computation}, $\beta\le\MainProofFraction$ with $\mathsf{A}_0=\MainTotal$. This is less than $\MainBound$.
+\end{proof}
+
+The \emph{cost} of an order in a cell is the sum of the table entries of its segments, so that $\mathsf{S}_g$ is the sum over $a$ of the least cost in the cell $(g,a)$. For each of the computations of \cref{thm:computation}, \emph{the rule} is that of the proof of \cref{prop:cells} with $\bar e_{ij}(\sigma)=\mathsf{Tab}(\kappa_{ij},|a_i-a_j|)/F$: in each cell it chooses an order of least cost. Where several orders have the least cost the choice is free, and \cref{thm:computation} does not depend on it.
+
+The values of $k$, $m$ and $n$ were limited by the time that the computation takes: there are $m^kn^{k+1}$ cells, that is $\MainCells$ for $k=\MainK$. The cell boundaries, among the multiples of $1/8$, and the strip heights, among the multiples of $1/10$, were chosen by simulating the rule for trial values; this choice affects the size of the bound and not its validity.
+
+\subsection{The programs}\label{sec:programs}
+
+The three programs, in Python, C and Rust, are in the repository that accompanies this paper,\footnote{\url{https://github.com/devinokeefe/travelling-sales-person-constant-bounds}} where they are called checkers. They share no code. The file \texttt{RECIPE.md} of the repository restates the definitions of \cref{sec:recipe}, and the C program and the Rust program were each first written from this file alone. All three use integer arithmetic only; where values are kept in words of a fixed width, each operation that could overflow is tested, or a bound checked beforehand excludes the overflow. Each program computes from the parameters the table $\mathsf{Tab}$, all $m^k$ cell sums $\mathsf{S}_g$ and the total, and compares them with the values stored in the repository, in a file that is the same for all three programs. The programs therefore agree not only on the totals but on every table entry and every cell sum; for $k=\MainK$ these are $\MainTableEntries$ and $\MainGapTuples$ numbers.
+
+\runin{Three identities.} Step~6 takes almost all of the time. Each program finds the minimum over the $(k-1)!$ orders by dynamic programming over subsets of the interior points \cite{Bellman1962,HeldKarp1962}, and shortens the sum over the cells by three identities, which Section~7 of \texttt{RECIPE.md} derives. (i)~\emph{Reversal}: the cell with gap tuple $(g_k,\dots,g_1)$ and height tuple $(a_k,\dots,a_0)$ is the cell $(g,a)$ read from its other end; its paths are those of $(g,a)$ in reverse, with the same costs, so a gap tuple and its reverse have the same cell sum. (ii)~\emph{Reflection}: replacing every $a_i$ by $n-1-a_i$ changes no difference $|a_i-a_j|$, so a cell and its reflection have the same least cost. (iii)~\emph{Shared paths}: the table entry of a segment between two interior points depends neither on $g_1$ and $g_k$ nor on $a_0$ and $a_k$, so for $k\ge3$ the least cost of a path from one interior point to another through all interior points is the same in the $m^2n^2$ cells that differ only in these four numbers, and is computed once for all of them. Identities (i) and (ii) are two of the three symmetries by which the number of cells to be evaluated is reduced in \cite[Section~4.2, after~(39)]{DongCao2026}; the remaining one, a common vertical translation of all points, we do not use.
+
+\runin{Recomputation and runs.} Earlier versions of the three programs use neither (i) nor (ii), and only the C version uses a part of (iii). For $k\le7$ we computed every cell sum with these versions as well, and for $k=8$ with the earlier version of the C program. The results were the same. For $k=9$ we did not do this, so there the cell sums rest on the identities, in the routines whose results for $k\le8$ were confirmed in this way. The evaluation in Lean described below confirms the total for $k=\MainK$ by a routine that does not use (i), and whose use of (ii) and (iii) is proved~correct.
+
+Each program was run at least twice for each $k$, except the Python program for $k=9$, which was run once. All runs printed the same result.
+
+\runin{A check in Lean.} For $k=5,\dots,\LeanMaxK$ the totals were also confirmed in the proof assistant Lean~4 \cite{Lean4}. The Lean development in the repository states the definitions of \cref{sec:recipe} as directly as the language allows and, beside them, an efficient version, which uses (ii) and (iii) but not (i); theorems checked by the Lean kernel say that the two give the same total for all parameters. For each of these $k$ the equation for $\mathsf{A}_0$ in \cref{thm:computation} is then a theorem of Lean, whose proof evaluates the efficient version in compiled code (the tactic \texttt{native\_decide}). The kernel does not check such an evaluation, so these theorems rest on the Lean compiler, interpreter and runtime as well, and on the hardware. For $k=\LeanMaxK$ the evaluation was run once. The numbers to be proved were taken from the programs, so Lean could only confirm them or fail. The Lean definitions were transcribed from the file \texttt{RECIPE.md} and compared with it only by reading the two side by side. The proofs of \cref{sec:blocks,sec:cells,sec:integers} are not formalised. The file \texttt{lean/README.md} of the repository says in full what is proved and what is assumed.
+
+\subsection{Controls}\label{sec:controls}
+
+The controls of this section are not part of the proof. They use floating-point arithmetic or simulation, and serve to detect a mistake in \cref{sec:cells,sec:integers} or in the programs. Their scripts and records are in the repository. Of the three programs they use only routines of the Python program that read the parameters and the stored values and list the keys and the pairs of points. The file \texttt{controls/README.md} says what each control can and cannot show, and describes further controls.
+
+\runin{The segments.} For every key and every $d$ we computed the conditional expected length of a segment by numerical integration, without the lemmas of \cref{sec:cells}. For each of the five computations of \cref{thm:computation}, every table entry $\mathsf{Tab}(\kappa,d)/F$ lies above the integral, by a relative margin between $\IntegralMarginMin$ and $\IntegralMarginMax$. This control concerns the table, that is \cref{prop:segment} and Steps~1 to~5; the cell sums and the total do not enter it.
+
+\runin{The value of the rule.} We also computed, on a mesh twice as fine as that of the computation, the upper bound of \cref{prop:segment} and the matching lower bound from Jensen's inequality. Summing the lower bounds, and likewise the upper bounds, along the path that the rule chooses in a cell, averaging over the cells with their probabilities and dividing by $kh$ gives two numbers below and above the value of the rule: the ends of the \emph{bracket} in \cref{tab:controls}.
+
+For $k>\BracketFullK$ the sums over all cells would be too costly. There the amounts by which the table entries along the path exceed the two bounds are averaged over the cells of the simulated blocks below, with standard errors below $10^{-9}$, and subtracted from the bound of \cref{thm:computation}; the bracket is then computed from the total $\mathsf{A}_0$ and would not show an error in the cell sums. For every $k$ the bound exceeds the lower end of the bracket, and hence the value of the rule, by less than $10^{-5}$; this is all that the mesh, the truncation and the rounding add to the bound.
+
+\begin{table}[ht]
+\centering
+\caption{Controls for the computations of \cref{thm:computation}. The bound is rounded up. The bracket for the value of the rule is computed in floating-point arithmetic, without a bound for its rounding errors; its lower end is rounded down and its upper end up; for $k>\BracketFullK$ it also has a sampling error, below $10^{-9}$. The last two columns are estimates from $\SimBlocks$ simulated blocks for each $k$, with standard errors. The samples for the different $k$ were drawn with one seed, so they are not independent of each other.}
+\label{tab:controls}
+\input{controls_table}
+\end{table}
+
+\runin{Simulated blocks.} We drew $\SimBlocks$ independent blocks for each $k$ and measured, in each block, the lengths of the path chosen by the rule and of a shortest path (\cref{tab:controls}). The simulated values of the rule lie within two standard errors of their brackets. Some lie above the bound of \cref{thm:computation}, as is to be expected: the bound exceeds the value of the rule by less than one standard error.
+
+The cost of the order that the rule chooses, averaged over the same blocks and divided by $Fkh$, estimates the bound of \cref{thm:computation} itself, from the table alone and without the cell sums. For $k=9$ it gave $\SimCostMain$, against the bound $\MainBoundShort$, and for every $k$ it lies within two standard errors of the bound. For $k=8$ and $k=9$ an error in the total that changed the bound by $3\cdot10^{-5}$, which is more than three standard errors, would very probably show in this estimate; a smaller one might not. \Cref{thm:main} leaves a margin of more than $\MainMargin$ above the bound for $k=\MainK$.

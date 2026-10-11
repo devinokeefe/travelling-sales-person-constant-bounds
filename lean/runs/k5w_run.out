@@ -1,0 +1,5 @@
+2026-10-10 01:49:27  == driver for k5w (module Results.K5W, 64 pieces), process id 45928, folder .
+2026-10-10 01:49:28  piece P000: start, 16 threads (no record)
+2026-10-10 01:49:32  piece P000: built in 4 s (1 of 64)
+2026-10-10 01:49:32  piece P001: start, 16 threads (no record)
+2026-10-10 01:49:36  == FAILED: piece P001, exit code 1 after 4 s; see runs/k5w_pieces/P001.out

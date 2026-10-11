@@ -1,0 +1,25 @@
+\section{Remarks}\label{sec:remarks}
+
+\subsection{What limits the bound}
+
+The shortest-path value $\E\min_\pi L_\pi/(kh)$, below which no rule can go, is known to us only from simulation (\cref{tab:controls,tab:limits}). The bounds of \cref{thm:computation} exceed the simulated values for the same $k$ and $h$ (\cref{tab:controls}) by amounts that grow with $k$, from $\LossFive$ for $k=5$ to $\LossMain$ for $k=\MainK$. By the controls of \cref{sec:controls} the mesh, the truncation and the rounding account for less than $10^{-5}$ of each difference. The rest is the price of choosing the order from the cell and not from the block itself.
+
+Finer cells can reduce this price. For $k=5$ and $h=2$, the grid of \cite{DongCao2026} has $12$ gap cells and $20$ height cells, all equally likely. With a program of our own we simulated the rule that the second-moment bound for the segments defines on these cells, for $\DongCaoSamples$ blocks: it had the value $\DongCaoRule$ and lost $\DongCaoGap$ against the shortest path in the same blocks. (The shortest-path value reported in \cite{DongCao2026} is $0.87426$, from a sample of $5\cdot10^6$ blocks; this agrees with the last column of \cref{tab:controls} for $k=5$.) On these cells, therefore, almost all of the difference between $0.8810$ and the shortest-path value comes from the second-moment bound for the segments; in our computation for $k=5$ almost all of the difference between the bound $\BoundFiveUp$ and the shortest-path value comes from the coarser cells.
+
+\begin{table}[ht]
+\centering
+\caption{Simulated shortest-path values $\E\min_\pi L_\pi/(kh)$: the smallest bound that \cref{thm:block} can give for blocks with $k$ gaps and strips of height $h$. For each $k$ the table gives the strip height with the smallest value among the multiples of $1/10$ that we tried, and that value, estimated from $\LimitSamples$ blocks (the same blocks at all strip heights) with a standard error of at most $\LimitError$.}
+\label{tab:limits}
+\input{limits_table}
+\end{table}
+
+Larger blocks help slowly. In \cref{tab:limits} each further point lowers the shortest-path value by less than the one before, from about $\LimitStepFirst$ between $k=5$ and $k=6$ to about $\LimitStepLast$ between $k=9$ and $k=10$, while the number of cells grows by the factor $mn=24$ each time. That the gain is limited has been remarked before \cite[Section~2.5]{Steinerberger2015}, \cite[Sections~3 and~5]{GaudioGuan2026}; a figure in the software repositories of \cite{CarlssonYu2026,YuCarlsson2023} shows shortest-path values for $k=3,\dots,9$ and six strip heights.\footnote{\raggedright\url{https://github.com/INFORMSJoC/2024.0538} and \url{https://github.com/yyu56253/BHH_upper_bound}, accessed 9~October 2026.}
+
+For $k=6,\dots,9$ the strip heights of \cref{tab:limits} are higher by $1/10$ than those of \cref{thm:computation}, which were chosen for our rule and not for the shortest path; the minimum over the strip heights is flat, and for $k=7$ and $k=9$ the next lower height gives a value larger by less than $0.0001$.
+
+\subsection{Two questions}
+
+\begin{enumerate}[label=(\arabic*),leftmargin=*]
+\item For $k=4$, the partition of \cite{YuCarlsson2023} is found by a decision tree, with one order for each part. Does such a partition, in place of a product grid, come close to the shortest-path value for $k$ between $7$ and $9$ at a feasible cost? The bound of \cref{prop:segment} extends to cells that are products of arbitrary intervals with endpoints on the mesh.
+\item When a point near the boundary of a strip may be visited from the adjacent strip, simulations give about $0.850$ for $k=8$ and $h=2$ \cite[Table~4]{GaudioGuan2026}. Can the bound of \cite{GaudioGuan2026} for such tours be evaluated rigorously for $k\ge5$?
+\end{enumerate}

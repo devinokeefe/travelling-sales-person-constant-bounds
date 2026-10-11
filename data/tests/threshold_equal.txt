@@ -1,0 +1,9 @@
+k 3
+h 2 1
+mesh 16
+gaps 11 28
+heights 3
+height_mesh 4
+tail 12
+threshold 1907697663974 2087354105856
+values threshold_equal_values.txt

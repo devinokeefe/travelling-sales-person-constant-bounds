@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use these programs or data, please cite the paper."
+title: "An upper bound for the Euclidean travelling salesman constant: programs and data"
+type: software
+authors:
+  - family-names: "O'Keefe"
+    given-names: "Devin"
+    email: "okeefede@tcd.ie"
+version: "1.0.0"
+date-released: "2026-10-11"
+# The licence named here is that of the programs and scripts.  The paper, the documents, the data and
+# the records are under CC BY 4.0 (LICENSE-CC-BY-4.0); README.md says which files are which.
+license: MIT
+repository-code: "https://github.com/devinokeefe/travelling-sales-person-constant-bounds"
+keywords:
+  - "travelling salesman problem"
+  - "Beardwood-Halton-Hammersley constant"
+  - "computer-assisted proof"
+  - "integer arithmetic"
+preferred-citation:
+  type: unpublished
+  title: "An upper bound for the Euclidean travelling salesman constant"
+  authors:
+    - family-names: "O'Keefe"
+      given-names: "Devin"
+  year: 2026
+  notes: "Preprint"

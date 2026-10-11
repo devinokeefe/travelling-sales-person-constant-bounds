@@ -1,0 +1,11 @@
+Output of the executable when it made runs/k9s_levels4.txt from the list of cell sums
+(first its standard error, then its standard output).
+
+  table of 714 keys done, 66 s
+  262144 cell sums taken from runs/k9s_stored.log
+  time 67 s, 16 thread(s)
+the stored values agree with the recomputed values
+total 4430997795015293889
+bound 0.861715646305 (rounded up)
+bound <= 8618/10000
+ACCEPTED

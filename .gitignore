@@ -1,0 +1,31 @@
+# build products
+/cchk
+/cchk.exe
+/plain_sums
+/plain_sums.exe
+/controls/plain_sums
+/controls/plain_sums.exe
+*.obj
+checkers/rust/target/
+lean/.lake/
+paper/build/
+__pycache__/
+.ruff_cache/
+# what lean/runs/build_all.sh and lean/runs/run_pieces.py write
+lean/runs/new_*
+lean/runs/build_all.out
+lean/runs/*_pieces/
+lean/runs/*_stale/
+lean/runs/*.pid
+lean/runs/*_STOP
+lean/runs/*_threads.txt
+# local environments and settings
+.venv/
+venv/
+.vscode/
+.DS_Store
+# what interrupted or failed runs leave behind
+*.log
+*.part
+*.new
+*.raw

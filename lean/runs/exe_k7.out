@@ -1,0 +1,19 @@
+$ lake exe tspcheck ../../repo/data/specs/k7.txt -j 16 
+start: Sat Oct 10 14:04:37 GMTDT 2026
+  table of 329 keys done, 43 s
+  cell sums 2048 of 16384, 15 s
+  cell sums 4096 of 16384, 31 s
+  cell sums 6144 of 16384, 47 s
+  cell sums 8192 of 16384, 63 s
+  cell sums 10240 of 16384, 79 s
+  cell sums 12288 of 16384, 95 s
+  cell sums 14336 of 16384, 111 s
+  cell sums 16384 of 16384, 127 s
+  time 171 s, 16 thread(s)
+the stored values agree with the recomputed values
+total 92054418307910785
+bound 0.868075379727 (rounded up)
+bound <= 8681/10000
+ACCEPTED
+exit status 0
+end: Sat Oct 10 14:07:28 GMTDT 2026

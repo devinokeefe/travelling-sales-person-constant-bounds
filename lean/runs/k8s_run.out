@@ -1,0 +1,31 @@
+2026-10-10 13:39:25  == driver for k8s (module Results.K8S, 4 pieces), process id 12052
+2026-10-10 13:39:26  piece P0: start, 16 threads (no record)
+2026-10-10 13:44:47  piece P0: built in 321 s (1 of 4)
+2026-10-10 13:44:47  piece P1: start, 16 threads (no record)
+2026-10-10 13:50:07  piece P1: built in 320 s (2 of 4)
+2026-10-10 13:50:07  piece P2: start, 16 threads (no record)
+2026-10-10 13:55:27  piece P2: built in 320 s (3 of 4)
+2026-10-10 13:55:27  piece P3: start, 16 threads (no record)
+2026-10-10 14:00:48  piece P3: built in 321 s (4 of 4)
+2026-10-10 14:00:48  top module Results.K8S: start, 16 threads
+ℹ [70/70] Built Results.K8S (752ms)
+info: Results/K8S.lean:48:0: 'Results.k8s_total' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ Results.k8s_P_0._native.native_decide.ax_1_1,
+ Results.k8s_P_1._native.native_decide.ax_1_1,
+ Results.k8s_P_2._native.native_decide.ax_1_1,
+ Results.k8s_P_3._native.native_decide.ax_1_1,
+ Results.k8s_total._native.native_decide.ax_1_1]
+info: Results/K8S.lean:49:0: 'Results.k8s_accepts' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ Results.k8s_P_0._native.native_decide.ax_1_1,
+ Results.k8s_P_1._native.native_decide.ax_1_1,
+ Results.k8s_P_2._native.native_decide.ax_1_1,
+ Results.k8s_P_3._native.native_decide.ax_1_1,
+ Results.k8s_total._native.native_decide.ax_1_1]
+Build completed successfully (70 jobs).
+
+2026-10-10 14:00:49  top module built in 2 s
+2026-10-10 14:00:49  == all done

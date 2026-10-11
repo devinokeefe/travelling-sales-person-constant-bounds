@@ -1,0 +1,314 @@
+[
+  {
+    "description": "Section 1: a threshold with a zero is accepted (theta_1 and theta_2 need not be positive)",
+    "old": "if (!between(theta1, 1, UINT64_MAX) || !between(theta2, 1, UINT64_MAX))",
+    "new": "if (!between(theta1, 0, UINT64_MAX) || !between(theta2, 0, UINT64_MAX))"
+  },
+  {
+    "description": "Section 1: h need not be in lowest terms",
+    "old": "if (gcd64(p->h1.lo, p->h2.lo) != 1) die(",
+    "new": "if (0) die("
+  },
+  {
+    "description": "Section 2: ceil in place of floor in up_j, which lowers the upper bound up_1",
+    "old": "u64 new_up = Q - lo / (par.M * j);",
+    "new": "u64 new_up = Q - ceil_div64(lo, par.M * j);"
+  },
+  {
+    "description": "Section 2: floor in place of ceil in lo_j, which raises the lower bound lo_1",
+    "old": "u64 new_lo = Q - ceil_div64(up, par.M * j);",
+    "new": "u64 new_lo = Q - up / (par.M * j);"
+  },
+  {
+    "description": "Section 2: floor in place of ceil in Rup[i]",
+    "old": "Rup[i] = low64(ceil_shr128(mul64(Rup[i - 1], up_1), LOG_Q));",
+    "new": "Rup[i] = low64(shr128(mul64(Rup[i - 1], up_1), LOG_Q));"
+  },
+  {
+    "description": "Section 2: lo_1 for up_1 in Rup[i] (a lower bound in place of the upper bound)",
+    "old": "mul64(Rup[i - 1], up_1)",
+    "new": "mul64(Rup[i - 1], lo_1)"
+  },
+  {
+    "description": "Section 2: ceil in place of floor in Rlo[i]",
+    "old": "Rlo[i] = low64(shr128(mul64(Rlo[i - 1], lo_1), LOG_Q));",
+    "new": "Rlo[i] = low64(ceil_shr128(mul64(Rlo[i - 1], lo_1), LOG_Q));"
+  },
+  {
+    "description": "Section 3: lo_1 for up_1 in C_lambda",
+    "old": "t = mul_u64(par.M, Q - up_1);",
+    "new": "t = mul_u64(par.M, Q - lo_1);"
+  },
+  {
+    "description": "Section 3: the term with C_mu left out of num_c(i)",
+    "old": "mul64(Rup[i - 1], C_mu)",
+    "new": "mul64(Rup[i - 1], 0)"
+  },
+  {
+    "description": "Section 3: the atom at the truncation point left out of W_{m-1}(N_T)",
+    "old": "W[c][i] = add_u64(W[c][i], ceil_shr64(Rup[length], LOG_Q - LOG_D));",
+    "new": "W[c][i] = add_u64(W[c][i], 0);"
+  },
+  {
+    "description": "Section 3: floor in place of the outer ceil in W_c(i) of a bounded cell",
+    "old": "return add_u64(low64(q), r.lo != 0);",
+    "new": "return add_u64(low64(q), 0);"
+  },
+  {
+    "description": "Section 3: W_c(i) of a bounded cell divided by Q - Rlo[n_c] in place of Q - Rup[n_c]",
+    "old": "qlo = Q - Rup[length];",
+    "new": "qlo = Q - Rlo[length];",
+    "undetected": "the weights change by about one unit of 2^-48, which no stored number of the inputs shows; the unit tests of the Python and the Rust checker compare the weights themselves"
+  },
+  {
+    "description": "Section 3: floor in place of ceil in W_{m-1}(i)",
+    "old": "W[c][i] = low64(ceil_shr128(num, 2 * LOG_Q - LOG_D));",
+    "new": "W[c][i] = low64(shr128(num, 2 * LOG_Q - LOG_D));"
+  },
+  {
+    "description": "Section 3: Rup for Rlo in the mass of a bounded cell (the upper bound subtracted instead of the lower)",
+    "old": "mass[c] = ceil_shr64(Rup[par.b[c]] - Rlo[par.b[c + 1]], LOG_Q - LOG_D);",
+    "new": "mass[c] = ceil_shr64(Rup[par.b[c]] - Rup[par.b[c + 1]], LOG_Q - LOG_D);"
+  },
+  {
+    "description": "Section 3: floor in place of ceil in the mass of the last cell",
+    "old": "mass[c] = ceil_shr64(Rup[par.b[c]], LOG_Q - LOG_D);",
+    "new": "mass[c] = Rup[par.b[c]] >> (LOG_Q - LOG_D);"
+  },
+  {
+    "description": "Section 3: floor in place of ceil in the tail term E_T",
+    "old": "E_T = ceil_shr64(Rup[par.NT], LOG_Q - LOG_F);",
+    "new": "E_T = Rup[par.NT] >> (LOG_Q - LOG_F);"
+  },
+  {
+    "description": "Section 4: floor in place of ceil in V_kappa(s)",
+    "old": "key->V[s] = low64(ceil_shr128(make128(hi, lo), LOG_D));",
+    "new": "key->V[s] = low64(shr128(make128(hi, lo), LOG_D));"
+  },
+  {
+    "description": "Section 4: the last pair (i, j) left out of each sum for V_kappa(s)",
+    "old": "for (u64 i = first; i <= last; i++) {",
+    "new": "for (u64 i = first; i < last; i++) {"
+  },
+  {
+    "description": "Section 5: floor in place of the outer ceil in Dist(j, tau)",
+    "old": "dist[tau] = ceil_div64(ceil_sqrt128(make128(add_u64(x2, y2[tau]), 0)), alpha_M);",
+    "new": "dist[tau] = ceil_sqrt128(make128(add_u64(x2, y2[tau]), 0)) / alpha_M;"
+  },
+  {
+    "description": "Section 5: gamma = M h_1 in place of M h_1^2 (heights scaled by h instead of h^2)",
+    "old": "gamma = mul_u64(par.M, mul_u64(par.h1, par.h1));",
+    "new": "gamma = mul_u64(par.M, par.h1);"
+  },
+  {
+    "description": "Section 5: floor in place of ceil in G(j, d)",
+    "old": "G[j * n + d] = ceil_div64(sum, four_nu2);",
+    "new": "G[j * n + d] = sum / four_nu2;"
+  },
+  {
+    "description": "Section 5: Dist(j, 0) in place of Dist(j, |d nu + t|) where d nu + t is negative",
+    "old": "sum += chi[t] * dist[centre + t >= nu ? centre + t - nu : nu - centre - t];",
+    "new": "sum += chi[t] * dist[centre + t >= nu ? centre + t - nu : 0];"
+  },
+  {
+    "description": "Section 6: the tail term kappa_{m-1} E_T left out of the table",
+    "old": "u64 tail = mul_u64(key->count[par.m - 1], E_T);",
+    "new": "u64 tail = mul_u64(key->count[par.m - 1], 0);"
+  },
+  {
+    "description": "Section 6: floor in place of ceil in Tab(kappa, d)",
+    "old": "u64 entry = add_u64(low64(ceil_shr128(sum[d], LOG_D)), tail);",
+    "new": "u64 entry = add_u64(low64(shr128(sum[d], LOG_D)), tail);"
+  },
+  {
+    "description": "Section 6: G(s, d) in place of G(b_kappa + s, d) (the offset of the key left out)",
+    "old": "const u64 *row = G + (key->b + s) * (u64)n;",
+    "new": "const u64 *row = G + s * (u64)n;"
+  },
+  {
+    "description": "Section 7: max for min between the first two choices of an end point of the path",
+    "old": "sum = x[1] + y[1];\n        best = sum < best ? sum : best;",
+    "new": "sum = x[1] + y[1];\n        best = sum > best ? sum : best;"
+  },
+  {
+    "description": "Section 7: max for min in the dynamic programme over sets of interior points",
+    "old": "best = cost < best ? cost : best;",
+    "new": "best = cost > best ? cost : best;"
+  },
+  {
+    "description": "Section 7: the height a_k = 0 left out of the sum S_g",
+    "old": "for (int ak = 0; ak < n; ak++) part[e][f] += min_sum(L, w->end[f][ak], p);",
+    "new": "for (int ak = 1; ak < n; ak++) part[e][f] += min_sum(L, w->end[f][ak], p);"
+  },
+  {
+    "description": "Section 7: Tab(kappa, 0) in place of Tab(kappa, |a_i - a_j|) for every edge",
+    "old": "edge[a][c] = row[a > c ? a - c : c - a];",
+    "new": "edge[a][c] = row[0];"
+  },
+  {
+    "description": "Section 7, shared paths: a path may not start at the last interior point",
+    "old": "for (int v = 0; v < p; v++) L[v] = min_sum(w->start[e][a0], value + AT_H(v, 0), p);",
+    "new": "for (int v = 0; v < p; v++) L[v] = min_sum(w->start[e][a0], value + AT_H(v, 0), p > 1 ? p - 1 : p);"
+  },
+  {
+    "description": "Section 7, shared paths: the edge at point k is taken with the cell of g_1 on the side of point 0",
+    "old": "w->end[e][c][d] = w->last[e][d][a][c];",
+    "new": "w->end[e][c][d] = w->first[e][d][a][c];"
+  },
+  {
+    "description": "Section 7, shared paths: the gap g_2 is left out of every key",
+    "old": "if (l != 1 && l != k) kappa[cell[l]]++;",
+    "new": "if (l != 1 && l != k && l != 2) kappa[cell[l]]++;"
+  },
+  {
+    "description": "Section 7, shared paths: the sums for g_1 = e, g_k = f are stored for g_1 = f, g_k = e",
+    "old": "if (w->wanted[e][f]) S[e + m * middle + last * f] = w->sum[e][f];",
+    "new": "if (w->wanted[e][f]) S[e + m * middle + last * f] = w->sum[f][e];"
+  },
+  {
+    "description": "Section 7, reflection: the first interior point takes one height too many",
+    "old": "if (a == n || (d == 0 && a > n - 1 - a)) {",
+    "new": "if (a == n || (d == 0 && a > n - a)) {"
+  },
+  {
+    "description": "Section 7, reflection: a height tuple and its mirror image count once together",
+    "old": "if (w->height[0] < n - 1 - w->height[0]) add *= 2;",
+    "new": "if (0) add *= 2;"
+  },
+  {
+    "description": "Section 7, reflection: a tuple whose first interior height is its own mirror image counts twice",
+    "old": "if (w->height[0] < n - 1 - w->height[0]) add *= 2;",
+    "new": "if (w->height[0] <= n - 1 - w->height[0]) add *= 2;"
+  },
+  {
+    "description": "Section 7, reversal: a gap tuple that reads the same both ways is not computed",
+    "old": "return middle < other || (middle == other && g % m <= r % m);",
+    "new": "return middle < other || (middle == other && g % m < r % m);"
+  },
+  {
+    "description": "Section 7, reversal: the sum of a tuple that is not computed is taken from the tuple with the last gap moved to the front",
+    "old": "if (!computed(g, middles)) S[g] = S[reversed(g)];",
+    "new": "if (!computed(g, middles)) S[g] = S[g % last * m + g / last];"
+  },
+  {
+    "description": "Section 7, reversal: the reversed tuple lacks its last gap",
+    "old": "for (int i = 0; i < par.k; i++) {\n        r = r * par.m + g % par.m;",
+    "new": "for (int i = 1; i < par.k; i++) {\n        r = r * par.m + g % par.m;"
+  },
+  {
+    "description": "Section 8: floor in place of ceil in A_{j-1}",
+    "old": "A[i] = low64(ceil_shr128(sum, LOG_D));",
+    "new": "A[i] = low64(shr128(sum, LOG_D));"
+  },
+  {
+    "description": "Section 8: the final comparison reversed",
+    "old": "if (lt128(rhs, lhs))",
+    "new": "if (lt128(lhs, rhs))"
+  },
+  {
+    "description": "Section 8: the final comparison rejects equality",
+    "old": "if (lt128(rhs, lhs))",
+    "new": "if (!lt128(lhs, rhs))"
+  },
+  {
+    "description": "Section 8: the final comparison without h_2",
+    "old": "lhs = mul128_u64(mul64(total, par.h2), par.theta2);",
+    "new": "lhs = mul128_u64(mul64(total, 1), par.theta2);"
+  },
+  {
+    "description": "Section 8 and 10: the printed bound rounded down instead of up",
+    "old": "if (r.hi != 0 || r.lo != 0) q = add128(q, make128(0, 1));",
+    "new": "if (0) q = add128(q, make128(0, 1));"
+  },
+  {
+    "description": "Section 9: the overflow check of 64-bit products removed",
+    "old": "if (b != 0 && a > UINT64_MAX / b) die(",
+    "new": "if (0) die(",
+    "undetected": "no input in data/ reaches a bound of Section 9; h = 2^32/1 does"
+  },
+  {
+    "description": "Section 9: the bound 2 k max(Tab) n^2 < 2^64 for the sums over the end heights not checked",
+    "old": "if ((u64)par.k * max_tab > UINT64_MAX / (2 * (u64)par.n * (u64)par.n))",
+    "new": "if (0)",
+    "undetected": "no input in data/ reaches a bound of Section 9; k 2, h 30000/1, mesh 2, heights 2, height_mesh 1, tail 1 does"
+  },
+  {
+    "description": "Section 9: the additions of the sums over the interior heights are not checked",
+    "old": "if (add > UINT64_MAX - w->sum[e][f]) *overflow = 1;",
+    "new": "if (0) *overflow = 1;",
+    "undetected": "no input in data/ reaches a bound of Section 9; a cell sum of 2^64 or more needs a table that no small input has"
+  },
+  {
+    "description": "Section 10, text: the bytes 127 to 255 are allowed",
+    "old": "} else if (c != '\\t' && (c < 32 || c > 126)) {",
+    "new": "} else if (c != '\\t' && c < 32) {",
+    "undetected": "names and numbers reject these bytes anyway; it needs a file whose name contains such a byte"
+  },
+  {
+    "description": "Section 10, text: a number of 2^128 or more is accepted (it wraps)",
+    "old": "if (high.hi != 0 || hi < high.lo) die(",
+    "new": "if (0) die("
+  },
+  {
+    "description": "Section 10, text: names are compared by their length only",
+    "old": "if (length != strlen(word) || memcmp(field, word, length) != 0)",
+    "new": "if (length != strlen(word))"
+  },
+  {
+    "description": "Section 10, values file: the second field of the first line may be 01",
+    "old": "if (next_field(r, &field) != 1 || field[0] != '1')",
+    "new": "if (next_field(r, &field) < 1 || (field[0] != '1' && field[1] != '1'))"
+  },
+  {
+    "description": "Section 10, spec file: the path of the values file may begin with /",
+    "old": "if (path[0] == '/') die(",
+    "new": "if (0) die("
+  },
+  {
+    "description": "Section 10, spec file: the path of the values file may contain a backslash",
+    "old": "if (path[i] == '\\\\' || path[i] == ':')",
+    "new": "if (path[i] == ':')",
+    "undetected": "a backslash separates folders only under Windows, where the mutant is detected",
+    "undetected_on": "posix"
+  },
+  {
+    "description": "Section 10, step 3: the parameter lines of the values file are not compared with the spec file",
+    "old": "    check_parameters(&lines, &form.lines);\n",
+    "new": "    (void)lines;\n"
+  },
+  {
+    "description": "Section 10, steps 3 and 4 in the wrong order: the counts are checked before the parameter lines",
+    "old": "    check_parameters(&lines, &form.lines);\n    check_counts(values_name, &form, key_count(), tuples);\n",
+    "new": "    check_counts(values_name, &form, key_count(), tuples);\n    check_parameters(&lines, &form.lines);\n"
+  },
+  {
+    "description": "Section 10, step 4: the number of masses is not checked",
+    "old": "if (form->masses != (u64)par.m)",
+    "new": "if (0)"
+  },
+  {
+    "description": "Section 10, step 4: the number of numbers in a table line is not checked",
+    "old": "if (form->odd != 0)",
+    "new": "if (0)"
+  },
+  {
+    "description": "Section 10, step 4: the number of cell sums is not checked",
+    "old": "if (form->sums != tuples)",
+    "new": "if (0)"
+  },
+  {
+    "description": "Section 10, step 5: the tail term is not compared",
+    "old": "if (!equals(found, E_T))",
+    "new": "if (0)"
+  },
+  {
+    "description": "Section 10, step 5: the keys of the table lines are not compared",
+    "old": "if (!equals(found, keys[q].count[c]))",
+    "new": "if (0)"
+  },
+  {
+    "description": "Section 10, step 5: the total is not compared",
+    "old": "if (!equals(found, total))",
+    "new": "if (0)"
+  }
+]

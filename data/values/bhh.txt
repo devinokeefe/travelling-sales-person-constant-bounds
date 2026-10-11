@@ -1,0 +1,16 @@
+tsp-block-values 1
+k 2
+h 26 15
+mesh 128
+gaps 
+heights 1
+height_mesh 256
+tail 16
+masses 281474976710656
+tail_term 484
+table 2
+1 6857734770
+2 10289329296
+sums 1
+13715469540
+total 13715469540

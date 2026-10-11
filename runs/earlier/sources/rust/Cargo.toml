@@ -1,0 +1,15 @@
+[package]
+name = "rchk"
+version = "1.0.0"
+edition = "2021"
+rust-version = "1.88"
+description = "Checker for the stored values behind an upper bound for the travelling salesman constant"
+publish = false
+
+[dependencies]
+
+[profile.release]
+# Integer overflow stops the program instead of wrapping, also in optimised builds.
+overflow-checks = true
+codegen-units = 1
+lto = true

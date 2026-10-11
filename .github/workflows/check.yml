@@ -1,0 +1,106 @@
+# Checks the list of files and the style of the sources, runs the tests and the checkers, compares what
+# the checkers print with the records in runs/, recomputes the cell sums for k = 5 cell by cell, and checks
+# the numbers of the paper and of the README against the records.  All three checkers are run up to
+# k = 8 here.  The computation for k = 9 would take several hours on a hosted runner and is not repeated.
+# Neither are the mutation tests and the other controls (controls/README.md); their records are in runs/.
+#
+# The versions of the runner's system, of ruff and of Rust are fixed, because the steps that treat
+# warnings as errors would otherwise fail on a new warning of a new version.  The version of numpy is
+# that of the records.
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+# bash with pipefail: in "checker | diff", a checker that fails must fail the step
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  small:
+    name: tests, test inputs, k = 5 to k = 7
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install numpy, ruff and Rust
+        run: |
+          pip install numpy==2.1.3 ruff==0.16.9
+          rustup toolchain install 1.99.0 --profile minimal --component clippy,rustfmt
+          rustup default 1.99.0
+      - name: The files are the listed ones, and the list is complete
+        run: |
+          sha256sum -c --quiet SHA256SUMS.txt
+          bash tools/make_sums.sh
+          git diff --exit-code -- SHA256SUMS.txt
+      - name: Style of the Python files
+        run: |
+          ruff check .
+          ruff format --check .
+      - name: Unit tests of the Python checker
+        run: python checkers/test_check_bound.py
+      - name: Build the C checker without warnings
+        run: >
+          gcc -std=c11 -O2 -Wall -Wextra -Wshadow -Wpedantic -Wconversion -Werror -fopenmp
+          checkers/cchk.c -o cchk
+      - name: Every cell sum for k = 5 from its definition (controls/plain_sums.c)
+        run: |
+          gcc -std=c11 -O2 -Wall -Wextra -Wshadow -Wpedantic -Wconversion -Werror -fopenmp \
+            controls/plain_sums.c -o plain_sums
+          ./plain_sums data/values/k5.txt 1024 1 -j 4
+      - name: Style, build and unit tests of the Rust checker
+        run: |
+          cargo fmt --check --manifest-path checkers/rust/Cargo.toml
+          cargo clippy --release --all-targets --locked --manifest-path checkers/rust/Cargo.toml -- -D warnings
+          cargo build --release --locked --manifest-path checkers/rust/Cargo.toml
+          cargo test --release --locked --manifest-path checkers/rust/Cargo.toml
+      - name: The test inputs are those that make_tests.py writes
+        run: |
+          python checkers/make_tests.py
+          git status --porcelain -- data/tests
+          test -z "$(git status --porcelain -- data/tests)"
+      - name: Small spec files and test inputs, all three checkers
+        run: CCHK=./cchk RCHK=checkers/rust/target/release/rchk bash checkers/test_checkers.sh
+      - name: The strip bound and k = 5 to k = 7, all three checkers
+        run: |
+          for name in bhh k5 k6 k7; do
+            python checkers/check_bound.py data/specs/$name.txt -j 4 | diff - runs/python_$name.txt
+            ./cchk data/specs/$name.txt -j 4 | diff - runs/c_$name.txt
+            checkers/rust/target/release/rchk data/specs/$name.txt -j 4 | diff - runs/rust_$name.txt
+          done
+      - name: The numbers of the paper and of the README are those of the records
+        run: python tools/paper_numbers.py --check
+
+  large:
+    name: k = 8, all three checkers
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install numpy and Rust
+        run: |
+          pip install numpy==2.1.3
+          rustup toolchain install 1.99.0 --profile minimal
+          rustup default 1.99.0
+      - name: Build
+        run: |
+          gcc -std=c11 -O2 -fopenmp checkers/cchk.c -o cchk
+          cargo build --release --locked --manifest-path checkers/rust/Cargo.toml
+      - name: C
+        run: ./cchk data/specs/k8.txt -j 4 | diff - runs/c_k8.txt
+      - name: Rust
+        run: checkers/rust/target/release/rchk data/specs/k8.txt -j 4 | diff - runs/rust_k8.txt
+      - name: Python
+        run: python checkers/check_bound.py data/specs/k8.txt -j 4 | diff - runs/python_k8.txt

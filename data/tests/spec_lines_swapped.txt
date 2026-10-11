@@ -1,0 +1,9 @@
+k 3
+h 2 1
+gaps 11 28
+mesh 16
+heights 3
+height_mesh 4
+tail 12
+threshold 95 100
+values spec_lines_swapped_values.txt

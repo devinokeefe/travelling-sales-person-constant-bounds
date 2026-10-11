@@ -1,0 +1,9 @@
+✖ [66/66] Building Results.K5W.P001 (3.3s)
+trace: .> LEAN_PATH=.\.lake\build\lib\lean ~\.elan\toolchains\leanprover--lean4---v4.31.0\bin\lean.exe -j16 .\Results\K5W\P001.lean -o .\.lake\build\lib\lean\Results\K5W\P001.olean -i .\.lake\build\lib\lean\Results\K5W\P001.ilean -c .\.lake\build\ir\Results\K5W\P001.c --setup .\.lake\build\ir\Results\K5W\P001.setup.json --json
+error: Results/K5W/P001.lean:14:51: Tactic `native_decide` evaluated that the proposition
+  Impl.AofShared k5 0 64 [0, 0, 1] = [1221561702625111, 1275132883917692, 1368024302318564, 1620230959256688]
+is false
+error: Lean exited with code 1
+Some required targets logged failures:
+- Results.K5W.P001
+error: build failed

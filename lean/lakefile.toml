@@ -1,0 +1,28 @@
+name = "tspbound"
+defaultTargets = ["TSPBound", "TSPShared", "tspcheck"]
+# The number of threads of one `lean` process (the task pool in which the pieces of an evaluation
+# compute their units).  A weak argument: it does not enter the build traces.  The driver
+# `runs/run_pieces.py` rewrites this line from `runs/TAG_threads.txt`.
+weakLeanArgs = ["-j16"]
+
+# Spec, Impl and the proofs.  Compiled to native code, so that `native_decide` in `Results` runs
+# compiled code.
+[[lean_lib]]
+name = "TSPBound"
+precompileModules = true
+
+# The routine that evaluates gap tuples with the same interior gaps together, and its proofs.
+# A library of its own (with its own native library), so that `TSPBound` and what was built from it
+# stay as they are.
+[[lean_lib]]
+name = "TSPShared"
+precompileModules = true
+
+# The parameter sets and the evaluations (long: see README.md).
+[[lean_lib]]
+name = "Results"
+
+# The checker: `lake exe tspcheck SPEC [-j THREADS] [--log FILE] [--shared]` (see README.md).
+[[lean_exe]]
+name = "tspcheck"
+root = "Main"

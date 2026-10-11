@@ -1,0 +1,132 @@
+\section{Cells and the chord inequality}\label{sec:cells}
+
+This section applies \cref{thm:block} to rules that are constant on the cells of a product grid (\cref{prop:cells}) and bounds the expected length of a segment in a cell (\cref{prop:segment}). The result is the bound \eqref{eq:realbound}, which \cref{sec:integers,sec:computation} evaluate.
+
+\subsection{Cells}
+
+Fix a mesh width $\delta=1/M$ with an integer $M\ge2$, integers $m\ge1$ and $n\ge1$, and integers $0=b_0<b_1<\dots<b_{m-1}$. Put $t_c=b_c\delta$ for $0\le c\le m-1$ and $t_m=\infty$. The \emph{gap cells} are the intervals $I_c=[t_c,t_{c+1})$, $0\le c\le m-1$, and the \emph{height cells} are the intervals $J_a=[a/n,(a+1)/n)$, $0\le a\le n-1$. (From here on $n$ is the number of height cells and no longer a number of points.) A gap lies in $I_c$ with probability
+\[
+p_c=e^{-t_c}-e^{-t_{c+1}},
+\]
+and a height lies in $J_a$ with probability $1/n$.
+
+A \emph{cell} is a pair $\sigma=(g,a)$ of a gap tuple $g=(g_1,\dots,g_k)\in\{0,\dots,m-1\}^k$ and a height tuple $a=(a_0,\dots,a_k)\in\{0,\dots,n-1\}^{k+1}$. We also write $\sigma$ for the event that $Z_i\in I_{g_i}$ for $1\le i\le k$ and $U_i\in J_{a_i}$ for $0\le i\le k$. Its probability is $p_g\,n^{-(k+1)}$ with $p_g=p_{g_1}\cdots p_{g_k}$, and almost surely exactly one of these events occurs. For $0\le i<j\le k$ let
+\[
+e_{ij}(\sigma)=\E\bigl[\,|P_iP_j|\;\big|\;\sigma\,\bigr]
+\]
+be the conditional expected length of the segment $P_iP_j$, and put $e_{ji}(\sigma)=e_{ij}(\sigma)$. For an order $\pi$, write $\pi(0)=0$ and $\pi(k)=k$, so that the path of $\pi$ consists of the segments $P_{\pi(r-1)}P_{\pi(r)}$, $1\le r\le k$.
+
+\begin{prop}\label{prop:cells}
+Let $\bar e_{ij}(\sigma)=\bar e_{ji}(\sigma)$ be real numbers with $\bar e_{ij}(\sigma)\ge e_{ij}(\sigma)$ for all cells $\sigma$ and all $0\le i<j\le k$. Then
+\[
+\beta\le\frac{1}{kh}\sum_{\sigma=(g,a)}\frac{p_g}{n^{k+1}}\,\min_\pi\sum_{r=1}^{k}\bar e_{\pi(r-1)\pi(r)}(\sigma),
+\]
+where the minimum is over all orders $\pi$.
+\end{prop}
+
+\begin{proof}
+For each cell $\sigma$ let $\pi_\sigma$ be an order at which the minimum is attained. Let $\rho$ be the rule that chooses $\pi_\sigma$ when the gaps and heights lie in $\sigma$, and the identity when some height equals~$1$, which has probability $0$. It is constant on each of finitely many products of intervals, hence measurable, and
+\[
+\E\,L_\rho=\sum_\sigma\Pr(\sigma)\,\E[L_{\pi_\sigma}\mid\sigma]=\sum_\sigma\Pr(\sigma)\sum_{r=1}^{k}e_{\pi_\sigma(r-1)\pi_\sigma(r)}(\sigma)\le\sum_\sigma\Pr(\sigma)\sum_{r=1}^{k}\bar e_{\pi_\sigma(r-1)\pi_\sigma(r)}(\sigma).
+\]
+The last sum over $r$ is the minimum in the statement, by the choice of $\pi_\sigma$, and the claim follows from \cref{thm:block}.
+\end{proof}
+
+For $k=5$, with cells of equal probability in place of ours and with $\bar e_{ij}(\sigma)$ the square root of the conditional second moment of $|P_iP_j|$, \cref{prop:cells} is inequality~(39) of \cite{DongCao2026}; the boundaries of those cells are not multiples of $\delta$, and the proof above does not need them to be. We take for $\bar e_{ij}(\sigma)$ the bound of \cref{prop:segment} below.
+
+\subsection{The chord inequality}\label{sec:chord}
+
+If $f$ is convex on $[x_0,x_1]$ and $X$ is a random variable with values in $[x_0,x_1]$, then
+\begin{equation}\label{eq:chord}
+\E\,f(X)\le\frac{x_1-\E X}{x_1-x_0}\,f(x_0)+\frac{\E X-x_0}{x_1-x_0}\,f(x_1),
+\end{equation}
+because the graph of $f$ lies below its chord. This is the Edmundson--Madansky inequality \cite{Edmundson1957,Madansky1959}; we call it the chord inequality. \Cref{prop:segment} below applies it to one variable at a time, as in the procedure of \cite[Sections~3.4.2 and~3.5]{KallWallace1994}: to the gaps of a block on the mesh $\delta\Z$ and to its heights on a mesh that cuts each height cell into equal intervals.
+
+The weights in the next two lemmas are built from the numbers
+\[
+\lambda=1-\frac{1-e^{-\delta}}{\delta},\qquad\mu=\frac{1-e^{-\delta}}{\delta}-e^{-\delta};
+\]
+both are positive, and $\lambda+\mu=1-e^{-\delta}$.
+
+\begin{lem}[Gaps in a bounded gap cell]\label{lem:bounded}
+Let $N\ge1$ be an integer, and let $\xi$ be a random variable with density $e^{-x}/(1-e^{-N\delta})$ on $[0,N\delta)$. For $0\le i\le N$ put
+\[
+w_N(i)=\frac{[i<N]\,\lambda e^{-i\delta}+[i\ge1]\,\mu e^{-(i-1)\delta}}{1-e^{-N\delta}},
+\]
+where $[\,\cdot\,]$ is $1$ if the condition holds and $0$ otherwise. Then $\sum_iw_N(i)=1$, and $\E f(\xi)\le\sum_{i=0}^{N}w_N(i)f(i\delta)$ for every convex function $f$ on $[0,N\delta]$.
+\end{lem}
+
+\begin{proof}
+For $0\le i<N$, the variable $\xi$ lies in $[i\delta,(i+1)\delta)$ with probability
+\[
+q_i=\frac{e^{-i\delta}(1-e^{-\delta})}{1-e^{-N\delta}},
+\]
+and given this, $\xi-i\delta$ has density $e^{-x}/(1-e^{-\delta})$ on $[0,\delta)$ and mean $\theta=1-\delta e^{-\delta}/(1-e^{-\delta})$. By \eqref{eq:chord},
+\[
+\E f(\xi)\le\sum_{i=0}^{N-1}q_i\Bigl(\bigl(1-\tfrac{\theta}{\delta}\bigr)f(i\delta)+\tfrac{\theta}{\delta}f((i+1)\delta)\Bigr).
+\]
+Since $(1-e^{-\delta})\theta/\delta=\mu$ and $(1-e^{-\delta})(1-\theta/\delta)=\lambda$, the right-hand side is $\sum_iw_N(i)f(i\delta)$. For $f=1$ it is also $\sum_iq_i=1$, so the weights sum to $1$.
+\end{proof}
+
+\needspace{14\baselineskip}% the statement of the lemma stays on one page
+In the last gap cell, which is unbounded, the gap is truncated at a level $T$, and the expectation of the excess is added; a tail is split off in a similar way in the statistical estimate of \cite[Section~4.3]{DongCao2026}.
+
+\begin{lem}[Gaps in the last gap cell]\label{lem:unbounded}
+Let $\xi$ be exponential with mean $1$, let $N\ge1$ be an integer and $T=N\delta$. For $0\le i\le N$ put
+\[
+w_\infty(i)=[i<N]\,\lambda e^{-i\delta}+[i\ge1]\,\mu e^{-(i-1)\delta}+[i=N]\,e^{-T}.
+\]
+Then $\sum_iw_\infty(i)=1$, and for every convex function $f$ on $[0,\infty)$ with $|f(x)-f(y)|\le|x-y|$,
+\[
+\E f(\xi)\le\sum_{i=0}^{N}w_\infty(i)f(i\delta)+e^{-T}.
+\]
+\end{lem}
+
+\begin{proof}
+We have $f(\xi)\le f(\min(\xi,T))+\max(\xi-T,0)$, and $\E\max(\xi-T,0)=e^{-T}$. With probability $e^{-T}$ the variable $\min(\xi,T)$ equals $T$, and given $\xi<T$ it has the distribution of \cref{lem:bounded}. Hence $\E f(\min(\xi,T))\le(1-e^{-T})\sum_iw_N(i)f(i\delta)+e^{-T}f(N\delta)=\sum_iw_\infty(i)f(i\delta)$.
+\end{proof}
+
+\begin{lem}[Heights]\label{lem:heights}
+Let $\nu\ge1$ be an integer and let $U$ be uniform on $J_a$. Put $\eta_u=1$ for $u\in\{0,\nu\}$ and $\eta_u=2$ for $0<u<\nu$. Then for every convex function $f$ on the closure of $J_a$,
+\[
+\E f(U)\le\sum_{u=0}^{\nu}\frac{\eta_u}{2\nu}\,f\Bigl(\frac{a\nu+u}{n\nu}\Bigr).
+\]
+\end{lem}
+
+\begin{proof}
+Cut $J_a$ into $\nu$ intervals of equal length and apply \eqref{eq:chord} on each; given that $U$ lies in one of them, its mean is the midpoint.
+\end{proof}
+
+\subsection{The bound for a segment}\label{sec:segment}
+
+Fix integers $\nu\ge1$ and $T\ge1$ for the rest of the paper: $\nu$ is the number of mesh intervals in a height cell, as in \cref{lem:heights}, with the numbers $\eta_u$ defined there, and $T$ is the level at which a gap in the last gap cell is truncated, measured from the left end $t_{m-1}$ of that cell.
+
+For a cell $\sigma=(g,a)$ and $0\le i<j\le k$, the \emph{key} of the segment $P_iP_j$ is the vector $\kappa=(\kappa_0,\dots,\kappa_{m-1})$, where $\kappa_c$ is the number of indices $l$ with $i<l\le j$ and $g_l=c$. It records how many of the gaps between the two points lie in each gap cell. For the gap cell $c<m-1$ let $w^{(c)}$ be the sequence $w_N$ of \cref{lem:bounded} with $N=b_{c+1}-b_c$, and let $w^{(m-1)}$ be the sequence $w_\infty$ of \cref{lem:unbounded} with $N=TM$. For a key $\kappa$ let $v_\kappa$ be the convolution of $\kappa_0$ copies of $w^{(0)}$, $\kappa_1$ copies of $w^{(1)}$, and so on, a sequence with finitely many non-zero terms $v_\kappa(s)$, $s\ge0$, and let $b_\kappa=\sum_c\kappa_cb_c$. Finally let $\chi(t)=\sum\eta_u\eta_{u'}$ for $-\nu\le t\le\nu$, the sum over $0\le u,u'\le\nu$ with $u-u'=t$, so that $\sum_t\chi(t)=4\nu^2$.
+
+\begin{prop}\label{prop:segment}
+Let $\sigma=(g,a)$ be a cell, let $0\le i<j\le k$, let $\kappa$ be the key of $P_iP_j$ and $d=|a_i-a_j|$. Then $e_{ij}(\sigma)\le\bar e(\kappa,d)$, where
+\begin{equation}\label{eq:ebar}
+\bar e(\kappa,d)=\sum_{s\ge0}v_\kappa(s)\sum_{t=-\nu}^{\nu}\frac{\chi(t)}{4\nu^2}\,
+\sqrt{\bigl((b_\kappa+s)\delta\bigr)^2+\Bigl(\frac{h^2\,(d\nu+t)}{n\nu}\Bigr)^2}\;+\;\kappa_{m-1}e^{-T}.
+\end{equation}
+\end{prop}
+
+\begin{proof}
+Given $\sigma$, the variables $Z_l$ ($i<l\le j$), $U_i$ and $U_j$ are independent. If $g_l=c<m-1$ then $Z_l-t_c$ has the distribution of \cref{lem:bounded} with $N=b_{c+1}-b_c$, and if $g_l=m-1$ then $Z_l-t_{m-1}$ is exponential with mean $1$. The heights $U_i$ and $U_j$ are uniform on $J_{a_i}$ and $J_{a_j}$. The length
+\[
+|P_iP_j|=\sqrt{(Z_{i+1}+\dots+Z_j)^2+h^4(U_i-U_j)^2}
+\]
+is the Euclidean norm of a vector that depends affinely on these variables, so it is a convex function of each of them when the others are fixed, and it changes by at most $|x-y|$ when one gap changes from $x$ to $y$.
+
+Apply \cref{lem:bounded}, \ref{lem:unbounded} or \ref{lem:heights} to one variable, with the others fixed, and integrate over the others. This replaces the variable by a discrete one with values on the mesh, adds $e^{-T}$ if the variable is a gap in the last gap cell, and does not decrease the expectation. The new integrand is a combination of the old one at several values of the replaced variable, with non-negative weights that sum to $1$, plus a constant. So it is again convex in each remaining variable and changes by at most $|x-y|$ when a gap changes from $x$ to $y$, and the step can be repeated until all variables have been replaced. Therefore
+\[
+e_{ij}(\sigma)\le\E\sqrt{\bigl(\hat Z_{i+1}+\dots+\hat Z_j\bigr)^2+h^4\bigl(\hat U_i-\hat U_j\bigr)^2}\;+\;\kappa_{m-1}e^{-T},
+\]
+where the variables with hats are independent, $\hat Z_l=(b_{g_l}+\iota_l)\delta$ with $\Pr(\iota_l=s)=w^{(g_l)}(s)$, and $\hat U_i=(a_i\nu+\zeta_i)/(n\nu)$ with $\Pr(\zeta_i=u)=\eta_u/(2\nu)$, and likewise for $\hat U_j$. The sum $\hat Z_{i+1}+\dots+\hat Z_j$ equals $(b_\kappa+s)\delta$ with probability $v_\kappa(s)$. The difference $\zeta_i-\zeta_j$ equals $t$ with probability $\chi(t)/(4\nu^2)$ and has a symmetric distribution, so the expectation does not change if $a_i-a_j$ is replaced by $d$. This gives \eqref{eq:ebar}.
+\end{proof}
+
+The bound $\bar e(\kappa,d)$ depends on the cell only through the key and the difference $d$. The keys are the vectors of $m$ non-negative integers whose sum lies between $1$ and $k$. There are $\binom{m+k}{k}-1$ of them, so all values of $\bar e$ fit in a table with $n\bigl(\binom{m+k}{k}-1\bigr)$ entries. \Cref{prop:cells,prop:segment} together give the bound on which the computation rests:
+\begin{equation}\label{eq:realbound}
+\beta\le\frac{1}{kh}\sum_{g}p_g\,\frac{1}{n^{k+1}}\sum_{a}\;\min_\pi\sum_{r=1}^{k}\bar e\bigl(\kappa_{\pi(r-1)\pi(r)},\,|a_{\pi(r-1)}-a_{\pi(r)}|\bigr),
+\end{equation}
+where $\kappa_{ij}=\kappa_{ji}$ denotes the key of $P_iP_j$ in the cell $(g,a)$.

@@ -1,0 +1,44 @@
+# python 3.13.5 numpy 2.1.3 numba 0.61.0
+# controls/simulate.py shortest K H 40000000, for the values of K and H below
+k 5, h 1.900000, blocks 40000000, seed 20261009, 14 s
+shortest path   0.875670 +/- 0.000039
+k 5, h 2.000000, blocks 40000000, seed 20261009, 13 s
+shortest path   0.874255 +/- 0.000038
+k 5, h 2.100000, blocks 40000000, seed 20261009, 12 s
+shortest path   0.874910 +/- 0.000038
+k 6, h 1.900000, blocks 40000000, seed 20261009, 24 s
+shortest path   0.870241 +/- 0.000036
+k 6, h 2.000000, blocks 40000000, seed 20261009, 23 s
+shortest path   0.867689 +/- 0.000035
+k 6, h 2.100000, blocks 40000000, seed 20261009, 22 s
+shortest path   0.867054 +/- 0.000035
+k 6, h 2.200000, blocks 40000000, seed 20261009, 23 s
+shortest path   0.867971 +/- 0.000034
+k 7, h 2.000000, blocks 40000000, seed 20261009, 51 s
+shortest path   0.863254 +/- 0.000033
+k 7, h 2.100000, blocks 40000000, seed 20261009, 54 s
+shortest path   0.861791 +/- 0.000032
+k 7, h 2.200000, blocks 40000000, seed 20261009, 51 s
+shortest path   0.861781 +/- 0.000032
+k 7, h 2.300000, blocks 40000000, seed 20261009, 51 s
+shortest path   0.862932 +/- 0.000031
+k 8, h 2.100000, blocks 40000000, seed 20261009, 120 s
+shortest path   0.858052 +/- 0.000030
+k 8, h 2.200000, blocks 40000000, seed 20261009, 116 s
+shortest path   0.857408 +/- 0.000030
+k 8, h 2.300000, blocks 40000000, seed 20261009, 118 s
+shortest path   0.857860 +/- 0.000029
+k 9, h 2.100000, blocks 40000000, seed 20261009, 504 s
+shortest path   0.855118 +/- 0.000028
+k 9, h 2.200000, blocks 40000000, seed 20261009, 493 s
+shortest path   0.854008 +/- 0.000028
+k 9, h 2.300000, blocks 40000000, seed 20261009, 449 s
+shortest path   0.853952 +/- 0.000028
+k 9, h 2.400000, blocks 40000000, seed 20261009, 453 s
+shortest path   0.854716 +/- 0.000028
+k 10, h 2.200000, blocks 40000000, seed 20261009, 1628 s
+shortest path   0.851372 +/- 0.000027
+k 10, h 2.300000, blocks 40000000, seed 20261009, 1536 s
+shortest path   0.850930 +/- 0.000026
+k 10, h 2.400000, blocks 40000000, seed 20261009, 1587 s
+shortest path   0.851279 +/- 0.000026

@@ -1,0 +1,10 @@
+# python 3.13.5 numpy 2.1.3 numba 0.61.0
+# controls/segment_integral.py data/specs/k8.txt
+integrals for 494 keys and 6 differences of the height cells, 7 s
+total mass of a density, largest error  : 1.6e-15
+double integrals for the 14 keys with one gap or two gaps, 93 s
+largest relative difference between them: 1.6e-15
+entries below the integral              : 0
+(table - integral)/table                : min 5.139e-08, max 1.808e-04
+integrals outside the bracket           : 0
+PASSED

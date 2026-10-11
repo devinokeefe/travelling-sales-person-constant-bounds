@@ -1,0 +1,5 @@
+the stored values agree with the recomputed values
+total 92054418307910785
+bound 0.868075379727 (rounded up)
+bound <= 8681/10000
+ACCEPTED

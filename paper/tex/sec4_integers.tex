@@ -1,0 +1,175 @@
+\section{Integer arithmetic}\label{sec:integers}
+
+The right-hand side of \eqref{eq:realbound} is a finite sum, but its terms involve exponentials and square roots. We bound it from above by a quotient of integers, computed with integer arithmetic alone. This section defines these integers and proves the bound (\cref{thm:integers}).
+
+The method is to replace each real quantity $x\ge0$ that enters \eqref{eq:realbound} by an integer $\mathsf{X}\ge Sx$, where the \emph{scale} $S$ is a fixed power of two, and to compute with these integers in place of the real numbers. A sum of such integers bounds the sum of the quantities at the same scale. A product of two of them has the product of their scales, and a division by one scale, rounded up, brings it back to the other: if $S,S'>0$, and $\mathsf{X}_i\ge Sx_i$ and $\mathsf{Y}_i\ge S'y_i$ with real $x_i,y_i\ge0$, then
+\begin{equation}\label{eq:rule}
+\Bigl\lceil\frac1S\sum_i\mathsf{X}_i\mathsf{Y}_i\Bigr\rceil\ge S'\sum_ix_iy_i .
+\end{equation}
+An upper bound for a difference or a quotient needs a lower bound for the term that is subtracted or for the divisor. This occurs only in Steps~1 and~2 below, for $e^{-\delta}$, the factors of its series and its powers, and these are therefore computed with bounds on both sides.
+
+The integers of the computation are set in sans-serif type. \Cref{tab:integers} lists them with the real quantities that they bound and with their scales: $Q=2^{62}$ for the powers of $e^{-\delta}$ and for $\lambda$ and $\mu$, $D=2^{48}$ for probabilities and for the weights $w^{(c)}$ and $v_\kappa$, and $F=2^{32}$ for lengths. For real $y$, $\lfloor y\rfloor$ is the greatest integer that is at most $y$ and $\lceil y\rceil$ the least integer that is at least $y$; for an integer $x\ge0$, $\lceil\sqrt{x}\,\rceil$ is thus the least integer $z\ge0$ with $z^2\ge x$.
+
+\begin{table}[ht]
+\centering
+\caption{The integers of \cref{sec:recipe}, with the step that defines each. Each integer is at least the quantity multiplied by the scale, except $\mathsf{lo}_1$ and $\mathsf{Rlo}[i]$, which are at most that product.}
+\label{tab:integers}
+\begin{tabular}{@{}clll@{}}
+\toprule
+Step & Integer & Quantity & Scale \\
+\midrule
+1 & $\mathsf{lo}_1$, $\mathsf{up}_1$ & $e^{-\delta}$ & $Q$ \\
+  & $\mathsf{Rlo}[i]$, $\mathsf{Rup}[i]$ & $e^{-i\delta}$ & $Q$ \\
+2 & $\mathsf{C}_\lambda$, $\mathsf{C}_\mu$ & $\lambda$, $\mu$ & $Q$ \\
+  & $\mathsf{W}_c(i)$ & $w^{(c)}(i)$ & $D$ \\
+  & $\mathsf{P}_c$ & $p_c$ & $D$ \\
+  & $\mathsf{E}_T$ & $e^{-T}$ & $F$ \\
+3 & $\mathsf{V}_\kappa(s)$ & $v_\kappa(s)$ & $D$ \\
+4 & $\mathsf{Dist}(j,\tau)$ & $\sqrt{(j\delta)^2+\bigl(h^2\tau/(n\nu)\bigr)^2}$ & $F$ \\
+  & $\mathsf{G}(j,d)$ & the inner sum in \eqref{eq:ebar}, with $b_\kappa+s=j$ & $F$ \\
+5 & $\mathsf{Tab}(\kappa,d)$ & $\bar e(\kappa,d)$ & $F$ \\
+6 & $\mathsf{S}_g$ & the sum over $a$ in \eqref{eq:realbound} & $F$ \\
+7 & $\mathsf{A}_0$ & the same sum, multiplied by $p_g$ and summed over $g$ & $F$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The parameters are $k$, $M$, $m$, $b_1<\dots<b_{m-1}$, $n$, $\nu$ and $T$ as in \cref{sec:cells}, and the strip height $h=h_1/h_2$, a quotient of positive integers. Put $n_c=b_{c+1}-b_c$ for $c<m-1$ and $n_{m-1}=N_T=TM$; for $m=1$ the only gap cell, $I_0=[0,\infty)$, is the last one. The keys are the vectors $\kappa=(\kappa_0,\dots,\kappa_{m-1})$ of non-negative integers with $1\le\kappa_0+\dots+\kappa_{m-1}\le k$, and $b_\kappa$, $\eta_u$, $\chi(t)$ and $\kappa_{ij}$ are as in \cref{sec:cells}.
+
+\subsection{Definitions}\label{sec:recipe}
+
+The seven steps build the right-hand side of \eqref{eq:realbound} from the inside: the powers of $e^{-\delta}$ (Step~1), the weights of a single gap and the probabilities of the gap cells (Step~2), the weights of a sum of gaps (Step~3), the lengths (Step~4), the bound $\bar e$ for a segment (Step~5), the sum over the height tuples (Step~6) and the sum over the gap tuples (Step~7).
+
+\runin{Step 1: exponentials.} Put $\mathsf{lo}_{13}=0$, $\mathsf{up}_{13}=Q$ and, for $j=12,11,\dots,1$,
+\[
+\mathsf{up}_j=Q-\lfloor \mathsf{lo}_{j+1}/(Mj)\rfloor,\qquad \mathsf{lo}_j=Q-\lceil \mathsf{up}_{j+1}/(Mj)\rceil .
+\]
+This is the series of $e^{-\delta}$ in the nested form $1-\tfrac{\delta}{1}\bigl(1-\tfrac{\delta}{2}\bigl(1-\tfrac{\delta}{3}(\cdots)\bigr)\bigr)$, in which the thirteenth factor is replaced by its bounds $0$ and $1$. The powers of $e^{-\delta}$ follow: put $\mathsf{Rlo}[0]=\mathsf{Rup}[0]=Q$ and, for $1\le i\le\max(b_{m-1},N_T)$,
+\[
+\mathsf{Rup}[i]=\lceil \mathsf{Rup}[i-1]\cdot\mathsf{up}_1/Q\rceil,\qquad \mathsf{Rlo}[i]=\lfloor \mathsf{Rlo}[i-1]\cdot\mathsf{lo}_1/Q\rfloor .
+\]
+
+\runin{Step 2: weights and probabilities.} By \cref{lem:bounded,lem:unbounded}, the gap cell $c$ has the weights
+\begin{gather*}
+w^{(c)}(i)=\frac{\omega_c(i)}{1-e^{-n_c\delta}}\quad\text{for }c<m-1,\qquad w^{(m-1)}(i)=\omega_{m-1}(i)+[i=N_T]\,e^{-T},\\
+\text{where}\quad\omega_c(i)=[i<n_c]\,\lambda e^{-i\delta}+[i\ge1]\,\mu e^{-(i-1)\delta}\quad\text{for }0\le i\le n_c,
+\end{gather*}
+and $\lambda=1-M(1-e^{-\delta})$, $\mu=M(1-e^{-\delta})-e^{-\delta}$. The integers of this step have the same form. Put $\mathsf{C}_\lambda=Q-M(Q-\mathsf{up}_1)$ and $\mathsf{C}_\mu=M(Q-\mathsf{lo}_1)-\mathsf{lo}_1$. For $0\le c\le m-1$ and $0\le i\le n_c$ let
+\[
+\mathsf{num}_c(i)=[i<n_c]\,\mathsf{Rup}[i]\,\mathsf{C}_\lambda+[i\ge1]\,\mathsf{Rup}[i-1]\,\mathsf{C}_\mu .
+\]
+A term whose condition fails is left out, so that $\mathsf{Rup}[-1]$ does not occur. The divisors below are $2^{14}=Q/D$, $2^{76}=Q^2/D$ and $2^{30}=Q/F$. For $c<m-1$ put
+\[
+\mathsf{W}_c(i)=\Bigl\lceil\frac{\lceil \mathsf{num}_c(i)/2^{14}\rceil}{Q-\mathsf{Rup}[n_c]}\Bigr\rceil,\qquad
+\mathsf{P}_c=\Bigl\lceil\frac{\mathsf{Rup}[b_c]-\mathsf{Rlo}[b_{c+1}]}{2^{14}}\Bigr\rceil,
+\]
+and for the last gap cell
+\[
+\mathsf{W}_{m-1}(i)=\lceil \mathsf{num}_{m-1}(i)/2^{76}\rceil+[i=N_T]\,\lceil \mathsf{Rup}[N_T]/2^{14}\rceil,\qquad
+\mathsf{P}_{m-1}=\lceil \mathsf{Rup}[b_{m-1}]/2^{14}\rceil .
+\]
+Finally $\mathsf{E}_T=\lceil \mathsf{Rup}[N_T]/2^{30}\rceil$. Here $\mathsf{C}_\lambda$ and $\mathsf{C}_\mu$ stand for $\lambda$ and $\mu$ at the scale $Q$, and $\mathsf{num}_c(i)$, a sum of products of two integers at the scale $Q$, stands for $\omega_c(i)$ at the scale $Q^2$. The divisor $Q-\mathsf{Rup}[n_c]$ stands for $1-e^{-n_c\delta}$ and the difference in $\mathsf{P}_c$ for $p_c$, both at the scale $Q$.
+
+\runin{Step 3: keys.} The sequences $\mathsf{V}_\kappa$ are defined by recursion on $\kappa_0+\dots+\kappa_{m-1}$. If $\kappa$ is a unit vector, with $\kappa_c=1$ and all other entries $0$, put $\mathsf{V}_\kappa=\mathsf{W}_c$. Otherwise let $c$ be the largest index with $\kappa_c>0$, let $\kappa'$ be $\kappa$ with $\kappa_c$ reduced by one, and put
+\[
+\mathsf{V}_\kappa(s)=\Bigl\lceil\frac1D\sum_{i+j=s}\mathsf{V}_{\kappa'}(i)\,\mathsf{W}_c(j)\Bigr\rceil,\qquad 0\le s\le\sum_c\kappa_cn_c ,
+\]
+where the sum is over the pairs with $0\le i\le\sum_c\kappa'_cn_c$ and $0\le j\le n_c$. This mirrors the convolution that defines $v_\kappa$ in \cref{sec:cells}, one factor at a time.
+
+\runin{Step 4: lengths.} Let $\alpha=h_2^2\,n\nu$ and $\gamma=Mh_1^2$. These numbers clear the denominators of the square root in \eqref{eq:ebar}: with $b_\kappa+s=j$ and $|d\nu+t|=\tau$ that square root is
+\[
+\sqrt{(j\delta)^2+\Bigl(\frac{h^2\tau}{n\nu}\Bigr)^2}=\frac{\sqrt{(\alpha j)^2+(\gamma\tau)^2}}{\alpha M},
+\]
+with an integer under the root on the right. For integers $j,\tau\ge0$ put
+\[
+\mathsf{Dist}(j,\tau)=\Bigl\lceil\frac{\bigl\lceil\sqrt{\bigl((\alpha j)^2+(\gamma\tau)^2\bigr)F^2}\,\bigr\rceil}{\alpha M}\Bigr\rceil ,
+\]
+and for $0\le d\le n-1$
+\[
+\mathsf{G}(j,d)=\Bigl\lceil\frac{1}{4\nu^2}\sum_{t=-\nu}^{\nu}\chi(t)\,\mathsf{Dist}\bigl(j,|d\nu+t|\bigr)\Bigr\rceil .
+\]
+Since $\lceil\lceil y\rceil/q\rceil=\lceil y/q\rceil$ for real $y\ge0$ and integers $q\ge1$, the inner rounding has no effect: $\mathsf{Dist}(j,\tau)=\lceil F\sqrt{j^2+(\gamma\tau/\alpha)^2}/M\rceil$ with $\gamma/\alpha=Mh^2/(n\nu)$. The integers of this section therefore depend on $h_1$ and $h_2$ only through $h$.
+
+\runin{Step 5: the table.} For every key $\kappa$ and $0\le d\le n-1$,
+\[
+\mathsf{Tab}(\kappa,d)=\Bigl\lceil\frac1D\sum_{s}\mathsf{V}_\kappa(s)\,\mathsf{G}(b_\kappa+s,d)\Bigr\rceil+\kappa_{m-1}\mathsf{E}_T ,
+\]
+the sum over $0\le s\le\sum_c\kappa_cn_c$. This mirrors \eqref{eq:ebar} term by term.
+
+\runin{Step 6: cell sums.} For a gap tuple $g$,
+\[
+\mathsf{S}_g=\sum_{a}\;\min_\pi\sum_{r=1}^{k}\mathsf{Tab}\bigl(\kappa_{\pi(r-1)\pi(r)},\,|a_{\pi(r-1)}-a_{\pi(r)}|\bigr),
+\]
+where $a$ runs over the $n^{k+1}$ height tuples, $\pi$ over the orders, and $\kappa_{ij}$ is the key of $P_iP_j$ in the cell $(g,a)$. We call $\mathsf{S}_g$ the \emph{cell sum} of $g$: it is a sum over the $n^{k+1}$ cells with this gap tuple.
+
+\runin{Step 7: the total.} Put $\mathsf{A}_k(g)=\mathsf{S}_g$. For $j=k,k-1,\dots,1$ and every $(g_1,\dots,g_{j-1})$ with entries in $\{0,\dots,m-1\}$ put
+\[
+\mathsf{A}_{j-1}(g_1,\dots,g_{j-1})=\Bigl\lceil\frac1D\sum_{c=0}^{m-1}\mathsf{P}_c\,\mathsf{A}_j(g_1,\dots,g_{j-1},c)\Bigr\rceil .
+\]
+The \emph{total} is $\mathsf{A}_0$, the value at the empty tuple. This mirrors the sum of $p_g\mathsf{S}_g$ over the gap tuples, taken one gap at a time from $g_k$ back to $g_1$.
+
+\subsection{The bound in integers}
+
+\begin{thm}\label{thm:integers}
+For all parameters as above with $M\le2^{61}$,
+\[
+\beta\le\frac{h_2\,\mathsf{A}_0}{n^{k+1}\,F\,k\,h_1}.
+\]
+\end{thm}
+
+\begin{proof}
+We go through the steps and prove for each integer the inequality of \cref{tab:integers}. The last line of the table, inserted in \eqref{eq:realbound}, is the theorem.
+
+\runin{Step 1.} Write $x=\delta=1/M$, and for $j\ge1$ let
+\[
+\vartheta_j=\sum_{i\ge0}\frac{(-x)^i\,(j-1)!}{(j-1+i)!}=1-\frac{x}{j}+\frac{x^2}{j(j+1)}-\cdots .
+\]
+Then $\vartheta_1=e^{-x}$ and $\vartheta_j=1-(x/j)\vartheta_{j+1}$, so the $\vartheta_j$ are the factors of the nested form in Step~1 of \cref{sec:recipe}. Since $0<x\le1$, the series is alternating with terms that do not increase and tend to $0$, so $0\le\vartheta_j\le1$. We claim that
+\[
+0\le\mathsf{lo}_j\le Q\vartheta_j\le\mathsf{up}_j\le Q\qquad\text{for }1\le j\le13 .
+\]
+This holds for $j=13$. Suppose that it holds for $j+1$. Then $\mathsf{up}_j\le Q$ because $\mathsf{lo}_{j+1}\ge0$, and \mbox{$\mathsf{lo}_j\ge Q-\lceil Q/(Mj)\rceil\ge0$} because $\mathsf{up}_{j+1}\le Q$. Moreover
+\[
+\mathsf{up}_j\ge Q-\frac{\mathsf{lo}_{j+1}}{Mj}\ge Q-\frac{Q\vartheta_{j+1}}{Mj}=Q\vartheta_j,\qquad
+\mathsf{lo}_j\le Q-\frac{\mathsf{up}_{j+1}}{Mj}\le Q-\frac{Q\vartheta_{j+1}}{Mj}=Q\vartheta_j .
+\]
+In particular $\mathsf{lo}_1\le Qe^{-\delta}\le\mathsf{up}_1$, and induction on $i$ gives $\mathsf{Rlo}[i]\le Qe^{-i\delta}\le\mathsf{Rup}[i]$: for $\mathsf{Rup}$ by \eqref{eq:rule}, and for $\mathsf{Rlo}$ in the same way with inequalities and rounding reversed, as $\mathsf{lo}_1\ge0$.
+
+Step~2 also needs that $\mathsf{Rup}[i]<Q$ for $i\ge1$. Indeed $\mathsf{lo}_2\ge Q-\lceil Q/(2M)\rceil\ge Q/2\ge M$, so $\mathsf{up}_1=Q-\lfloor\mathsf{lo}_2/M\rfloor<Q$; this is the only use of $M\le2^{61}$. Since $\mathsf{up}_1\le Q$, the sequence $\mathsf{Rup}$ is non-increasing, and so $\mathsf{Rup}[i]\le\mathsf{Rup}[1]=\mathsf{up}_1<Q$.
+
+\runin{Step 2.} With $\lambda$, $\mu$ and $\omega_c(i)$ as in Step~2 of \cref{sec:recipe}, the bounds for $e^{-\delta}$ give
+\[
+Q\lambda\le Q-M(Q-\mathsf{up}_1)=\mathsf{C}_\lambda,\qquad Q\mu\le M(Q-\mathsf{lo}_1)-\mathsf{lo}_1=\mathsf{C}_\mu .
+\]
+Since $\lambda$ and $\mu$ are positive (\cref{sec:chord}) and $\mathsf{Rup}[i]\ge Qe^{-i\delta}$, it follows that $\mathsf{num}_c(i)\ge Q^2\omega_c(i)$.
+
+For $c<m-1$ the denominator of $w^{(c)}(i)$ satisfies $Q(1-e^{-n_c\delta})\ge Q-\mathsf{Rup}[n_c]>0$, by Step~1 and because $n_c\ge1$. Since $Q/2^{14}=D$,
+\[
+\mathsf{W}_c(i)\ge\frac{\mathsf{num}_c(i)}{2^{14}\,(Q-\mathsf{Rup}[n_c])}\ge\frac{Q^2\,\omega_c(i)}{2^{14}\,Q\,(1-e^{-n_c\delta})}=D\,w^{(c)}(i).
+\]
+In the last gap cell there is no denominator. Since $Q^2/2^{76}=D$ and $\mathsf{Rup}[N_T]\ge Qe^{-T}$,
+\[
+\mathsf{W}_{m-1}(i)\ge D\,\omega_{m-1}(i)+[i=N_T]\,De^{-T}=D\,w^{(m-1)}(i).
+\]
+
+For the probabilities, Step~1 gives $\mathsf{Rup}[b_c]\ge Qe^{-t_c}>Qe^{-t_{c+1}}\ge\mathsf{Rlo}[b_{c+1}]$ for $c<m-1$, so the numerator of $\mathsf{P}_c$ is positive. With $Q/2^{14}=D$ and $Q/2^{30}=F$,
+\[
+\mathsf{P}_c\ge D(e^{-t_c}-e^{-t_{c+1}})=D\,p_c,\qquad\mathsf{P}_{m-1}\ge De^{-t_{m-1}}=D\,p_{m-1},\qquad\mathsf{E}_T\ge Fe^{-T}.
+\]
+
+\runin{Step 3.} The sequence $v_\kappa$ is the convolution of $v_{\kappa'}$ and $w^{(c)}$. By induction on $\kappa_0+\dots+\kappa_{m-1}$, with Step~2 and \eqref{eq:rule}, $\mathsf{V}_\kappa(s)\ge D\,v_\kappa(s)$ for all $s$.
+
+\runin{Step 4.} By the identity in Step~4 of \cref{sec:recipe}, $\mathsf{Dist}(j,\tau)$ is at least $F$ times the square root in \eqref{eq:ebar} with $b_\kappa+s=j$ and $|d\nu+t|=\tau$: the integer square root is at least the real one, and the quotient is rounded up. That square root depends on $d\nu+t$ only through $|d\nu+t|$, so $\mathsf{G}(j,d)$ is at least $F$ times the inner sum in \eqref{eq:ebar}, by \eqref{eq:rule} with $S=4\nu^2$ and $x_t=\chi(t)/S$.
+
+\runin{Step 5.} By Steps~3 and~4 and \eqref{eq:rule}, the first term of $\mathsf{Tab}(\kappa,d)$ is at least $F$ times the double sum in \eqref{eq:ebar}, and $\kappa_{m-1}\mathsf{E}_T\ge F\kappa_{m-1}e^{-T}$ by Step~2. Hence $\mathsf{Tab}(\kappa,d)\ge F\,\bar e(\kappa,d)$.
+
+\runin{Steps 6 and 7.} If every term of every sum is replaced by an upper bound, the minimum of the sums does not decrease. By Step~5, therefore, $\mathsf{S}_g$ is at least $F$ times the sum over $a$ in \eqref{eq:realbound}. By induction on $k-j$, using \eqref{eq:rule} with the scales $D$ and $1$ and the bounds $\mathsf{P}_c\ge D\,p_c$ of Step~2,
+\[
+\mathsf{A}_{j}(g_1,\dots,g_{j})\ge\sum_{g_{j+1},\dots,g_k}p_{g_{j+1}}\cdots p_{g_k}\,\mathsf{S}_g ,
+\]
+so $\mathsf{A}_0\ge\sum_gp_g\mathsf{S}_g$. With the bound for $\mathsf{S}_g$ this is the last line of \cref{tab:integers}, and inserting it in \eqref{eq:realbound} gives $\beta\le\mathsf{A}_0/(n^{k+1}Fkh)$, which is the claim because $h=h_1/h_2$.
+\end{proof}
+
+\begin{rem}\label{rem:rounding}
+No estimate of rounding errors is needed in this proof, because every rounding is in the direction that increases the total: the upper bounds are rounded up, and the lower bounds $\mathsf{lo}_j$ and $\mathsf{Rlo}$ are rounded down. The effect of the rounding and of the mesh on the result is estimated in \cref{sec:controls}.
+\end{rem}

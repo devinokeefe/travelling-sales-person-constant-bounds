@@ -1,0 +1,31 @@
+2026-10-10 13:37:47  == driver for k6s (module Results.K6S, 4 pieces), process id 49264
+2026-10-10 13:37:48  piece P0: start, 16 threads (no record)
+2026-10-10 13:37:53  piece P0: built in 6 s (1 of 4)
+2026-10-10 13:37:53  piece P1: start, 16 threads (no record)
+2026-10-10 13:38:00  piece P1: built in 6 s (2 of 4)
+2026-10-10 13:38:00  piece P2: start, 16 threads (no record)
+2026-10-10 13:38:05  piece P2: built in 5 s (3 of 4)
+2026-10-10 13:38:05  piece P3: start, 16 threads (no record)
+2026-10-10 13:38:10  piece P3: built in 6 s (4 of 4)
+2026-10-10 13:38:10  top module Results.K6S: start, 16 threads
+ℹ [70/70] Built Results.K6S (820ms)
+info: Results/K6S.lean:48:0: 'Results.k6s_total' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ Results.k6s_P_0._native.native_decide.ax_1_1,
+ Results.k6s_P_1._native.native_decide.ax_1_1,
+ Results.k6s_P_2._native.native_decide.ax_1_1,
+ Results.k6s_P_3._native.native_decide.ax_1_1,
+ Results.k6s_total._native.native_decide.ax_1_1]
+info: Results/K6S.lean:49:0: 'Results.k6s_accepts' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ Results.k6s_P_0._native.native_decide.ax_1_1,
+ Results.k6s_P_1._native.native_decide.ax_1_1,
+ Results.k6s_P_2._native.native_decide.ax_1_1,
+ Results.k6s_P_3._native.native_decide.ax_1_1,
+ Results.k6s_total._native.native_decide.ax_1_1]
+Build completed successfully (70 jobs).
+
+2026-10-10 13:38:12  top module built in 2 s
+2026-10-10 13:38:12  == all done

@@ -1,0 +1,9 @@
+k 3
+h 21 10
+mesh 1023
+gaps 202 450 579 829 963
+heights 3
+height_mesh 1
+tail 1
+threshold 987 1000
+values ../values/rounding.txt

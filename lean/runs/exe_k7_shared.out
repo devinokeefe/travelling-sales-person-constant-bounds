@@ -1,0 +1,19 @@
+$ lake exe tspcheck ../../repo/data/specs/k7.txt -j 16 --shared
+start: Sat Oct 10 14:03:09 GMTDT 2026
+  table of 329 keys done, 44 s
+  units 128 of 1024, 5321 ms
+  units 256 of 1024, 10550 ms
+  units 384 of 1024, 15897 ms
+  units 512 of 1024, 21169 ms
+  units 640 of 1024, 26472 ms
+  units 768 of 1024, 31773 ms
+  units 896 of 1024, 37083 ms
+  units 1024 of 1024, 42427 ms
+  time 86 s, 16 thread(s)
+the stored values agree with the recomputed values
+total 92054418307910785
+bound 0.868075379727 (rounded up)
+bound <= 8681/10000
+ACCEPTED
+exit status 0
+end: Sat Oct 10 14:04:37 GMTDT 2026

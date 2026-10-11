@@ -1,0 +1,271 @@
+2026-10-10 01:56:29  == driver for k9s (module Results.K9S, 64 pieces), process id 101880, folder .
+2026-10-10 01:56:30  piece P000: start, 16 threads (no record)
+2026-10-10 02:07:18  piece P000: built in 647 s (1 of 64)
+2026-10-10 02:07:18  piece P001: start, 15 threads (no record)
+2026-10-10 02:19:05  piece P001: built in 708 s (2 of 64)
+2026-10-10 02:19:05  piece P002: start, 15 threads (no record)
+2026-10-10 02:30:49  piece P002: built in 703 s (3 of 64)
+2026-10-10 02:30:49  piece P003: start, 15 threads (no record)
+2026-10-10 02:42:29  piece P003: built in 701 s (4 of 64)
+2026-10-10 02:42:29  piece P010: start, 16 threads (no record)
+2026-10-10 02:53:16  piece P010: built in 647 s (5 of 64)
+2026-10-10 02:53:16  piece P011: start, 16 threads (no record)
+2026-10-10 03:04:03  piece P011: built in 647 s (6 of 64)
+2026-10-10 03:04:03  piece P012: start, 16 threads (no record)
+2026-10-10 03:14:50  piece P012: built in 648 s (7 of 64)
+2026-10-10 03:14:50  piece P013: start, 16 threads (no record)
+2026-10-10 03:25:40  piece P013: built in 649 s (8 of 64)
+2026-10-10 03:25:40  piece P020: start, 16 threads (no record)
+2026-10-10 03:36:27  piece P020: built in 647 s (9 of 64)
+2026-10-10 03:36:27  piece P021: start, 16 threads (no record)
+2026-10-10 03:47:14  piece P021: built in 647 s (10 of 64)
+2026-10-10 03:47:14  piece P022: start, 16 threads (no record)
+2026-10-10 03:58:01  piece P022: built in 647 s (11 of 64)
+2026-10-10 03:58:01  piece P023: start, 16 threads (no record)
+2026-10-10 04:08:48  piece P023: built in 647 s (12 of 64)
+2026-10-10 04:08:48  piece P030: start, 16 threads (no record)
+2026-10-10 04:19:35  piece P030: built in 647 s (13 of 64)
+2026-10-10 04:19:35  piece P031: start, 16 threads (no record)
+2026-10-10 04:30:23  piece P031: built in 648 s (14 of 64)
+2026-10-10 04:30:23  piece P032: start, 16 threads (no record)
+2026-10-10 04:41:10  piece P032: built in 647 s (15 of 64)
+2026-10-10 04:41:10  piece P033: start, 16 threads (no record)
+2026-10-10 04:51:56  piece P033: built in 646 s (16 of 64)
+2026-10-10 04:51:56  piece P100: start, 16 threads (no record)
+2026-10-10 05:02:46  piece P100: built in 649 s (17 of 64)
+2026-10-10 05:02:46  piece P101: start, 16 threads (no record)
+2026-10-10 05:13:32  piece P101: built in 646 s (18 of 64)
+2026-10-10 05:13:32  piece P102: start, 16 threads (no record)
+2026-10-10 05:24:18  piece P102: built in 646 s (19 of 64)
+2026-10-10 05:24:18  piece P103: start, 16 threads (no record)
+2026-10-10 05:35:06  piece P103: built in 648 s (20 of 64)
+2026-10-10 05:35:06  piece P110: start, 16 threads (no record)
+2026-10-10 05:45:52  piece P110: built in 646 s (21 of 64)
+2026-10-10 05:45:52  piece P111: start, 16 threads (no record)
+2026-10-10 05:56:38  piece P111: built in 647 s (22 of 64)
+2026-10-10 05:56:38  piece P112: start, 16 threads (no record)
+2026-10-10 06:07:26  piece P112: built in 648 s (23 of 64)
+2026-10-10 06:07:26  piece P113: start, 16 threads (no record)
+2026-10-10 06:18:14  piece P113: built in 647 s (24 of 64)
+2026-10-10 06:18:14  piece P120: start, 16 threads (no record)
+2026-10-10 06:29:01  piece P120: built in 647 s (25 of 64)
+2026-10-10 06:29:01  piece P121: start, 16 threads (no record)
+2026-10-10 06:39:49  piece P121: built in 648 s (26 of 64)
+2026-10-10 06:39:49  piece P122: start, 16 threads (no record)
+2026-10-10 06:50:36  piece P122: built in 647 s (27 of 64)
+2026-10-10 06:50:36  piece P123: start, 16 threads (no record)
+2026-10-10 07:01:24  piece P123: built in 648 s (28 of 64)
+2026-10-10 07:01:24  piece P130: start, 16 threads (no record)
+2026-10-10 07:12:12  piece P130: built in 649 s (29 of 64)
+2026-10-10 07:12:12  piece P131: start, 16 threads (no record)
+2026-10-10 07:23:02  piece P131: built in 650 s (30 of 64)
+2026-10-10 07:23:02  piece P132: start, 16 threads (no record)
+2026-10-10 07:33:50  piece P132: built in 648 s (31 of 64)
+2026-10-10 07:33:50  piece P133: start, 16 threads (no record)
+2026-10-10 07:44:38  piece P133: built in 648 s (32 of 64)
+2026-10-10 07:44:38  piece P200: start, 16 threads (no record)
+2026-10-10 07:55:27  piece P200: built in 649 s (33 of 64)
+2026-10-10 07:55:27  piece P201: start, 16 threads (no record)
+2026-10-10 08:06:16  piece P201: built in 649 s (34 of 64)
+2026-10-10 08:06:16  piece P202: start, 16 threads (no record)
+2026-10-10 08:17:07  piece P202: built in 650 s (35 of 64)
+2026-10-10 08:17:07  piece P203: start, 16 threads (no record)
+2026-10-10 08:27:55  piece P203: built in 648 s (36 of 64)
+2026-10-10 08:27:55  piece P210: start, 16 threads (no record)
+2026-10-10 08:38:43  piece P210: built in 648 s (37 of 64)
+2026-10-10 08:38:43  piece P211: start, 16 threads (no record)
+2026-10-10 08:49:33  piece P211: built in 650 s (38 of 64)
+2026-10-10 08:49:33  piece P212: start, 16 threads (no record)
+2026-10-10 09:00:23  piece P212: built in 650 s (39 of 64)
+2026-10-10 09:00:23  piece P213: start, 16 threads (no record)
+2026-10-10 09:11:11  piece P213: built in 648 s (40 of 64)
+2026-10-10 09:11:11  piece P220: start, 16 threads (no record)
+2026-10-10 09:22:00  piece P220: built in 649 s (41 of 64)
+2026-10-10 09:22:00  piece P221: start, 16 threads (no record)
+2026-10-10 09:32:50  piece P221: built in 650 s (42 of 64)
+2026-10-10 09:32:50  piece P222: start, 16 threads (no record)
+2026-10-10 09:43:39  piece P222: built in 649 s (43 of 64)
+2026-10-10 09:43:39  piece P223: start, 16 threads (no record)
+2026-10-10 09:54:27  piece P223: built in 648 s (44 of 64)
+2026-10-10 09:54:27  piece P230: start, 16 threads (no record)
+2026-10-10 10:05:17  piece P230: built in 650 s (45 of 64)
+2026-10-10 10:05:17  piece P231: start, 16 threads (no record)
+2026-10-10 10:16:06  piece P231: built in 649 s (46 of 64)
+2026-10-10 10:16:06  piece P232: start, 16 threads (no record)
+2026-10-10 10:26:54  piece P232: built in 648 s (47 of 64)
+2026-10-10 10:26:54  piece P233: start, 16 threads (no record)
+2026-10-10 10:37:43  piece P233: built in 649 s (48 of 64)
+2026-10-10 10:37:43  piece P300: start, 16 threads (no record)
+2026-10-10 10:48:33  piece P300: built in 650 s (49 of 64)
+2026-10-10 10:48:33  piece P301: start, 16 threads (no record)
+2026-10-10 10:59:22  piece P301: built in 649 s (50 of 64)
+2026-10-10 10:59:22  piece P302: start, 16 threads (no record)
+2026-10-10 11:10:12  piece P302: built in 650 s (51 of 64)
+2026-10-10 11:10:12  piece P303: start, 16 threads (no record)
+2026-10-10 11:21:01  piece P303: built in 650 s (52 of 64)
+2026-10-10 11:21:01  piece P310: start, 16 threads (no record)
+2026-10-10 11:31:50  piece P310: built in 649 s (53 of 64)
+2026-10-10 11:31:50  piece P311: start, 16 threads (no record)
+2026-10-10 11:43:10  piece P311: built in 681 s (54 of 64)
+2026-10-10 11:43:10  piece P312: start, 16 threads (no record)
+2026-10-10 11:54:15  piece P312: built in 665 s (55 of 64)
+2026-10-10 11:54:15  piece P313: start, 16 threads (no record)
+2026-10-10 12:05:05  piece P313: built in 650 s (56 of 64)
+2026-10-10 12:05:05  piece P320: start, 16 threads (no record)
+2026-10-10 12:15:54  piece P320: built in 649 s (57 of 64)
+2026-10-10 12:15:54  piece P321: start, 16 threads (no record)
+2026-10-10 12:26:45  piece P321: built in 651 s (58 of 64)
+2026-10-10 12:26:45  piece P322: start, 15 threads (no record)
+2026-10-10 12:38:25  piece P322: built in 700 s (59 of 64)
+2026-10-10 12:38:25  piece P323: start, 15 threads (no record)
+2026-10-10 12:50:09  piece P323: built in 704 s (60 of 64)
+2026-10-10 12:50:09  piece P330: start, 15 threads (no record)
+2026-10-10 13:02:11  piece P330: built in 721 s (61 of 64)
+2026-10-10 13:02:11  piece P331: start, 15 threads (no record)
+2026-10-10 13:13:54  piece P331: built in 703 s (62 of 64)
+2026-10-10 13:13:54  piece P332: start, 15 threads (no record)
+2026-10-10 13:25:33  piece P332: built in 699 s (63 of 64)
+2026-10-10 13:25:33  piece P333: start, 15 threads (no record)
+2026-10-10 13:37:13  piece P333: built in 700 s (64 of 64)
+2026-10-10 13:37:13  top module Results.K9S: start, 15 threads
+ℹ [130/130] Built Results.K9S (2.9s)
+info: Results/K9S.lean:348:0: 'Results.k9s_total' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ Results.k9s_P_0_0_0._native.native_decide.ax_1_1,
+ Results.k9s_P_0_0_1._native.native_decide.ax_1_1,
+ Results.k9s_P_0_0_2._native.native_decide.ax_1_1,
+ Results.k9s_P_0_0_3._native.native_decide.ax_1_1,
+ Results.k9s_P_0_1_0._native.native_decide.ax_1_1,
+ Results.k9s_P_0_1_1._native.native_decide.ax_1_1,
+ Results.k9s_P_0_1_2._native.native_decide.ax_1_1,
+ Results.k9s_P_0_1_3._native.native_decide.ax_1_1,
+ Results.k9s_P_0_2_0._native.native_decide.ax_1_1,
+ Results.k9s_P_0_2_1._native.native_decide.ax_1_1,
+ Results.k9s_P_0_2_2._native.native_decide.ax_1_1,
+ Results.k9s_P_0_2_3._native.native_decide.ax_1_1,
+ Results.k9s_P_0_3_0._native.native_decide.ax_1_1,
+ Results.k9s_P_0_3_1._native.native_decide.ax_1_1,
+ Results.k9s_P_0_3_2._native.native_decide.ax_1_1,
+ Results.k9s_P_0_3_3._native.native_decide.ax_1_1,
+ Results.k9s_P_1_0_0._native.native_decide.ax_1_1,
+ Results.k9s_P_1_0_1._native.native_decide.ax_1_1,
+ Results.k9s_P_1_0_2._native.native_decide.ax_1_1,
+ Results.k9s_P_1_0_3._native.native_decide.ax_1_1,
+ Results.k9s_P_1_1_0._native.native_decide.ax_1_1,
+ Results.k9s_P_1_1_1._native.native_decide.ax_1_1,
+ Results.k9s_P_1_1_2._native.native_decide.ax_1_1,
+ Results.k9s_P_1_1_3._native.native_decide.ax_1_1,
+ Results.k9s_P_1_2_0._native.native_decide.ax_1_1,
+ Results.k9s_P_1_2_1._native.native_decide.ax_1_1,
+ Results.k9s_P_1_2_2._native.native_decide.ax_1_1,
+ Results.k9s_P_1_2_3._native.native_decide.ax_1_1,
+ Results.k9s_P_1_3_0._native.native_decide.ax_1_1,
+ Results.k9s_P_1_3_1._native.native_decide.ax_1_1,
+ Results.k9s_P_1_3_2._native.native_decide.ax_1_1,
+ Results.k9s_P_1_3_3._native.native_decide.ax_1_1,
+ Results.k9s_P_2_0_0._native.native_decide.ax_1_1,
+ Results.k9s_P_2_0_1._native.native_decide.ax_1_1,
+ Results.k9s_P_2_0_2._native.native_decide.ax_1_1,
+ Results.k9s_P_2_0_3._native.native_decide.ax_1_1,
+ Results.k9s_P_2_1_0._native.native_decide.ax_1_1,
+ Results.k9s_P_2_1_1._native.native_decide.ax_1_1,
+ Results.k9s_P_2_1_2._native.native_decide.ax_1_1,
+ Results.k9s_P_2_1_3._native.native_decide.ax_1_1,
+ Results.k9s_P_2_2_0._native.native_decide.ax_1_1,
+ Results.k9s_P_2_2_1._native.native_decide.ax_1_1,
+ Results.k9s_P_2_2_2._native.native_decide.ax_1_1,
+ Results.k9s_P_2_2_3._native.native_decide.ax_1_1,
+ Results.k9s_P_2_3_0._native.native_decide.ax_1_1,
+ Results.k9s_P_2_3_1._native.native_decide.ax_1_1,
+ Results.k9s_P_2_3_2._native.native_decide.ax_1_1,
+ Results.k9s_P_2_3_3._native.native_decide.ax_1_1,
+ Results.k9s_P_3_0_0._native.native_decide.ax_1_1,
+ Results.k9s_P_3_0_1._native.native_decide.ax_1_1,
+ Results.k9s_P_3_0_2._native.native_decide.ax_1_1,
+ Results.k9s_P_3_0_3._native.native_decide.ax_1_1,
+ Results.k9s_P_3_1_0._native.native_decide.ax_1_1,
+ Results.k9s_P_3_1_1._native.native_decide.ax_1_1,
+ Results.k9s_P_3_1_2._native.native_decide.ax_1_1,
+ Results.k9s_P_3_1_3._native.native_decide.ax_1_1,
+ Results.k9s_P_3_2_0._native.native_decide.ax_1_1,
+ Results.k9s_P_3_2_1._native.native_decide.ax_1_1,
+ Results.k9s_P_3_2_2._native.native_decide.ax_1_1,
+ Results.k9s_P_3_2_3._native.native_decide.ax_1_1,
+ Results.k9s_P_3_3_0._native.native_decide.ax_1_1,
+ Results.k9s_P_3_3_1._native.native_decide.ax_1_1,
+ Results.k9s_P_3_3_2._native.native_decide.ax_1_1,
+ Results.k9s_P_3_3_3._native.native_decide.ax_1_1,
+ Results.k9s_total._native.native_decide.ax_1_1]
+info: Results/K9S.lean:349:0: 'Results.k9s_accepts' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ Results.k9s_P_0_0_0._native.native_decide.ax_1_1,
+ Results.k9s_P_0_0_1._native.native_decide.ax_1_1,
+ Results.k9s_P_0_0_2._native.native_decide.ax_1_1,
+ Results.k9s_P_0_0_3._native.native_decide.ax_1_1,
+ Results.k9s_P_0_1_0._native.native_decide.ax_1_1,
+ Results.k9s_P_0_1_1._native.native_decide.ax_1_1,
+ Results.k9s_P_0_1_2._native.native_decide.ax_1_1,
+ Results.k9s_P_0_1_3._native.native_decide.ax_1_1,
+ Results.k9s_P_0_2_0._native.native_decide.ax_1_1,
+ Results.k9s_P_0_2_1._native.native_decide.ax_1_1,
+ Results.k9s_P_0_2_2._native.native_decide.ax_1_1,
+ Results.k9s_P_0_2_3._native.native_decide.ax_1_1,
+ Results.k9s_P_0_3_0._native.native_decide.ax_1_1,
+ Results.k9s_P_0_3_1._native.native_decide.ax_1_1,
+ Results.k9s_P_0_3_2._native.native_decide.ax_1_1,
+ Results.k9s_P_0_3_3._native.native_decide.ax_1_1,
+ Results.k9s_P_1_0_0._native.native_decide.ax_1_1,
+ Results.k9s_P_1_0_1._native.native_decide.ax_1_1,
+ Results.k9s_P_1_0_2._native.native_decide.ax_1_1,
+ Results.k9s_P_1_0_3._native.native_decide.ax_1_1,
+ Results.k9s_P_1_1_0._native.native_decide.ax_1_1,
+ Results.k9s_P_1_1_1._native.native_decide.ax_1_1,
+ Results.k9s_P_1_1_2._native.native_decide.ax_1_1,
+ Results.k9s_P_1_1_3._native.native_decide.ax_1_1,
+ Results.k9s_P_1_2_0._native.native_decide.ax_1_1,
+ Results.k9s_P_1_2_1._native.native_decide.ax_1_1,
+ Results.k9s_P_1_2_2._native.native_decide.ax_1_1,
+ Results.k9s_P_1_2_3._native.native_decide.ax_1_1,
+ Results.k9s_P_1_3_0._native.native_decide.ax_1_1,
+ Results.k9s_P_1_3_1._native.native_decide.ax_1_1,
+ Results.k9s_P_1_3_2._native.native_decide.ax_1_1,
+ Results.k9s_P_1_3_3._native.native_decide.ax_1_1,
+ Results.k9s_P_2_0_0._native.native_decide.ax_1_1,
+ Results.k9s_P_2_0_1._native.native_decide.ax_1_1,
+ Results.k9s_P_2_0_2._native.native_decide.ax_1_1,
+ Results.k9s_P_2_0_3._native.native_decide.ax_1_1,
+ Results.k9s_P_2_1_0._native.native_decide.ax_1_1,
+ Results.k9s_P_2_1_1._native.native_decide.ax_1_1,
+ Results.k9s_P_2_1_2._native.native_decide.ax_1_1,
+ Results.k9s_P_2_1_3._native.native_decide.ax_1_1,
+ Results.k9s_P_2_2_0._native.native_decide.ax_1_1,
+ Results.k9s_P_2_2_1._native.native_decide.ax_1_1,
+ Results.k9s_P_2_2_2._native.native_decide.ax_1_1,
+ Results.k9s_P_2_2_3._native.native_decide.ax_1_1,
+ Results.k9s_P_2_3_0._native.native_decide.ax_1_1,
+ Results.k9s_P_2_3_1._native.native_decide.ax_1_1,
+ Results.k9s_P_2_3_2._native.native_decide.ax_1_1,
+ Results.k9s_P_2_3_3._native.native_decide.ax_1_1,
+ Results.k9s_P_3_0_0._native.native_decide.ax_1_1,
+ Results.k9s_P_3_0_1._native.native_decide.ax_1_1,
+ Results.k9s_P_3_0_2._native.native_decide.ax_1_1,
+ Results.k9s_P_3_0_3._native.native_decide.ax_1_1,
+ Results.k9s_P_3_1_0._native.native_decide.ax_1_1,
+ Results.k9s_P_3_1_1._native.native_decide.ax_1_1,
+ Results.k9s_P_3_1_2._native.native_decide.ax_1_1,
+ Results.k9s_P_3_1_3._native.native_decide.ax_1_1,
+ Results.k9s_P_3_2_0._native.native_decide.ax_1_1,
+ Results.k9s_P_3_2_1._native.native_decide.ax_1_1,
+ Results.k9s_P_3_2_2._native.native_decide.ax_1_1,
+ Results.k9s_P_3_2_3._native.native_decide.ax_1_1,
+ Results.k9s_P_3_3_0._native.native_decide.ax_1_1,
+ Results.k9s_P_3_3_1._native.native_decide.ax_1_1,
+ Results.k9s_P_3_3_2._native.native_decide.ax_1_1,
+ Results.k9s_P_3_3_3._native.native_decide.ax_1_1,
+ Results.k9s_total._native.native_decide.ax_1_1]
+Build completed successfully (130 jobs).
+
+2026-10-10 13:37:18  top module built in 5 s
+2026-10-10 13:37:18  == all done

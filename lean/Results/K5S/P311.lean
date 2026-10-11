@@ -1,0 +1,28 @@
+/-
+One piece of the evaluation for `k5` by the routine of `TSPShared/Impl.lean`: the values
+`A_4(g_1, 3, 1, 1)` of RECIPE.md Section 8 for `g_1 = 0, …, 3`.
+-/
+import TSPShared.Theorems
+import Results.Params
+
+namespace Results
+open Spec
+
+theorem k5s_P_3_1_1 :
+    (List.range (m k5)).map (fun g1 => Spec.A k5 (g1 :: [3, 1, 1]))
+      = [1819930135674911, 1854432519640082, 1929546967519024, 2163734617930866] := by
+  rw [← Correct.AofShared_eq_A k5 0 64 [3, 1, 1]]; native_decide
+
+theorem k5s_A_0_3_1_1 : Spec.A k5 [0, 3, 1, 1] = 1819930135674911 :=
+  Correct.A_of_list k5 [3, 1, 1] _ k5s_P_3_1_1 0 (by decide)
+
+theorem k5s_A_1_3_1_1 : Spec.A k5 [1, 3, 1, 1] = 1854432519640082 :=
+  Correct.A_of_list k5 [3, 1, 1] _ k5s_P_3_1_1 1 (by decide)
+
+theorem k5s_A_2_3_1_1 : Spec.A k5 [2, 3, 1, 1] = 1929546967519024 :=
+  Correct.A_of_list k5 [3, 1, 1] _ k5s_P_3_1_1 2 (by decide)
+
+theorem k5s_A_3_3_1_1 : Spec.A k5 [3, 3, 1, 1] = 2163734617930866 :=
+  Correct.A_of_list k5 [3, 1, 1] _ k5s_P_3_1_1 3 (by decide)
+
+end Results

@@ -1,0 +1,543 @@
+[
+ {
+  "file": "src/files.rs",
+  "description": "Section 1: h_1/h_2 not required to be in lowest terms",
+  "old": "if gcd(params.h1, params.h2) != 1 {",
+  "new": "if gcd(params.h1, params.h2) == 0 {"
+ },
+ {
+  "file": "src/files.rs",
+  "description": "Section 1: h_1, h_2, theta_1, theta_2 may be 0",
+  "old": "let any = 1..=u128::from(u64::MAX);",
+  "new": "let any = 0..=u128::from(u64::MAX);"
+ },
+ {
+  "file": "src/files.rs",
+  "description": "Section 1: the boundaries b_1 < ... < b_{m-1} not required to increase",
+  "old": "if boundaries.windows(2).any(|pair| pair[0] >= pair[1]) {",
+  "new": "if boundaries.windows(2).any(|_| false) {"
+ },
+ {
+  "file": "src/files.rs",
+  "description": "Section 1: k = 10 allowed",
+  "old": "k: ranged(file, \"k\", lines[0][0], 2..=wide(MAX_GAPS))?,",
+  "new": "k: ranged(file, \"k\", lines[0][0], 2..=wide(MAX_GAPS + 1))?,"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 2: up_j with ceil instead of floor (an upper bound rounded down)",
+  "old": "floor_div(lo, divisor,",
+  "new": "ceil_div(lo, divisor,"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 2: lo_j with floor instead of ceil (a lower bound rounded up)",
+  "old": "ceil_div(up, divisor,",
+  "new": "floor_div(up, divisor,"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 2: Rup[i] with floor instead of ceil",
+  "old": "ceil_div(above, Q,",
+  "new": "floor_div(above, Q,"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 2: Rlo[i] with ceil instead of floor",
+  "old": "floor_div(below, Q,",
+  "new": "ceil_div(below, Q,"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 2: Rup[i] from lo_1 instead of up_1",
+  "old": "mul(powers.up[i - 1], powers.up_1,",
+  "new": "mul(powers.up[i - 1], powers.lo_1,"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 2: Rlo[i] from up_1 instead of lo_1",
+  "old": "mul(powers.lo[i - 1], powers.lo_1,",
+  "new": "mul(powers.lo[i - 1], powers.up_1,"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 3: C_lambda from lo_1 instead of up_1",
+  "old": "powers.up_1, \"Q",
+  "new": "powers.lo_1, \"Q"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 3: C_mu = M(Q - up_1) - lo_1, with up_1 for the first lo_1",
+  "old": "powers.lo_1, \"Q",
+  "new": "powers.up_1, \"Q"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 3: the term Rup[i-1]*C_mu of num_c(i) left out for i = 1",
+  "old": "if i >= 1 {",
+  "new": "if i >= 2 {"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 3: W_c(i) of a bounded cell, inner quotient num_c(i)/2^14 rounded down",
+  "old": "ceil_div(num.div_ceil(1 << 14), divisor,",
+  "new": "ceil_div(num >> 14, divisor,",
+  "undetected": "a weight changes only if the quotient rounded down is a multiple of the divisor, which is of the order of 2^60; no parameters are known for which that happens"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 3: W_c(i) of a bounded cell, outer quotient rounded down",
+  "old": "ceil_div(num.div_ceil(1 << 14), divisor,",
+  "new": "floor_div(num.div_ceil(1 << 14), divisor,"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 3: W_c(i) of a bounded cell divided by Q - Rlo[n_c] instead of Q - Rup[n_c]",
+  "old": "sub(Q, up[width],",
+  "new": "sub(Q, powers.lo[width],"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 3: the atom ceil(Rup[N_T]/2^14) at the truncation point left out",
+  "old": "up[width].div_ceil(1 << 14)",
+  "new": "0"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 3: W_{m-1}(i), quotient num/2^76 rounded down",
+  "old": "num.div_ceil(1 << 76)",
+  "new": "(num >> 76)"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 3: P_c from Rup[b_{c+1}] instead of Rlo[b_{c+1}]",
+  "old": "powers.lo[grid.starts[c + 1]],",
+  "new": "up[grid.starts[c + 1]],"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 3: P_c rounded down",
+  "old": "difference.div_ceil(1 << 14)",
+  "new": "(difference >> 14)"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 3: E_T rounded down",
+  "old": "up[grid.tail_width()].div_ceil(1 << 30)",
+  "new": "up[grid.tail_width()] >> 30"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 4: V_kappa(s) rounded down",
+  "old": "let value = sum.div_ceil(D);",
+  "new": "let value = sum / D;"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 4: the last term (largest i) of every sum for V_kappa(s) left out",
+  "old": "shorter[low..=high]",
+  "new": "shorter[low..high]"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 4: kappa' formed at the smallest index c with kappa_c > 0 instead of the largest",
+  "old": ".rposition(|&count| count > 0)",
+  "new": ".position(|&count| count > 0)"
+ },
+ {
+  "file": "src/arith.rs",
+  "description": "Section 5: ceil_sqrt returns the root rounded down",
+  "old": "if root * root == a {",
+  "new": "if root * root <= a {"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 5: Dist(j, tau) rounded down",
+  "old": "ceil_div(root, divisor,",
+  "new": "floor_div(root, divisor,"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 5: G(j, d) rounded down",
+  "old": "ceil_div(sum, four_nu_squared,",
+  "new": "floor_div(sum, four_nu_squared,"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 5: gamma = M*h_1 instead of M*h_1^2",
+  "old": "mul(h1, h1,",
+  "new": "mul(h1, 1,"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 5: G(j, d) from Dist(j, d*nu) alone, the offsets t left out",
+  "old": "dist[(d * nu + u).abs_diff(nu)]",
+  "new": "dist[d * nu]"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 6: Tab(kappa, d) rounded down",
+  "old": "add(sum.div_ceil(D), tail,",
+  "new": "add(sum / D, tail,"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 6: the tail term kappa_{m-1}*E_T left out of the table",
+  "old": "mul(wide(count(last)), cells.tail_term,",
+  "new": "mul(0, cells.tail_term,"
+ },
+ {
+  "file": "src/tables.rs",
+  "description": "Section 6: G(s, d) instead of G(b_kappa + s, d)",
+  "old": "&lengths[(base + s) * n..][..n]",
+  "new": "&lengths[s * n..][..n]"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7: max for min over the predecessors in the shortest path",
+  "old": "least_of(terms.map(|term| term.cost(states, edges)))",
+  "new": "terms.map(|term| term.cost(states, edges)).into_iter().max().unwrap_or(0)"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7: max for min over the last interior point of the path",
+  "old": "sum += least_of::<N>(std::array::from_fn(|j| reach[j] + last[j]));",
+  "new": "sum += std::array::from_fn::<u64, N, _>(|j| reach[j] + last[j]).into_iter().max().unwrap_or(0);"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7: only the paths that end at interior point 1 are considered",
+  "old": "sum += least_of::<N>(std::array::from_fn(|j| reach[j] + last[j]));",
+  "new": "sum += reach[0] + last[0];"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7: E_ij = Tab(kappa(i, j), 0) for 1 <= i < j < k, the height difference ignored",
+  "old": "self.rows[earlier][point][difference];",
+  "new": "self.rows[earlier][point][0];"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7: E_0i = Tab(kappa(0, i), 0), the height difference ignored",
+  "old": "self.from_start[g * self.n + a][point - 1] = first[difference];",
+  "new": "self.from_start[g * self.n + a][point - 1] = first[0];"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7: E_jk = Tab(kappa(j, k), 0), the height difference ignored",
+  "old": "self.to_end[g * self.n + a][point - 1] = last[difference];",
+  "new": "self.to_end[g * self.n + a][point - 1] = last[0];"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7: the height 0 of the interior points 2, ..., k-1 left out of the sum over the height tuples",
+  "old": "for height in 0..self.n {",
+  "new": "for height in 1..self.n {"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7: the height 0 of interior point 1 left out of the sum over the height tuples",
+  "old": "for height in 0..n {",
+  "new": "for height in 1..n {"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7: the edges to the points 0 and k not set for the height 0 of those points (they stay 0)",
+  "old": "for a in 0..self.n {",
+  "new": "for a in 1..self.n {"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7: P(1, j) taken as f(A, 2) for every j",
+  "old": "short(place(all, end))",
+  "new": "short(place(all, 2))"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7: P(i, j) for 2 <= i < j from the first four sets S only",
+  "old": "for four in fours {",
+  "new": "for four in fours.iter().take(1) {"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7: P(i, j) for 2 <= i < j from f(S, i) + f(S + {j}, j) instead of f(S, i) + f(A - S, j)",
+  "old": "after: short(place(all ^ set, j)),",
+  "new": "after: short(place(set | bit(j), j)),"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7: reach(j) also from i = j, as if no other interior point had to be visited",
+  "old": "if i == j {",
+  "new": "if false {"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7, Reflection: weight 1 instead of 2 for a height of point 1 that has a mirror image",
+  "old": "let weight = if height < mirror { 2 } else { 1 };",
+  "new": "let weight = if height < mirror { 1 } else { 1 };"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7, Reflection: weight 2 for the middle height of point 1 when n is odd",
+  "old": "let weight = if height < mirror { 2 } else { 1 };",
+  "new": "let weight = if height < mirror { 2 } else { 2 };"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7, Reflection: the middle height of point 1 left out when n is odd",
+  "old": "if height > mirror {",
+  "new": "if height >= mirror {"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7, Reflection: the mirror image of the height c taken as n - c instead of n - 1 - c",
+  "old": "let mirror = n - 1 - height;",
+  "new": "let mirror = n - height;"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7, Reversal: the sum of g stored for (g_1, g_{k-1}, ..., g_2, g_k), the end gaps not exchanged",
+  "old": "store(g_k + cells * mirror + high * g_1, sum)?;",
+  "new": "store(g_1 + cells * mirror + high * g_k, sum)?;"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7, Reversal: the sum of g stored for (g_k, g_2, ..., g_{k-1}, g_1), the inner gaps not read backwards",
+  "old": "store(g_k + cells * mirror + high * g_1, sum)?;",
+  "new": "store(g_k + cells * inner + high * g_1, sum)?;"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7, Reversal: the inner tuple read backwards without its last gap",
+  "old": "for _ in 2..k {",
+  "new": "for _ in 3..k {"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7, Reversal: the inner tuple read backwards in base m + 1",
+  "old": "number = number * cells + rest % cells;",
+  "new": "number = number * (cells + 1) + rest % cells;"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7, shared paths: E_0i taken for g_1 = 0 whatever g_1 is",
+  "old": "key[g_1] += 1;",
+  "new": "key[0] += 1;"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7, shared paths: E_jk taken for g_k = 0 whatever g_k is",
+  "old": "key[g_k] += 1;",
+  "new": "key[0] += 1;"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7, shared paths: E_jk taken from the other end gap, as Tab(kappa(0, j), .) with g_1 = g_k",
+  "old": "self.to_end[g * self.n + a][point - 1] = last[difference];",
+  "new": "self.to_end[g * self.n + a][point - 1] = first[difference];"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7, shared paths: kappa(j, k) counts g_j, ..., g_{k-2} and g_k instead of g_{j+1}, ..., g_k",
+  "old": "key[gaps[j]] += 1;",
+  "new": "key[gaps[j - 1]] += 1;"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 7, shared paths: the costs added to the sum of the gap tuple with g_1 and g_k exchanged",
+  "old": "self.part[g_1 + m * g_k] += u128::from(sum);",
+  "new": "self.part[g_k + m * g_1] += u128::from(sum);"
+ },
+ {
+  "file": "src/total.rs",
+  "description": "Section 8: A_{j-1} rounded down",
+  "old": "next.push(ceil_div(sum, D, \"A_j\")?);",
+  "new": "next.push(sum / D);"
+ },
+ {
+  "file": "src/total.rs",
+  "description": "Section 8: the final comparison reversed",
+  "old": "accepted: left <= right,",
+  "new": "accepted: left >= right,"
+ },
+ {
+  "file": "src/total.rs",
+  "description": "Section 8: the final comparison strict",
+  "old": "accepted: left <= right,",
+  "new": "accepted: left < right,"
+ },
+ {
+  "file": "src/total.rs",
+  "description": "Section 8: h_2 left out of the bound and of the final comparison",
+  "old": "mul(total, u128::from(params.h2),",
+  "new": "mul(total, 1,"
+ },
+ {
+  "file": "src/total.rs",
+  "description": "Section 8: the factor k left out of the denominator",
+  "old": "for factor in [F, wide(params.k), u128::from(params.h1)] {",
+  "new": "for factor in [F, u128::from(params.h1)] {"
+ },
+ {
+  "file": "src/total.rs",
+  "description": "Section 8/10: the printed bound rounded down",
+  "old": "decimals: ceil_div(scaled, denominator, \"the bound\")?,",
+  "new": "decimals: scaled / denominator,"
+ },
+ {
+  "file": "src/total.rs",
+  "description": "Section 8: n^k instead of n^(k+1) in the denominator",
+  "old": "power(wide(params.n), params.k + 1,",
+  "new": "power(wide(params.n), params.k,"
+ },
+ {
+  "file": "src/arith.rs",
+  "description": "Section 9: a product that does not fit in 128 bits wraps instead of giving status 2",
+  "old": "a.checked_mul(b)",
+  "new": "Some(a.wrapping_mul(b))"
+ },
+ {
+  "file": "src/arith.rs",
+  "description": "Section 9: a negative difference wraps instead of giving status 2",
+  "old": "a.checked_sub(b)",
+  "new": "Some(a.wrapping_sub(b))"
+ },
+ {
+  "file": "src/arith.rs",
+  "description": "Section 9: a value that does not fit in 64 bits is truncated instead of giving status 2",
+  "old": "u64::try_from(a).map_err(|_| violated(what, \"does not fit in 64 bits\"))",
+  "new": "Ok(a as u64)"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 9: the bound n*k*max(Tab) < 2^64 that excludes overflow in Section 7 not checked",
+  "old": "narrow(mul(bound, wide(params.n), \"n\u00b7cost\")?, \"n\u00b7cost\")?;",
+  "new": ""
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 9: the bound checked is k*max(Tab) < 2^64, without the factor n for the sum over the heights of point k",
+  "old": "narrow(mul(bound, wide(params.n), \"n\u00b7cost\")?, \"n\u00b7cost\")?;",
+  "new": "narrow(bound, \"n\u00b7cost\")?;"
+ },
+ {
+  "file": "src/paths.rs",
+  "description": "Section 9: the bound for cost(g, a) taken as max(Tab), without the factor k",
+  "old": "let bound = mul(wide(params.k), largest, \"the bound for cost(g, a)\")?;",
+  "new": "let bound = largest;"
+ },
+ {
+  "file": "src/main.rs",
+  "description": "Section 10, step 4: the counts are not checked",
+  "old": "compare_counts(params, &keys, values)?;",
+  "new": ""
+ },
+ {
+  "file": "src/main.rs",
+  "description": "Section 10, steps 3 and 4: the counts are checked before the parameter lines",
+  "old": "compare_parameters(params, values)?;",
+  "new": "compare_counts(params, &keys, values)?; compare_parameters(params, values)?;"
+ },
+ {
+  "file": "src/main.rs",
+  "description": "Section 10, step 3: the parameter lines are not compared",
+  "old": "compare_parameters(params, values)?;",
+  "new": ""
+ },
+ {
+  "file": "src/main.rs",
+  "description": "Section 10, step 5: the keys of the table lines are not compared",
+  "old": "if key != stored[..cells] {",
+  "new": "if false {"
+ },
+ {
+  "file": "src/main.rs",
+  "description": "Section 10, step 5: only the first entry of each table line is compared",
+  "old": "in row.iter().zip(&stored[cells..]).enumerate() {",
+  "new": "in row.iter().zip(&stored[cells..]).enumerate().take(1) {"
+ },
+ {
+  "file": "src/main.rs",
+  "description": "Section 10, step 5: the cell sums are not compared",
+  "old": "agree(expected, found, || format!(\"sums, gap tuple {index}\"))?;",
+  "new": ""
+ },
+ {
+  "file": "src/main.rs",
+  "description": "Section 10, step 5: the total is not compared",
+  "old": "agree(total, values.total, || \"total\".to_string())?;",
+  "new": ""
+ },
+ {
+  "file": "src/main.rs",
+  "description": "Section 10, step 6: exit status 0 although the test of Section 8 fails",
+  "old": "Ok((u8::from(!agreement.verdict.accepted), agreement.text()))",
+  "new": "Ok((0, agreement.text()))"
+ },
+ {
+  "file": "src/files.rs",
+  "description": "Section 10: the second field of the first line of the values file is not compared",
+  "old": "? != FIRST_LINE {",
+  "new": "?[0] != FIRST_LINE[0] {"
+ },
+ {
+  "file": "src/files.rs",
+  "description": "Section 10: a backslash accepted in the path of the values file",
+  "old": "path.contains(['\\\\', ':'])",
+  "new": "path.contains(':')"
+ },
+ {
+  "file": "src/files.rs",
+  "description": "Section 10: a path of the values file that begins with / accepted",
+  "old": "path.starts_with('/') || path.contains",
+  "new": "path.contains"
+ },
+ {
+  "file": "src/files.rs",
+  "description": "Section 10: a colon accepted in the path of the values file",
+  "old": "path.contains(['\\\\', ':'])",
+  "new": "path.contains('\\\\')"
+ },
+ {
+  "file": "src/files.rs",
+  "description": "Section 10: a carriage return accepted at the end of a last line without line feed",
+  "old": "let unfinished = lines.pop().filter(|rest| !rest.is_empty());",
+  "new": "let unfinished = lines.pop().map(|rest| rest.trim_end_matches('\\r')).filter(|rest| !rest.is_empty());"
+ },
+ {
+  "file": "src/files.rs",
+  "description": "Section 10: form feed, carriage return and line feed accepted as blanks",
+  "old": "byte == b' ' || byte == b'\\t'",
+  "new": "byte.is_ascii_whitespace()"
+ },
+ {
+  "file": "src/files.rs",
+  "description": "Section 10: the bytes of a line are not checked (any byte accepted)",
+  "old": ".all(|byte| blank(byte) || byte.is_ascii_graphic())",
+  "new": ".all(|_| true)"
+ },
+ {
+  "file": "src/files.rs",
+  "description": "Section 10: names compared without regard to case",
+  "old": "if fields[0] != name {",
+  "new": "if !fields[0].eq_ignore_ascii_case(name) {"
+ },
+ {
+  "file": "src/files.rs",
+  "description": "Section 10: empty lines and lines of blanks are skipped",
+  "old": "return self.fail(&format!(\"an empty line where {wanted} should be\"));",
+  "new": "return self.fields(wanted);"
+ },
+ {
+  "file": "src/files.rs",
+  "description": "Section 10: lines after the last prescribed line are ignored",
+  "old": "if self.taken < self.lines.len() {",
+  "new": "if false {"
+ },
+ {
+  "file": "src/files.rs",
+  "description": "Section 10: a number of 2^128 or more wraps instead of making the file malformed",
+  "old": "match value.checked_mul(10).and_then(|v| v.checked_add(digit)) {",
+  "new": "match Some(value.wrapping_mul(10).wrapping_add(digit)) {"
+ }
+]

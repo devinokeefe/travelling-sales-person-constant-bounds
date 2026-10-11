@@ -1,0 +1,74 @@
+\section{Introduction}\label{sec:intro}
+
+\subsection{The constant}
+
+Let $X_1,X_2,\dots$ be independent random points, uniformly distributed in the unit square, and let $L_n$ be the length of a shortest closed tour through $X_1,\dots,X_n$. Beardwood, Halton and Hammersley \cite{BeardwoodHaltonHammersley1959} proved that there is a constant $\beta$ such that
+\[
+\lim_{n\to\infty}\frac{L_n}{\sqrt n}=\beta\qquad\text{almost surely.}
+\]
+The value of $\beta$ is not known. Numerical estimates are $0.7124\pm0.0002$ \cite{JohnsonMcGeochRothberg1996} and $0.7120\pm0.0002$ \cite{PercusMartin1996}. The proved lower and upper bounds leave a much wider interval (\cref{tab:history}). The constant is number~12 in the online list of optimisation constants \cite{optimisation-constants-repo}.
+
+All upper bounds for $\beta$ so far come from the strip construction of \cite{BeardwoodHaltonHammersley1959}: cut the square into horizontal strips of height $h/\sqrt n$ and visit the points of each strip in the order of their first coordinates, one strip after another. With $h=\sqrt3$ this gives $\beta\le0.92116\ldots$\,. Few \cite{Few1955} had used a very similar argument for arbitrary points, as Steinerberger notes \cite[Section~2.2]{Steinerberger2015}.\footnote{Sections, tables and remarks of \cite{Steinerberger2015} and \cite{GaudioGuan2026} are cited by their numbers in the arXiv versions; for the article \cite{CarlssonYu2026} we cite its preprint \cite{YuCarlsson2023}, with the numbers of the preprint.} Exchanging two consecutive points of a strip in certain configurations improves the bound by a small amount \cite{Steinerberger2015}. The same paper proposes to optimise the order of visits within groups of consecutive points; for disjoint groups of six points, with the first and the last point of each group kept in place, a simulation gave about $0.8902$ \cite[Section~2.5]{Steinerberger2015}.
+
+Yu and Carlsson \cite{YuCarlsson2023} were the first to turn this proposal into a proved bound. Take the points of a strip in blocks of $k+1$ consecutive points, each block sharing its last point with the next, and visit the $k-1$ interior points of each block in the best order. This gives
+\begin{equation}\label{eq:tuple}
+\beta\le\frac{1}{kh}\,\E\min_\pi L_\pi ,
+\end{equation}
+where $L_\pi$ is the length of the path that visits the interior points of a random block in the order $\pi$, measured after a magnification by the factor $h$ (hence the $h$ in the denominator); precise definitions are in \cref{sec:blocks}.
+
+The right-hand side is an integral over $2k+1$ variables of a minimum of $(k-1)!$ functions, and the difficulty is to bound it rigorously. For $k=4$ this is done in \cite{YuCarlsson2023}, with a partition of the domain found by a decision tree, one order for each part, and interval arithmetic; the published article \cite{CarlssonYu2026} gives $\beta<0.9038$.\footnote{The preprint \cite{YuCarlsson2023} stated $0.90304$, which is also the value in the list \cite{optimisation-constants-repo} at the time of writing; \cref{tab:history} follows the published articles, and the value of the article is quoted from its abstract.} Gaudio and Guan \cite{GaudioGuan2026} improved the bound to $0.90367$ by allowing a point near the boundary of a strip to be visited from the adjacent strip. They also estimated the right-hand side of \eqref{eq:tuple} by simulation: for $h=\sqrt{3.75}\approx1.94$ it is about $0.8748$ for $k=5$, $0.8650$ for $k=7$ and $0.8622$ for $k=8$ \cite[Table~2]{GaudioGuan2026}.
+
+The best bound so far, $\beta\le0.8810$, was proved with $k=5$ and $h=2$ by Dong and Cao in a preprint of 2~October 2026 \cite{DongCao2026}. They show first that, for blocks of six points, every rule that chooses the order of visits from the positions of the points gives an upper bound for $\beta$ \cite[Theorem~4]{DongCao2026}. The space of blocks is then divided into the cells of a product grid, with one order for each cell, and in each cell the expected length of a segment is bounded by the square root of its second moment.
+
+They also give a statistical estimate: a bound computed from a random sample, which holds with probability at least $1-10^{-4}$ and is $0.8749$ for their sample \cite[Section~4.3]{DongCao2026}; it is not a proved bound, and \cref{tab:history} does not list it. Their conclusion names finer partitions and larger blocks as sources of further improvement.
+
+\begin{table}[ht]
+\centering
+\caption{Proved bounds for the constant $\beta$. The upper bound of \cite{BeardwoodHaltonHammersley1959} is given as corrected in \cite{Steinerberger2015}; the value $0.92037$ printed in \cite{BeardwoodHaltonHammersley1959} is a numerical error. The lower bound of \cite{Steinerberger2015} is given as corrected in \cite{GaudioJaillet2020}, to $5/8+19/10368$. The last column gives the number $k$ of \eqref{eq:tuple} for the bounds that come from blocks.}
+\label{tab:history}
+\begin{tabular}{@{}llll@{}}
+\toprule
+ & Bound & Source & $k$ \\
+\midrule
+Lower & $0.625$ & Beardwood, Halton, Hammersley \cite{BeardwoodHaltonHammersley1959} & \\
+      & $0.6268$ & Steinerberger \cite{Steinerberger2015} & \\
+      & $0.6277$ & Gaudio, Jaillet \cite{GaudioJaillet2020} & \\
+      & $0.6421$ & Dong, Cao \cite{DongCao2026}, preprint & \\
+\midrule
+Upper & $0.92116\ldots$ & Beardwood, Halton, Hammersley \cite{BeardwoodHaltonHammersley1959} & $1$ \\
+      & $0.92116\ldots-\tfrac{9}{16}\cdot10^{-6}$ & Steinerberger \cite{Steinerberger2015} & \\
+      & $0.9038$ & Carlsson, Yu \cite{CarlssonYu2026} & $4$ \\
+      & $0.90367$ & Gaudio, Guan \cite{GaudioGuan2026} & $4$ \\
+      & $0.8810$ & Dong, Cao \cite{DongCao2026}, preprint & $5$ \\
+      & $\MainBound$ & \cref{thm:main} & $\MainK$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{The result}
+
+\begin{thm}\label{thm:main}
+The constant $\beta$ of Beardwood, Halton and Hammersley satisfies $\beta<\MainBound$.
+\end{thm}
+
+The proof uses blocks of \MainPoints{} points ($k=\MainK$) and strips with $h=\MainH$. With smaller blocks the same method gives weaker bounds, starting from $\beta<\BoundFiveUp$ for $k=5$ and $h=2$ (\cref{thm:computation}).
+
+\subsection{The method}
+
+We take two things from \cite{DongCao2026}: rules that are constant on the cells of a product grid, and the theorem that every rule gives an upper bound for $\beta$. Since that preprint is recent and treats $k=5$, we prove the theorem in full for general $k$ (\cref{thm:block}). What we change is how the expected length of a segment between two points of a block is bounded in a cell.
+
+The square root of the second moment exceeds the expected length by an amount that depends on how much the length varies within the cell, so a good bound needs small cells. The bound $0.8810$ was obtained with a grid of $12^5\cdot20^6\approx1.6\cdot10^{13}$ cells, reduced by symmetry \cite{DongCao2026}.
+
+We use instead the fact that the length of a segment is a convex function of the gaps of the block (the horizontal distances between consecutive points) and of the heights of its points. On an interval, the expectation of a convex function is at most the expectation of its chord; this is the Edmundson--Madansky inequality \cite{Edmundson1957,Madansky1959}. We apply it to one variable at a time, on a mesh much finer than the cells (\cref{prop:segment}). A cell confines each gap and each height to an interval; where the interval of a gap is unbounded, we first truncate the gap and add the expectation of the excess (\cref{lem:unbounded}).
+
+The accuracy of the bound for a segment is then set by the mesh and by the level of the truncation, which can be changed without changing the cells. The cells matter only because the rule chooses the same order throughout a cell. As with the second-moment bound of \cite{DongCao2026}, our bound for a segment depends on the cell only through a few integers (\cref{sec:segment}), so that for $k=\MainK$ all of its values fit in a table with \MainTableEntries{} entries.
+
+With $4^5\cdot6^6\approx\CellsFive$ cells we obtain $\BoundFiveUp$ for $k=5$ and $h=2$, against $0.8810$ from the grid of $1.6\cdot10^{13}$ cells. This leaves room for larger blocks. The computation for $k=\MainK$ has $\MainCellsFormula\approx\MainCells$ cells\MainCellsRemark.
+
+The proof of \cref{thm:main} ends in a finite computation. Every quantity in it is rounded to an integer at a fixed scale, in the direction that makes the bound larger, so that only integer arithmetic is used (\cref{sec:integers}). We carried out the computation with three programs, in Python, C and Rust, which share no code and agree on every entry of the table of bounds for the segments, on all $\MainGapTuples$ cell sums of \cref{sec:recipe} and on the total (\cref{sec:computation}).
+
+The total for $k=\MainK$ was also confirmed in the proof assistant Lean, by an evaluation in compiled code that the Lean kernel does not check and that was run once. The agreement of these computations is evidence against errors of implementation, not against an error in the proofs, and the proofs of \cref{sec:blocks,sec:cells,sec:integers} are not formalised. \Cref{sec:programs} says what these checks can and cannot show.
+
+The separate steps of the method are not new. Applying the Edmundson--Madansky inequality to one independent variable at a time, on each interval of a partition, is a standard way to bound the expectation of a convex function in stochastic programming \cite{KallWallace1994,HuangZiembaBenTal1977}, and one integral is bounded from above with chords in \cite[Remark~6]{YuCarlsson2023}. A program that Carlsson published in 2024 as a complement to \cite{CarlssonYu2026,YuCarlsson2023} already uses convexity on a grid: it bounds the length of the path of an order on a cell by the largest of its values at the corners of the cell, and is designed to take for each cell the order for which this bound is smallest.\footnote{\url{https://github.com/johngcarlsson-usc/tsp-constant-discretization}, accessed 9~October 2026.} Rigorous arithmetic has been used before (intervals in \cite{YuCarlsson2023}, rational numbers in \cite{DongCao2026}), and two of the three identities by which our programs shorten the sum over the cells are used in \cite{DongCao2026} (\cref{sec:programs}). We add the combination of these steps and the scheme of integer arithmetic of \cref{sec:integers}.
+
+The bound is still far from the numerical estimates near $0.712$. For given $k$ and $h$ no rule gives less than the right-hand side of \eqref{eq:tuple}, which for $k=\MainK$ and $h=\MainH$ is about $\MainLimit$ by simulation (\cref{tab:controls}), and in the simulations of \cref{sec:remarks} the gain from each further point in a block is small.

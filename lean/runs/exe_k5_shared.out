@@ -1,0 +1,12 @@
+$ lake exe tspcheck ../../repo/data/specs/k5.txt -j 16 --shared
+start: Sat Oct 10 14:01:20 GMTDT 2026
+  table of 125 keys done, 22 s
+  units 64 of 64, 101 ms
+  time 22 s, 16 thread(s)
+the stored values agree with the recomputed values
+total 1761033937996622
+bound 0.878820870371 (rounded up)
+bound <= 8789/10000
+ACCEPTED
+exit status 0
+end: Sat Oct 10 14:01:43 GMTDT 2026
