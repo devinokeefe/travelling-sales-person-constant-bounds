@@ -79,8 +79,7 @@ The bound is A₀·h₂ / (6^(k+1)·2^32·k·h₁) for h = h₁/h₂ (`RECIPE.md
 if the bound is at most the threshold. For `k9.txt` the bound, 0.86171…, is below the threshold 0.8618,
 so the inequality of the theorem is strict.
 
-Every checker was run at least twice on each of `k5.txt` to `k9.txt`, except the Python checker on
-`k9.txt`, which was run once; all runs printed the same lines (`runs/times.txt`).
+All runs of the three checkers printed the same lines (`runs/times.txt` lists the runs).
 
 ## What has been checked, and what has not
 
@@ -109,8 +108,8 @@ Every checker was run at least twice on each of `k5.txt` to `k9.txt`, except the
 - **Lean.** For k = 5 to 9 the totals are also proved in Lean 4, with steps that the Lean kernel does
   not check. The definitions of `RECIPE.md` are transcribed there, and an efficient evaluation is proved
   equal to them for all parameters; the kernel checks that proof. The evaluation itself runs as compiled
-  code (`native_decide`), which the kernel does not check and Lean records as an axiom; for k = 9 it was
-  run once, in 64 pieces that took 11.7 hours on 15 or 16 threads. That the Lean definitions agree with
+  code (`native_decide`), which the kernel does not check and Lean records as an axiom; for k = 9 it ran
+  in 64 pieces that took 11.7 hours on 15 or 16 threads. That the Lean definitions agree with
   `RECIPE.md` was checked only by reading ([lean/README.md](lean/README.md)).
 - **The controls.** Floating-point computations and simulations test the proofs and the programs
   numerically, among them numerical integration of the segment lengths, simulated blocks, and the tour

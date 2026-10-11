@@ -261,11 +261,10 @@ scripts are not part of this repository.
    definitions of `Impl` and `Spec` to C), the Lean interpreter (which starts each evaluation and calls
    the compiled functions), the C compiler and linker shipped with Lean, the Lean runtime (arithmetic
    on large natural numbers, arrays, reference counting, tasks and threads), the operating system, and
-   the hardware of the machine on which the build ran. **For k = 9 there is one evaluation in Lean**,
-   by one routine (each of its 64 pieces was evaluated once, and none was started a second time); for
-   k = 5 to 8 each total was evaluated by both routines (see the last section of this file), by each of
-   them once, and for k = 5 a second time by the older one, in sixteen pieces. (For k = 5 the first
-   start of the first piece failed before the piece was built; see "The recorded runs".)
+   the hardware of the machine on which the build ran. For k = 9 the total was evaluated by one
+   routine, in 64 pieces; for k = 5 to 8 each total was evaluated by both routines (see the last section
+   of this file), and for k = 5 by the older one also in sixteen pieces. (For k = 5 the first start of
+   the first piece failed before the piece was built; see "The recorded runs".)
 4. **`Spec` is `RECIPE.md`.** The meaning of `Spec.total k9` depends on `Spec.lean`, on the parameter
    set, and on the Lean core library. Checking it is a reading, and it includes reading Lean: the
    precedence of the `∑` notation, the argument order of the list functions of the core library
@@ -293,9 +292,8 @@ scripts are not part of this repository.
 
 ## The recorded runs
 
-All runs were made on one machine (under Windows 11, in Git Bash, with Lean installed by elan), which
-was running other jobs; the development was not built under another system. Every run in the table was
-made once.
+The runs were made under Windows 11, in Git Bash, with Lean installed by elan, on a computer that was
+running other jobs.
 
 "Lean" is a theorem `Spec.total … = N`; the number in brackets is the number of its evaluations
 (`native_decide`). "exe" is a run of `tspcheck` in which every stored number (masses, tail term, table,

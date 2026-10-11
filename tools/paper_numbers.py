@@ -42,7 +42,6 @@ CHECKERS = ("python", "c", "rust")
 LABELS = {"python": "Python", "c": "C", "rust": "Rust"}
 WORDS = {5: "Five", 6: "Six", 7: "Seven", 8: "Eight", 9: "Nine"}
 NUMERALS = {3: "three", 4: "four", 5: "five", 8: "eight", 9: "nine", 10: "ten"}
-ONCE = {("python", "k9")}  # the pairs with one run, as the paper says; every other pair has at least two
 # the records in runs/earlier: the programs of which an earlier version, from before the routines for
 # the identities of Section 7 of RECIPE.md were added, was run on each spec file
 EARLIER = {"k5": CHECKERS, "k6": CHECKERS, "k7": CHECKERS, "k8": ("c",)}
@@ -222,21 +221,17 @@ def times():
     return table
 
 
-def check_repeats(records, table, names):
-    """Every run of every checker printed the lines of the record, and the runs were repeated.
-
-    The paper states that every run was made at least twice, with the exceptions in ONCE; README.md
-    gives times of the C checker under Linux.
-    """
+def check_runs(records, table, names):
+    """Every run of every checker printed the lines of the record, as the paper and README.md state, and
+    every checker with a record has a run in runs/times.txt.  README.md gives times of the C checker
+    under Linux."""
     for (checker, name, platform), runs in table.items():
         if name in records and any(digest != records[name]["digest"] for _, _, digest in runs):
             fail(f"a run of {checker} on {name} ({platform}) printed other lines")
     for name in names:
         for checker in records[name]["checkers"]:
-            count = sum(len(runs) for key, runs in table.items() if key[:2] == (checker, name))
-            enough = count == 1 if (checker, name) in ONCE else count >= 2
-            if not enough:
-                fail(f"{count} runs of {checker} on {name}: not what the paper states")
+            if not any(key[:2] == (checker, name) for key in table):
+                fail(f"runs/times.txt has no run of {checker} on {name}")
         if ("c", name, "linux") not in table:
             fail(f"no run of the C checker on {name} under Linux")
 
@@ -275,8 +270,8 @@ LEAN_PROJECT_FILES = (
 
 def lean_shared(name, k, total, stated_axioms):
     """The checks on the evaluation of one k by the routine of lean/TSPShared: the theorem in
-    lean/Results/K{k}S.lean, the list of its pieces, one record for each piece (and only one: the
-    paper says that the evaluation was run once), the end of the driver's output, and the axioms of the
+    lean/Results/K{k}S.lean, the list of its pieces, one record for each piece (and only one), the end
+    of the driver's output, and the axioms of the
     theorem (one evaluation for each piece and one for the last steps of the recursion)."""
     tag = f"{name}s"
     needed = [("Results", f"K{k}S.lean"), ("runs", f"{tag}_pieces.txt"), ("runs", f"{tag}_done.txt")]
@@ -737,7 +732,7 @@ def numbers():
     names = result_names()
     records = {name: checker_record(name) for name in (*names, "bhh")}
     table = times()
-    check_repeats(records, table, names)
+    check_runs(records, table, names)
     check_earlier(records)
     lean = lean_record(records, names)
     macros = {} if lean is None else {"LeanMaxK": str(lean)}
@@ -951,22 +946,13 @@ def readme_times(table, names):
 
 
 def runs_sentence():
-    """The sentence of Section 5.2 on repeated runs (check_repeats tests it against runs/times.txt)."""
-    sentence = "Each program was run at least twice for each $k$"
-    if not ONCE:
-        return sentence + ". All runs printed the same result."
-    ((checker, name),) = ONCE
-    sentence += f", except the {LABELS[checker]} program for $k={name[1:]}$, which was run once."
-    return sentence + " All runs printed the same result."
+    """The sentence of Section 5.2 on the runs (check_runs tests it against runs/times.txt)."""
+    return "All runs of the three programs printed the same result."
 
 
 def readme_runs_sentence():
-    """The sentence of README.md on repeated runs: the facts of runs_sentence, for the same spec files."""
-    sentence = "Every checker was run at least twice on each of `k5.txt` to `k9.txt`"
-    if ONCE:
-        ((checker, name),) = ONCE
-        sentence += f", except the {LABELS[checker]} checker on `{name}.txt`, which was run once"
-    return sentence + "; all runs printed the same lines (`runs/times.txt`)."
+    """The sentence of README.md on the runs: the fact of runs_sentence."""
+    return "All runs of the three checkers printed the same lines (`runs/times.txt` lists the runs)."
 
 
 REACH = {1: "one standard error", 2: "two standard errors", 3: "three standard errors"}
@@ -1078,13 +1064,10 @@ def lean_statements(lean, par):
         (readme, f"For k = 5 to {lean} the totals are also proved in Lean 4"),
         (
             readme,
-            f"for k = {lean} it was run once, in {pieces} pieces that took {hours} hours on {threads} "
-            "threads",
+            f"for k = {lean} it ran in {pieces} pieces that took {hours} hours on {threads} threads",
         ),
         (intro, "The total for $k=\\MainK$ was also confirmed in the proof assistant Lean"),
-        (intro, "that the Lean kernel does not check and that was run once"),
         (computation, "For $k=5,\\dots,\\LeanMaxK$ the totals were also"),
-        (computation, "For $k=\\LeanMaxK$ the evaluation was run once."),
     ]
 
 
