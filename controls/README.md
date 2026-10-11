@@ -5,14 +5,15 @@ The controls are not part of the proof. All but one use floating-point arithmeti
 of the paper or in the checkers. Each can show some mistakes and not others: this file says what each
 control does, what it found and what it cannot show. Sections 5.3 and 6.1 of the paper state the results
 of most of them in brief; the strip bound, the tour and the second sample of blocks are described here
-only, and the cell sums recomputed cell by cell are described here and in the top-level `README.md`. How
-to repeat the controls is in the section "The controls" of that file, and the header of
-`make_records.sh` says which record belongs to which control. A script named without a folder is in
-`controls/` and a record in `runs/`; other paths are relative to the top folder.
+only, and the cell sums recomputed cell by cell here and, in brief, in the top-level `README.md`. The
+last section says how to repeat the controls, and the header of `make_records.sh` says which record
+belongs to which control. A script named without a folder is in `controls/` and a record in `runs/`;
+other paths are relative to the top folder.
 
-Of the checkers the scripts use only routines of the Python checker that read the files and that list
-the keys and the pairs of points (`read_spec`, `read_values`, `stored_table`, `all_keys`, `pairs` and
-the scale `F` of `checkers/check_bound.py`).
+The controls that concern the table (the segments, the bracket and the simulated blocks) take the table
+from the values file, as `plain_sums.c` does. Of the checkers the scripts use only routines of the
+Python checker that read the files and that list the keys and the pairs of points (`read_spec`,
+`read_values`, `stored_table`, `all_keys`, `pairs` and the scale `F` of `checkers/check_bound.py`).
 
 ## The segments (`segment_integral.py`)
 
@@ -90,9 +91,21 @@ in this estimate; a smaller one might not.
 ## Cell sums cell by cell (`plain_sums.c`)
 
 A separate C program that uses none of the three identities of Section 7 of `RECIPE.md` recomputed 22
-of the 262,144 cell sums for k = 9. It takes the table from the values file, so this control concerns
-the sum over the cells alone. The section "What is proved, and how it was checked" of the top-level
-`README.md` says which cell sums, and what a sample of this size can and cannot show.
+of the 262,144 cell sums for k = 9: the cell sums of the gap tuples (0, …, 0) and (3, …, 3), which are
+the least and the greatest, of ten gap tuples drawn at random, and of the reverses of these ten. It
+takes the table from the values file, so this control concerns the sum over the cells alone. It shares
+nothing between cells: for every cell separately it finds the least cost by dynamic programming over
+the sets of interior points, and for every 100003rd cell (605 of the 60,466,176 cells of a gap tuple) a
+second time by going through all 40,320 orders. The 22 equal the stored ones (`runs/plain_k9.txt`).
+
+The control stands in for a computation that was made for k ≤ 8 only. There earlier versions of the
+checkers, which use neither the reversal nor the reflection, computed every cell sum
+(`runs/earlier/README.md` says what each version shares between cells); for k = 9 that would take some
+hundreds of hours of processor time, by an estimate from the run for k = 8. The
+cell sums for k = 9 therefore rest on the identities, in the routines whose results for k ≤ 8 were
+confirmed in this way. An error that affected a share p of the gap tuples would escape ten tuples drawn
+at random with probability (1 − p)^10, which is 0.11 for p = 1/5: the sample would probably show an
+error that affects most gap tuples, and would not show one that is confined to a few.
 
 ## The strip bound (`strip_integral.py`, with `data/specs/bhh.txt`)
 
@@ -143,3 +156,39 @@ height gives a value larger by less than 0.0001. For the other k both adjacent h
 are larger by between 0.0003 and 0.0015. The record `limits.txt` holds the values at all heights. The
 standard errors are at most 0.00004. Three or four heights were tried for each k, so the table gives
 the best of these and not the best height.
+
+## Repeating the controls
+
+From the top folder:
+```
+bash controls/make_records.sh strip bracket segments blocks second tour limits dongcao
+bash controls/make_records.sh plain
+```
+The first command repeats the controls that use floating-point arithmetic or simulation. It needs numpy,
+numba, scipy and mpmath (`python -m pip install numpy numba scipy mpmath`) and took about seven hours on
+a desktop computer, nearly six of them for the simulations `blocks`, `second` and `limits`; `strip`
+takes about ten minutes and prints nothing meanwhile. The scripts use as many threads as
+`NUMBA_NUM_THREADS` allows; the records were made with 2 to 8. The header of `make_records.sh` says
+which record belongs to which control, how long each took, and how to make the records for a single k,
+to run the simulations with fewer blocks and to continue an interrupted bracket for k = 7 from its log.
+
+The command writes over the records in `runs/`: keep a copy of `runs/` to compare with, or restore the
+stored records afterwards with `git checkout runs`. A repeated record can differ from the stored one in
+two places even if every result agrees: its first line, which names the versions of Python, numpy and
+numba (those of the stored records are in the records; scipy was 1.15.3 and mpmath 1.3.0), and the line
+with its running time. The simulations use fixed seeds, but their last digits can depend on the
+versions of the libraries.
+
+The second command needs a C compiler and no Python. It recomputes the 22 cell sums for k = 9 named
+above, which takes about three hours of processor time; `PLAIN_THREADS` sets the number of threads (4 if
+it is not set). The compiler is gcc unless `CC` names another, and `PLAIN_OPENMP` is the option that
+turns OpenMP on (`-fopenmp` if it is not set). With MSVC, set `CC=cl` and `PLAIN_OPENMP=-openmp` in a
+bash started from a developer command prompt; `cl` then warns about the options `-std=c11` and `-o`,
+which does no harm. This record has no running time: a repeated record must equal the stored one except
+in its first two lines, which name the compiler and the command with its number of threads. To try the
+program first on k = 5, where it recomputes all 1024 cell sums in a few seconds:
+```
+gcc -std=c11 -O2 -fopenmp controls/plain_sums.c -o plain_sums
+./plain_sums data/values/k5.txt 1024 1 -j 4
+```
+The last line must read `1024 cell sums of 46656 cells each: 1024 equal to the stored sums, 0 different`.

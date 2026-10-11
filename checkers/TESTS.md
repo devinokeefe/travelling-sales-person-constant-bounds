@@ -1,9 +1,13 @@
 # Tests of the checkers
 
-The section "Tests of the checkers" of the top-level `README.md` gives the commands, says where their
-output is recorded and how long they take. This file says what each test does, which wrong versions of
-the checkers the tests do not detect, and what the tests do not reach. The commands are run from the
-top folder; a script named without a folder is in `checkers/`.
+The section "Tests" of the top-level `README.md` gives the commands. This file says what each test does,
+which wrong versions of the checkers the tests do not detect, and what the tests do not reach. The
+commands are run from the top folder; a script named without a folder is in `checkers/`.
+
+What the first four commands printed is in `runs/tests.txt`, and what the three mutation tests printed
+in `runs/mutation_test.txt`. The first two commands take seconds, `test_checkers.sh` up to three
+minutes, and `cargo test` as long as the crate takes to build. Each of the three mutation tests takes
+between a few minutes and half an hour and runs four test inputs at a time.
 
 - `test_check_bound.py` compares the parts of the Python checker with their definitions, evaluated in
   exact rational arithmetic or with 60-digit decimals: every rounded integer must lie on the right side

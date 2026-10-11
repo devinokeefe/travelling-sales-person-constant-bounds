@@ -28,7 +28,7 @@ kept here. The run of the C version for k = 8 was not made with that script and 
 reported 3,076 seconds for the cell sums on 6 threads.
 
 `sources/` holds `check_bound.py`, `cchk.c` and the Rust crate as they were for these runs; they are not
-maintained. They are built and run like the checkers in `checkers/` (see the top-level `README.md`), and
+maintained. They are built and run like the checkers in `checkers/` (see `checkers/README.md`), and
 read the values files in `data/values/`. Build them outside the repository, so that the tests do not
 take them for the present checkers and `tools/make_sums.sh` does not list what a build leaves behind:
 for example

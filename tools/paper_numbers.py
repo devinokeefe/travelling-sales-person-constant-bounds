@@ -8,8 +8,8 @@ files, and the two parts of README.md between markers (the table of results afte
 and the paragraph on running times after "<!-- times:begin -->"), from the records.  It also checks the
 records against each other (the checkers must have printed the same lines for every spec file, on every
 platform and in every run, and the printed bound must be the total of the record converted with exact
-integer arithmetic) and against the sentences of the paper, of README.md, of checkers/TESTS.md and of
-controls/README.md that state what the records show.  If the
+integer arithmetic) and against the sentences of the paper, of README.md, of checkers/README.md, of
+checkers/TESTS.md, of controls/README.md and of paper/README.md that state what the records show.  If the
 folder lean/ is present, it checks the record of the Lean build against the Lean sources and the records
 of the checkers, and only then defines the macro \LeanMaxK, which the passages on Lean in the paper use.
 It does not check that a record is the output of the run that it names, nor paper/main.pdf against its
@@ -459,11 +459,11 @@ def plain_record(name, par):
         orders.add(int(match.group(4)))
     ends = {0, m**k - 1}
     if {stored.index(min(stored)), stored.index(max(stored))} != ends:
-        fail("README.md says that the first and the last gap tuple have the least and the greatest cell sum")
+        fail("controls/README.md says that the first and the last gap tuple have the extreme cell sums")
     sample = ends | drawn
     sample |= {sum((index // m**i % m) * m ** (k - 1 - i) for i in range(k)) for index in sample}
     if len(set(indices)) != len(indices) or set(indices) != sample or len(drawn) != PLAIN_DRAWN:
-        fail(f"{record} does not hold the sample that README.md describes")
+        fail(f"{record} does not hold the sample that controls/README.md describes")
     count, cells = len(indices), n ** (k + 1)
     if lines[-1] != f"{count} cell sums of {cells} cells each: {count} equal to the stored sums, 0 different":
         fail(f"{record} does not end as expected")
@@ -479,16 +479,18 @@ def plain_record(name, par):
 def plain_sentences(par, count):
     """What README.md and controls/README.md say on the control of the cell sums for the largest k, as
     pairs (file, text).  (The paper does not report this control.)"""
-    k, m = par["k"], par["m"]
+    k, m, n = par["k"], par["m"], par["n"]
     drawn = NUMERALS[PLAIN_DRAWN]
+    controls = ("controls", "README.md")
     return [
+        (("README.md",), f"for k = {k} there are {m**k:,} sums over {n ** (k + 1):,} cells each"),
         (("README.md",), f"recomputed {count} of them"),
+        (controls, f"recomputed {count} of the {m**k:,} cell sums for k = {k}"),
         (
-            ("README.md",),
+            controls,
             f"the gap tuples (0, …, 0) and ({m - 1}, …, {m - 1}), which are the least and the greatest",
         ),
-        (("README.md",), f"of {drawn} gap tuples drawn at random, and of the reverses of these {drawn}"),
-        (("controls", "README.md"), f"recomputed {count} of the {m**k:,} cell sums for k = {k}"),
+        (controls, f"of {drawn} gap tuples drawn at random, and of the reverses of these {drawn}"),
     ]
 
 
@@ -914,7 +916,7 @@ def readme_times(table, names):
     """The paragraph of README.md, between its two markers, on how long a check takes: the times of the
     first runs under Windows for the largest k, and the times of the C checker under Linux.  The paper
     does not give running times.  (That the C checker was built with MSVC under Windows and with gcc
-    under Linux, and that the computer was running other jobs, is not in runs/times.txt.)"""
+    under Linux is not in runs/times.txt.)"""
 
     def first(checker, name):
         threads, elapsed, _ = table[checker, name, "windows"][0]
@@ -933,26 +935,17 @@ def readme_times(table, names):
     linux_minutes = sorted({f"{elapsed / 60:.0f}" for _, elapsed, _ in linux}, key=int)
     if len(linux_minutes) > 2:
         linux_minutes = [f"between {linux_minutes[0]}", linux_minutes[-1]]
-    compiled = [*linux, *table["c", main, "windows"], *table["rust", main, "windows"]]
-    compiled = [elapsed for _, elapsed, _ in compiled]
-    if not 3600 <= min(compiled) <= max(compiled) <= 7200:
-        fail(f"README.md says that the C or the Rust checker takes an hour or two for {main}")
     if max(first(checker, name)[1] for checker in CHECKERS for name in names[:-2]) >= 60:
         fail("README.md says that the spec files before the last two take less than a minute")
-    middle = [first(checker, before)[1] for checker in CHECKERS]
+    compiled = sorted({f"{first(checker, before)[1] / 60:.0f}" for checker in ("c", "rust")}, key=int)
     text = (
-        f"To check the computation on which Theorem 1.1 rests, one checker and one run are enough: build the "
-        f"C or the Rust checker as shown below and run it on `data/specs/{main}.txt`. On our desktop "
-        f"computer, which was running other jobs at the time, this took "
-        f"{c_time / 60:.0f} minutes with the C checker built with MSVC under Windows "
-        f"({' and '.join(linux_minutes)} minutes built with gcc under Linux) and {rust_time / 60:.0f} "
-        f"minutes with the Rust "
-        f"checker, on {c_threads} threads each, and {python_time / 3600:.1f} hours with the Python checker "
-        f"on {python_threads} processes. The spec files up to `{names[-3]}.txt` take less than a minute and "
-        f"`{before}.txt` takes between {math.floor(min(middle) / 60)} and {math.ceil(max(middle) / 60)} "
-        f"minutes (`runs/times.txt`). The run has succeeded if it prints the five "
-        f"lines shown below and ends with status 0. No checker needs another: each is built and run on its "
-        f"own."
+        f"On a desktop computer the check of `{main}.txt` took {c_time / 60:.0f} minutes with the C checker "
+        f"built with MSVC under Windows ({' and '.join(linux_minutes)} minutes built with gcc under Linux) "
+        f"and {rust_time / 60:.0f} minutes with the Rust checker, on {c_threads} threads each, and "
+        f"{python_time / 3600:.1f} hours with the Python checker on {python_threads} processes. The spec "
+        f"files up to `{names[-3]}.txt` take less than a minute, and `{before}.txt` takes about "
+        f"{' to '.join(compiled)} minutes with the C or the Rust checker and "
+        f"{first('python', before)[1] / 60:.0f} with the Python checker (`runs/times.txt`)."
     )
     return textwrap.fill(text, width=105) + "\n"
 
@@ -1075,27 +1068,19 @@ def mutation_sentence():
 def lean_statements(lean, par):
     """What README.md and Sections 1.3 and 5.2 must say about Lean, with or without a record of its build."""
     if lean is None:
-        return [(("README.md",), "- No part of the proof has been formalised in a proof assistant.")]
+        return [(("README.md",), "No part of the proof has been formalised in a proof assistant.")]
     if lean != par["k"]:
         fail("the paragraph on Lean in Section 5.2 says that Lean evaluated every k")
     pieces, hours, threads = lean_pieces(f"k{lean}")
-    each, values = NUMERALS[par["m"]], pieces * par["m"]
     readme, intro = ("README.md",), ("paper", "tex", "sec1_intro.tex")
     computation = ("paper", "tex", "sec5_computation.tex")
     return [
-        (readme, f"- For k = 5 to {lean} the equations for the totals are also proved in Lean 4"),
-        (readme, f"The evaluation for k = {lean} in Lean was run once, in {pieces} pieces and a last step."),
+        (readme, f"For k = 5 to {lean} the totals are also proved in Lean 4"),
         (
             readme,
-            f"For k = {lean} the evaluation was made in {pieces} pieces, each of which proves {each} of the "
-            "values",
+            f"for k = {lean} it was run once, in {pieces} pieces that took {hours} hours on {threads} "
+            "threads",
         ),
-        (
-            readme,
-            f"a last step from these {values} values to the total. The pieces took {hours} hours in all on "
-            f"{threads} threads, and each was evaluated once.",
-        ),
-        (readme, f"the evaluation for k = {lean} was run once"),
         (intro, "The total for $k=\\MainK$ was also confirmed in the proof assistant Lean"),
         (intro, "that the Lean kernel does not check and that was run once"),
         (computation, "For $k=5,\\dots,\\LeanMaxK$ the totals were also"),
@@ -1154,52 +1139,59 @@ def controls_readme(names, agreement, costs, macros, strip):
 
 
 def readme_statements(names, pars, threshold):
-    """Further statements of README.md that repeat a record, as pairs (file, text): the threshold in the
-    first paragraph, the commands of the section "Checking" for the last three spec files, with the
-    numbers of threads or processes of the first runs under Windows (the times that readme_times gives
-    belong to these), and what the file says of the record of controls/plain_sums.c beyond what
-    plain_sentences has."""
+    """Further statements of the README files that repeat a record, as pairs (file, text): the threshold
+    in the first paragraphs of README.md; the commands for the last three spec files in
+    checkers/README.md, and for the last one in README.md, with the numbers of threads or processes of
+    the first runs under Windows (the times that readme_times gives belong to these); and what
+    controls/README.md says of the record of controls/plain_sums.c beyond what plain_sentences has."""
     name, table = names[-1], times()
     par = pars[name]
     k, m, n = par["k"], par["m"], par["n"]
     count, orders, step = plain_record(name, par)
     if 10 <= step % 100 <= 20 or step % 10 != 3:
-        fail("README.md writes the step of controls/plain_sums.c as an ordinal number that ends in 3")
+        fail("controls/README.md writes the step of plain_sums.c as an ordinal number that ends in 3")
     commands = {
         "c": "./cchk",
         "rust": "checkers/rust/target/release/rchk",
         "python": "python checkers/check_bound.py",
     }
-    texts = [
-        f"That the number is below {threshold} is the result of a finite computation",
-        f"for every {step}rd cell ({orders} of the {n ** (k + 1):,} cells of a gap tuple) a second time by "
-        f"going through all {math.factorial(k - 1):,} orders",
-        f"The {count} equal the stored ones (`runs/plain_{name}.txt`)",
-        f"It recomputes the {count} cell sums for k = {k} named above",
-        f"`{m**5} cell sums of {n**6} cells each: {m**5} equal to the stored sums, 0 different`",
+    readme, checkers, controls = ("README.md",), ("checkers", "README.md"), ("controls", "README.md")
+    statements = [
+        (readme, f"The paper proves β < {threshold}"),
+        (readme, f"that the number is below {threshold} is the result of the computation"),
+        (readme, f"The bound is A₀·h₂ / ({n}^(k+1)·2^32·k·h₁) for h = h₁/h₂"),
+        (
+            controls,
+            f"for every {step}rd cell ({orders} of the {n ** (k + 1):,} cells of a gap tuple) a second time "
+            f"by going through all {math.factorial(k - 1):,} orders",
+        ),
+        (controls, f"The {count} equal the stored ones (`runs/plain_{name}.txt`)"),
+        (controls, f"It recomputes the {count} cell sums for k = {k} named above"),
+        (controls, f"`{m**5} cell sums of {n**6} cells each: {m**5} equal to the stored sums, 0 different`"),
     ]
     if pars["k5"]["k"] != 5 or (pars["k5"]["m"], pars["k5"]["n"]) != (m, n):
-        fail("README.md gives the last line of controls/plain_sums.c for k = 5 and the cells of the results")
+        fail("controls/README.md gives the last line of plain_sums.c for k = 5 and the cells of the results")
     for checker, command in commands.items():
         lines = []
         for spec in names[-3:]:
             threads = table[checker, spec, "windows"][0][0]
             lines.append(f"{command} data/specs/{spec}.txt -j {threads}")
+        statements.append((readme, lines[-1] + "\n```"))
         if checker == "python":
             lines[-1] += f" --log {name}.log"
-        texts.append("\n".join(lines) + "\n```")
-    return [(("README.md",), text) for text in texts]
+        statements.append((checkers, "\n".join(lines) + "\n```"))
+    return statements
 
 
 def check_lines(targets):
-    """The sentence of README.md on what this script prints with --check: one line for each target and one
-    for README.md."""
+    """The sentence of paper/README.md on what this script prints with --check: one line for each target
+    and one for README.md."""
     tables = [name for name in targets if name.endswith("_table.tex")]
     if set(targets) != {"numbers.tex", *tables}:
-        fail("README.md says that the targets are numbers.tex and tables")
+        fail("paper/README.md says that the targets are numbers.tex and tables")
     return (
         f"prints {NUMERALS[len(targets) + 1]} lines `agrees with the records:`, one for each file "
-        f"(`paper/tex/numbers.tex`, the {NUMERALS[len(tables)]} tables and this file)"
+        f"(`paper/tex/numbers.tex`, the {NUMERALS[len(tables)]} tables and the top-level `README.md`)"
     )
 
 
@@ -1259,7 +1251,8 @@ def stated(records, names, agreement, costs, lean, macros):
         *readme_statements(names, pars, threshold),
         (
             ("README.md",),
-            f"the bound, {decimal(*records[names[-1]]['fraction'], 5, False)}…, is smaller, so",
+            f"the bound, {decimal(*records[names[-1]]['fraction'], 5, False)}…, is below the threshold "
+            f"{threshold}, so",
         ),
         (computation, f"For each of the {NUMERALS[len(names)]} computations of \\cref{{thm:computation}}"),
         (intro, f"a grid of $12^5\\cdot20^6\\approx{power_of_ten(DONG_CAO_CELLS)}$ cells"),
@@ -1274,12 +1267,12 @@ def stated(records, names, agreement, costs, lean, macros):
         (computation, f"We take $M={par['M']}$, so that $\\delta=1/{par['M']}$, and $m={m}$ gap cells"),
         (computation, f"gap cells with $(b_1,b_2,b_3)=({b[1]},{b[2]},{b[3]})$, that is"),
         (computation, f"together with $n={n}$ height cells, $\\nu={par['nu']}$ and $T={par['T']}$"),
-        (("README.md",), f"which proves β < {threshold}"),
         (
             ("README.md",),
-            "```\n"
+            f"from the parameters in the spec file `data/specs/{names[-1]}.txt`, compares the results "
+            f"with the values file `data/values/{names[-1]}.txt`, and prints\n\n```\n"
             + records[names[-1]]["text"]
-            + f"```\n\n(this is the output for `data/specs/{names[-1]}.txt`;",
+            + "```\n\nThe check has succeeded if it prints these five lines and ends with status 0.",
         ),
     ]
 
@@ -1316,7 +1309,7 @@ def main(argv):
     targets, results, records, names, agreement, costs, lean, macros = numbers()
     status = 0
     statements = stated(records, names, agreement, costs, lean, macros)
-    statements.append((("README.md",), check_lines(targets)))
+    statements.append((("paper", "README.md"), check_lines(targets)))
     for parts, text in statements:
         if " ".join(text.split()) not in " ".join(visible(parts).split()):
             print(f"MISSING in {'/'.join(parts)}: {text}")
