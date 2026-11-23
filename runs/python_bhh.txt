@@ -1,5 +1,0 @@
-the stored values agree with the recomputed values
-total 13715469540
-bound 0.921167769524 (rounded up)
-bound <= 9212/10000
-ACCEPTED
