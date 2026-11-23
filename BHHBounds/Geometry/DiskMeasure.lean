@@ -6,13 +6,10 @@ import Mathlib.MeasureTheory.Measure.Lebesgue.VolumeOfBalls
 import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
 
 /-!
-# Planar Disk Measures, Orthogonal Symmetries, and Polar Change of Variables
+# Disks, planar symmetries and polar coordinates
 
-Provides foundational planar measure lemmas on `Pt = ℝ × ℝ`:
-1. `volume_disk` and `volume_openDisk`: exact area `π r²` of closed and open Euclidean disks.
-2. `rotLinearEquiv`, `reflYLinearEquiv`, `scaleLinearEquiv`: measure-preserving rotations,
-   reflections, and `r²`-scaling of planar Lebesgue measure.
-3. `integral_polar_eq`: polar coordinate change of variables on `ℝ²` (`dx dy = r dr dθ`).
+The area `π r²` of a disk, measure-preserving rotations, reflections and scalings of the plane, and
+the polar change of variables.
 -/
 
 open MeasureTheory Set Real Filter

@@ -4,15 +4,10 @@ import Mathlib.MeasureTheory.Measure.WithDensity
 import Mathlib.Tactic
 
 /-!
-# Equiprobable Quantile Bins for `Exp(1)` and Height Sub-Bins
+# Quantile bins of `Exp(1)`
 
-Proves:
-1. Exact improper tail integrals `∫_{a}^{∞} x^m e^{-x} dx` for `m = 0, 1, 2`.
-2. Equiprobable quantile bin measure `expBinProb n j` for `j < n` is a probability
-   measure with exact 1st and 2nd moments matching `exp_bin_moments` in Python.
-3. Exact 16-way refinement identity: `expBinProb G g` is the uniform average of
-   `expBinProb (16 * G) (16 * g + r)` over `r : Fin 16`.
-4. Exact 4-way height sub-bin 2nd moment formula for `Unif[b h / B, (b + 1) h / B]`.
+Tail integrals of `x ^ m * exp (-x)` for `m ≤ 2`, the cutpoints `expCut n j = log (n / (n - j))`,
+and the mass and first two moments of `exp (-x)` on each bin `expBinSet n j`.
 -/
 
 namespace BHHBounds.Upper
@@ -20,7 +15,7 @@ namespace BHHBounds.Upper
 open MeasureTheory Set Real Filter
 open scoped ENNReal
 
-/-- Helper: `t^m * exp(-t) → 0` as `t → +∞` for `m = 0, 1, 2`. -/
+/-- `t^m * exp(-t) → 0` as `t → +∞` for `m = 0, 1, 2`. -/
 lemma tendsto_exp_neg_atTop : Tendsto (fun t : ℝ => Real.exp (-t)) atTop (nhds 0) :=
   Real.tendsto_exp_neg_atTop_nhds_zero
 

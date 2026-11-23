@@ -2,17 +2,11 @@ import BHHBounds.Dual.PoissonIntegrals
 import Mathlib.MeasureTheory.Integral.Prod
 
 /-!
-# Soundness of the Triangle-Moat Fixed-Point Verifier (`verifyBoxInt`, `verifyShardInt`)
+# Soundness of `verifyBoxInt` and `verifyShardInt`
 
-Proves:
-1. `certActiveMask`: the deterministic boolean level-activation mask matching `boxLevelsLoop`.
-2. `buildBoxGeom_sound`: geometric, potential, circumdisk, norm-squared, angle-sector dot-product,
-   and box-weight soundness of `buildBoxGeom`.
-3. `levelPenaltyHi_sound`: polar-coordinate upper bound on `levelCrossPen` via `shellPenLoop`,
-   `sectorShellsLoop`, and `vertexSectorsLoop`.
-4. `verifyBoxInt_le_boxIntegral` & `verifyShardInt_le_planIntegral`:
-   `(verifyShardInt rho w angleTable40 boxes : ℝ) / 10^9 ≤
-     trianglePlanIntegral rho w (certActiveMask rho w angleTable40) boxes`.
+`verifyShardInt_le_planIntegral`: for valid boxes,
+`(verifyShardInt rho w angleTable40 boxes : ℝ) / 10 ^ 9 ≤
+  trianglePlanIntegral rho w (certActiveMask rho w angleTable40) boxes`.
 -/
 
 open MeasureTheory Set Real
@@ -234,7 +228,7 @@ private lemma sector_trig_bounds (it : Fin 40) {θ : ℝ}
 
 /-! ## Section 2: `buildBoxGeom` Soundness -/
 
-/-- Helper: `Array.ofFn` followed by `Array.map` lookup at `it < n`. -/
+/-- `Array.ofFn` followed by `Array.map` lookup at `it < n`. -/
 private lemma getD_map_ofFn {α β : Type} {n : Nat} (f : Fin n → α) (g : α → β) (d : β)
     (it : Fin n) : ((Array.ofFn f).map g).getD it.val d = g (f it) := by
   simp [Array.getD, it.isLt]
@@ -345,7 +339,7 @@ private lemma buildBoxGeom_sound {rho w : Array Int} (hpot : ValidStepPot rho w)
     have h1 : toR (mulLo b.l0 (S - b.x1)) ≤ L * (1 - pt.1) :=
       mulLo_le.trans (mul_le_mul (le_of_lt hl0) homx_lo (toR_nonneg homx1_nn) (le_of_lt hql.1))
     linarith
-  -- Helper: `|a - x| ≤ toR (max (a - lo).natAbs (hi - a).natAbs)` whenever `toR lo ≤ x ≤ toR hi`
+  -- `|a - x| ≤ toR (max (a - lo).natAbs (hi - a).natAbs)` whenever `toR lo ≤ x ≤ toR hi`
   have habs_box : ∀ (a lo hi : Int) (x : ℝ), toR lo ≤ x → x ≤ toR hi →
       |x - toR a| ≤ ((max (a - lo).natAbs (hi - a).natAbs : Int) : ℝ) / (S : ℝ) := by
     intro a lo hi x hlo hhi
@@ -357,7 +351,7 @@ private lemma buildBoxGeom_sound {rho w : Array Int} (hpot : ValidStepPot rho w)
     have h2 : toR hi - toR a ≤ toR m := by rw [← toR_sub]; exact toR_le_toR hm2
     unfold toR at hlo hhi h1 h2 ⊢
     constructor <;> linarith
-  -- Helper: `mkDot` soundness for any box `[x0, x1] × [y0, y1]`
+  -- `mkDot` soundness for any box `[x0, x1] × [y0, y1]`
   have hmkDot : ∀ (x0 x1 y0 y1 : Int) (x y : ℝ),
       toR x0 ≤ x → x ≤ toR x1 → toR y0 ≤ y → y ≤ toR y1 →
       ∀ (it : Fin 40) (θ : ℝ),
@@ -380,7 +374,6 @@ private lemma buildBoxGeom_sound {rho w : Array Int} (hpot : ValidStepPot rho w)
     rw [getD_map_ofFn _ Prod.fst 0 ⟨it.val, by rw [hnT]; exact it.isLt⟩,
         getD_map_ofFn _ Prod.snd 0 ⟨it.val, by rw [hnT]; exact it.isLt⟩]
     exact hdot
-  -- Now construct `BoxGeomSound` field by field!
   refine {
     p0_le := by
       unfold buildBoxGeom triVertPot; dsimp only
@@ -610,7 +603,7 @@ private lemma shellQHi_sound {rho w : Array Int} (hpot : ValidStepPot rho w)
     set g1 : Nat := if dMaxA ≤ rk then 1 else 0
     set g2 : Nat := if dMaxB ≤ rk then 1 else 0
     set guar := g0 + g1 + g2
-    -- Prove `guar ≤ triHitCount P v (toR rk)`!
+    -- Prove `guar ≤ triHitCount P v (toR rk)`
     have hguar_le : guar ≤ triHitCount P v (toR rk) := by
       have huniv : (Finset.univ : Finset (Fin 3)) = {u, a, b} := by
         ext x; simp only [Finset.mem_univ, Finset.mem_insert, Finset.mem_singleton, true_iff]
@@ -656,7 +649,7 @@ private lemma shellQHi_sound {rho w : Array Int} (hpot : ValidStepPot rho w)
         calc toR aRkLo ≤ toR piLo * toR (mulLo rk rk) := mulLo_le
           _ ≤ Real.pi * (toR rk) ^ 2 :=
               mul_le_mul piLo_le_pi hsq (toR_nonneg (mulLo_nonneg hrk_nn hrk_nn)) (le_of_lt Real.pi_pos)
-      -- Bound `toR vc ≤ V` via `triUnion ⊆ disk C rEnc`!
+      -- Bound `toR vc ≤ V` via `triUnion ⊆ disk C rEnc`
       have hvc_le : toR vc ≤ (volume (disk v (toR rk) \ triUnion P (toR rj))).toReal := by
         dsimp only [vc]; rw [toR_max, toR_zero]
         refine max_le hV_nn ?_
@@ -684,7 +677,7 @@ private lemma shellQHi_sound {rho w : Array Int} (hpot : ValidStepPot rho w)
           (diskInterArea_antitone_d (toR_nonneg hrk_nn) (toR_nonneg hrEnc) (toR_nonneg hdcMin_nn) hc_lo).trans
             (circleInterHi_sound hdcMin_nn hrk_nn hrEnc)
         rw [toR_sub]; linarith
-      -- Bound `toR vu ≤ V` via `volume_disk_sdiff_union_ge_unionBound`!
+      -- Bound `toR vu ≤ V` via `volume_disk_sdiff_union_ge_unionBound`
       have hvu_le : toR vu ≤ (volume (disk v (toR rk) \ triUnion P (toR rj))).toReal := by
         dsimp only [vu]; rw [toR_max, toR_zero]
         refine max_le hV_nn ?_
@@ -1398,7 +1391,7 @@ private lemma vertexSectorsLoop_ge {rho w : Array Int} (hpot : ValidStepPot rho 
     · rw [euclidDist_symm]; exact h12
     · rw [euclidDist_self]; exact toR_nonneg (le_of_lt hrj_pos)
   -- Helper for one sector `it : Fin 40` and fixed `θ` in sector `it`:
-  -- bounds the inner radial `Ioi 0` integral by the `sectorShellsLoop` increment!
+  -- bounds the inner radial `Ioi 0` integral by the `sectorShellsLoop` increment
   have hsector_inner : ∀ (it : Fin 40) (acc : Int) {θ : ℝ},
       θ ∈ Ioo ((it.val : ℝ) * (2 * Real.pi / 40)) (((it.val + 1 : Nat) : ℝ) * (2 * Real.pi / 40)) →
       let q2aLo := if u.val == 0 then g.q2Lo01 else if u.val == 1 then g.q2Lo01 else g.q2Lo02
@@ -1434,7 +1427,7 @@ private lemma vertexSectorsLoop_ge {rho w : Array Int} (hpot : ValidStepPot rho 
           else 0) ≤
       ENNReal.ofReal (((acc' - acc : Int) : ℝ) / (6 * (S : ℝ) ^ 2)) := by
     intro it acc θ hθ q2aLo q2aHi q2bLo q2bHi cq2Lo maLo maHi mbLo mbHi mch r2 discA sA discB sB sStart acc'
-    -- Pick the two other vertices `(a, b)` for `u` and unpack `hg`!
+    -- Pick the two other vertices `(a, b)` for `u` and unpack `hg`
     let a : Fin 3 := if u = 0 then 1 else 0
     let b' : Fin 3 := if u = 2 then 1 else 2
     have hua : u ≠ a := by fin_cases u <;> decide
@@ -1485,7 +1478,7 @@ private lemma vertexSectorsLoop_ge {rho w : Array Int} (hpot : ValidStepPot rho 
       · exact hg.dot_c0 it θ hθ
       · exact hg.dot_c1 it θ hθ
       · exact hg.dot_c2 it θ hθ
-    -- Show the integrand vanishes outside `Ioo (toR sStart) (toR sMax)`!
+    -- Show the integrand vanishes outside `Ioo (toR sStart) (toR sMax)`
     have hvanish : ∀ s ∈ Ioi (0 : ℝ), s ∉ Ioo (toR sStart) (toR sMax) →
         ENNReal.ofReal (
           let P := triVerts L pt
@@ -1644,7 +1637,6 @@ private lemma vertexSectorsLoop_ge {rho w : Array Int} (hpot : ValidStepPot rho 
         hq2a hq2b hcq2 hma hmb hmc 0 sStart acc (le_max_left _ _)
     · rw [if_neg hlt, sub_self, Int.cast_zero, zero_div, ENNReal.ofReal_zero]
       rw [Set.Ioo_eq_empty (not_lt.mpr (toR_le_toR (not_lt.mp hlt)))]; simp
-  -- Induction on `40 - it`!
   intro it acc hit
   induction hd : 40 - it generalizing it acc with
   | zero =>
@@ -1864,7 +1856,6 @@ lemma levelPenaltyHi_sound {rho w : Array Int} (hpot : ValidStepPot rho w)
   have hclear2 : g.pi2Max + yj ≤ rj := by omega
   have hpen_nn : 0 ≤ toR (levelPenaltyHi rho w angleTable40 g wMax yPrev rj yj) :=
     toR_nonneg (levelPenaltyHi_nonneg rho w angleTable40 g wMax yPrev rj yj (by unfold angleTable40; decide))
-  -- Apply `setIntegral_le_of_setLIntegral_le`!
   have hA_meas : MeasurableSet (triUnion (triVerts L pt) (toR rj))ᶜ :=
     MeasurableSet.compl (MeasurableSet.iUnion fun u => measurableSet_disk _ _)
   have hF_nn : ∀ v ∈ (triUnion (triVerts L pt) (toR rj))ᶜ,
@@ -1927,7 +1918,7 @@ lemma levelPenaltyHi_sound {rho w : Array Int} (hpot : ValidStepPot rho w)
     rw [setLIntegral_congr_fun hA_meas hzero]; simp
   · rw [if_neg h2w]
     dsimp only
-    -- Step 1: Bound `triVertPot u` by `pu u` (`g.pi01Max`, `g.pi01Max`, `g.pi2Max`) using `sum_triCrossCoeff_mono_p`!
+    -- Step 1: Bound `triVertPot u` by `pu u` (`g.pi01Max`, `g.pi01Max`, `g.pi2Max`) using `sum_triCrossCoeff_mono_p`
     let puOf : Fin 3 → Int := fun u => match u with | ⟨0, _⟩ => g.pi01Max | ⟨1, _⟩ => g.pi01Max | ⟨2, _⟩ => g.pi2Max
     have hmono_pt : ∀ v ∈ (triUnion (triVerts L pt) (toR rj))ᶜ,
         ENNReal.ofReal (∑ u : Fin 3, ∑ k : Fin rho.size,
@@ -2036,7 +2027,7 @@ lemma levelPenaltyHi_sound {rho w : Array Int} (hpot : ValidStepPot rho w)
           ((measurable_const.add (hvol_meas k)).mul (Real.continuous_exp.measurable.comp (hvol_meas k).neg))
     refine (setLIntegral_mono' hA_meas hmono_pt).trans ?_
     rw [lintegral_finsetSum _ fun u _ => hterm_meas u]
-    -- Step 3: Bound each vertex `u ∈ {0, 1, 2}` by polar coordinates + `vertexSectorsLoop_ge`!
+    -- Step 3: Bound each vertex `u ∈ {0, 1, 2}` by polar coordinates + `vertexSectorsLoop_ge`
     set rEnc := rj + g.radB
     set p0 := if g.pi01Max + yj + wMax > rj then
         vertexSectorsLoop rho w g 40 0 g.pi01Max yPrev yj rj rEnc (g.pi01Max + yj + wMax) 0 0 else 0
@@ -2058,7 +2049,7 @@ lemma levelPenaltyHi_sound {rho w : Array Int} (hpot : ValidStepPot rho w)
       intro u acc
       set sMax := puOf u + yj + wMax
       have hclear_u : puOf u + yj ≤ rj := by fin_cases u <;> dsimp only [puOf] <;> omega
-      -- Convert to full-plane `lintegral`, translate by `P u`, apply `lintegral_polar_eq` + Tonelli!
+      -- Convert to full-plane `lintegral`, translate by `P u`, apply `lintegral_polar_eq` + Tonelli
       let F : Pt → ℝ≥0∞ := fun v =>
         ENNReal.ofReal (if v ∉ triUnion (triVerts L pt) (toR rj) then
           ∑ k : Fin rho.size,
@@ -2116,7 +2107,7 @@ lemma levelPenaltyHi_sound {rho w : Array Int} (hpot : ValidStepPot rho w)
         refine lintegral_congr fun x => ?_
         exact (MeasureTheory.lintegral_add_left_eq_self (fun y => F ((triVerts L pt u).1 + x, y)) (triVerts L pt u).2).symm
       rw [htrans, lintegral_polar_eq hFu_meas]
-      -- Swap `s` and `θ` by Tonelli!
+      -- Swap `s` and `θ` by Tonelli
       have hswap : ∫⁻ s in Ioi (0 : ℝ), ENNReal.ofReal s *
           ∫⁻ θ in Ioo (0 : ℝ) (2 * Real.pi), Fu (s * Real.cos θ, s * Real.sin θ) =
           ∫⁻ θ in Ioo (0 : ℝ) (2 * Real.pi),
@@ -2233,7 +2224,7 @@ lemma levelPenaltyHi_sound {rho w : Array Int} (hpot : ValidStepPot rho w)
             · rw [if_neg hv]
           rw [setLIntegral_congr_fun measurableSet_Ioi h0]; simp
         rw [setLIntegral_congr_fun measurableSet_Ioo hzero]; simp
-    -- Step 4: Sum over `u = 0, 1, 2` and apply `real_div_le_int_cdiv` for `/ 6000000000000`!
+    -- Step 4: Sum over `u = 0, 1, 2` and apply `real_div_le_int_cdiv` for `/ 6000000000000`
     rw [Fin.sum_univ_three]
     have h0 := hvertex_le 0 0
     have h1 := hvertex_le 1 p0
@@ -2528,7 +2519,7 @@ private lemma boxLevelsLoop_le {rho w : Array Int} (hpot : ValidStepPot rho w)
       push_cast; ring
     rw [hsplit]
     refine add_le_add ?_ hih
-    -- Match `certActiveMask` with `bracketLo > 0`!
+    -- Match `certActiveMask` with `bracketLo > 0`
     by_cases hact : 2 * dy > penHi
     · have hmask : certActiveMask rho w angleTable40 b yPrev rj yj = true := by
         unfold certActiveMask; exact decide_eq_true hact
@@ -2538,7 +2529,7 @@ private lemma boxLevelsLoop_le {rho w : Array Int} (hpot : ValidStepPot rho w)
       have hgain_eq : gain9 = (g.boxWeight12 * survLo * bracketLo) / 1000000000000000 := by
         dsimp only [gain9]; rw [if_pos hbr_pos]
       rw [hgain_eq]
-      -- Step 1: Bound `(gain9 : ℝ) / 10^9 ≤ (g.boxWeight12 / 10^12) * toR survLo * toR bracketLo`!
+      -- Step 1: Bound `(gain9 : ℝ) / 10^9 ≤ (g.boxWeight12 / 10^12) * toR survLo * toR bracketLo`
       have hdiv := int_ediv_le_real_div (a := g.boxWeight12 * survLo * bracketLo) (b := 1000000000000000) (by decide)
       have hstep1 : (((g.boxWeight12 * survLo * bracketLo) / 1000000000000000 : Int) : ℝ) / (10 ^ 9 : ℝ) ≤
           ((g.boxWeight12 : ℝ) / (10 ^ 12 : ℝ)) * (toR survLo * toR bracketLo) := by
@@ -2546,7 +2537,7 @@ private lemma boxLevelsLoop_le {rho w : Array Int} (hpot : ValidStepPot rho w)
         unfold toR S; push_cast at h ⊢
         linarith [show ((g.boxWeight12 : ℝ) * survLo * bracketLo) / 1000000000000000 / 10 ^ 9 =
             (g.boxWeight12 : ℝ) / 10 ^ 12 * ((survLo : ℝ) / 1000000 * ((bracketLo : ℝ) / 1000000)) by ring]
-      -- Step 2: Multiply `boxWeight12_le` by `toR survLo * toR bracketLo ≥ 0`!
+      -- Step 2: Multiply `boxWeight12_le` by `toR survLo * toR bracketLo ≥ 0`
       have hsurv_nn : 0 ≤ toR survLo := toR_nonneg (expNegLo_nonneg' _)
       have hbr_nn : 0 ≤ toR bracketLo := toR_nonneg (by omega)
       have hstep2 : ((g.boxWeight12 : ℝ) / (10 ^ 12 : ℝ)) * (toR survLo * toR bracketLo) ≤
@@ -2557,7 +2548,7 @@ private lemma boxLevelsLoop_le {rho w : Array Int} (hpot : ValidStepPot rho w)
         have hbw := mul_le_mul_of_nonneg_right (boxWeight12_le hb) (mul_nonneg hsurv_nn hbr_nn)
         refine hbw.trans_eq ?_
         simp_rw [← intervalIntegral.integral_mul_const]
-      -- Step 3: Pointwise lower bound on `boxRegion b` + iterated `setIntegral_mono_on`!
+      -- Step 3: Pointwise lower bound on `boxRegion b` + iterated `setIntegral_mono_on`
       have hl_le : toR b.l0 ≤ toR b.l1 := toR_le_toR (le_of_lt hb.l0_lt_l1)
       have hx_le : toR b.x0 ≤ toR b.x1 := toR_le_toR (le_of_lt hb.x0_lt_x1)
       have hy_le : toR b.y0 ≤ toR b.y1 := toR_le_toR (le_of_lt hb.y0_lt_y1)
@@ -2586,7 +2577,7 @@ private lemma boxLevelsLoop_le {rho w : Array Int} (hpot : ValidStepPot rho w)
         rw [mul_assoc (4 * Real.pi * L ^ 3)]
         exact mul_le_mul_of_nonneg_left
           (mul_le_mul hsurv hbr_le hbr_nn (Real.exp_nonneg _)) h4L_nn
-      -- Boundedness & measurability of the integrand on `boxRegion b`!
+      -- Boundedness & measurability of the integrand on `boxRegion b`
       let F : ℝ × ℝ × ℝ → ℝ := fun p =>
         (4 * Real.pi * p.1 ^ 3) *
           Real.exp (-unionDiskArea (triVerts p.1 (p.2.1, p.2.2)) (toR rj)) *

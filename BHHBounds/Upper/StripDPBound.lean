@@ -2,19 +2,12 @@ import BHHBounds.Upper.CostTableSound
 import BHHBounds.Upper.TourHelpers
 
 /-!
-# Single-Strip Expected Hamiltonian Path Length via Bandwidth-4 Concave DP
+# Expected path length in one strip
 
-Connects:
-- `walk_to_hamiltonian_path` (`AutomatonSound.lean`)
-- `optDP_achieved` & `concave_dp_total_bound` (`DP.lean`)
-- `edgeCost4_sound` (`CostTableSound.lean`)
-- `listPathLen_map_eq_pathLen` (`TourHelpers.lean`)
-
-Proves `strip_expected_path_le`: for any potential `V` and bound `uBound` satisfying the
-concave Bellman inequality `dpOp automaton4 edgeCost4 V ≤ V + uBound`, there is a constant
-`C_strip` (independent of `m`) and a measurable Hamiltonian path `stripPath` visiting
-`0, 1, ..., 4 + m` from `0` to `4 + m` on i.i.d. `Exp(1)` gaps and `Unif(0, 11/5]` heights
-whose expected Euclidean length is at most `m * uBound + C_strip`.
+`strip_expected_path_le`: if `dpOp automaton4 edgeCost4 V ≤ V + uBound`, there is a constant
+`C_strip` such that, for i.i.d. `Exp(1)` gaps and uniform heights in `(0, 11/5]`, the points
+`0, ..., 4 + m` of a strip have a Hamiltonian path from `0` to `4 + m` of expected length at most
+`m * uBound + C_strip`.
 -/
 
 namespace BHHBounds.Upper
@@ -465,7 +458,7 @@ instance stripBinMeasure_isProb {m : ℕ} (z₀ : Window 3 4 6) (w : Fin (4 + m)
   unfold stripBinMeasure
   infer_instance
 
-/-- **Single-Edge Conditional Expectation Bound:** For any step `t : Fin (4 + m)` and any
+/-- For any step `t : Fin (4 + m)` and any
 active slot `v : Fin 4` (with `4 - v.val ≤ t.val + 1`), the conditional expected Euclidean
 distance between `stripPt (t + 1 - (4 - v))` and `stripPt (t + 1)` given `(z₀, w)` is at most
 `edgeCost4 v (fullGaps z_t (w t)) (fullHeights z_t (w t))`. -/
@@ -474,9 +467,9 @@ lemma strip_edge_integral_le {m : ℕ} (z₀ : Window 3 4 6) (w : Fin (4 + m) �
     let wt : Fin t.val → Label 4 6 := fun i => w ⟨i.val, by omega⟩
     let zt := runWindow z₀ wt
     Integrable (fun p : (Fin (7 + m) → ℝ) × (Fin (8 + m) → ℝ) =>
-      ptDist (stripPt p.1 p.2 (t.val + 1 - (4 - v.val))) (stripPt p.1 p.2 (t.val + 1)))
+      euclidDist (stripPt p.1 p.2 (t.val + 1 - (4 - v.val))) (stripPt p.1 p.2 (t.val + 1)))
       (stripBinMeasure z₀ w) ∧
-    ∫ p, ptDist (stripPt p.1 p.2 (t.val + 1 - (4 - v.val))) (stripPt p.1 p.2 (t.val + 1))
+    ∫ p, euclidDist (stripPt p.1 p.2 (t.val + 1 - (4 - v.val))) (stripPt p.1 p.2 (t.val + 1))
       ∂(stripBinMeasure z₀ w) ≤ edgeCost4 v (fullGaps zt (w t)) (fullHeights zt (w t)) := by
   intro wt zt
   haveI : ∀ j : Fin (7 + m), IsProbabilityMeasure (expBinMeasure 4 (gapBinAt z₀ w j).val) :=
@@ -557,13 +550,13 @@ lemma strip_edge_integral_le {m : ℕ} (z₀ : Window 3 4 6) (w : Fin (4 + m) �
        ((heightBinMeasure 6 (11 / 5) (fullHeights zt (w t) v.castSucc).val).prod
         (heightBinMeasure 6 (11 / 5) (fullHeights zt (w t) (Fin.last 4)).val))) :=
     hmpE.prod hmpY
-  -- Check pointwise equality of `ptDist` with the integrand of `edgeCost4_sound`
+  -- Check pointwise equality of `euclidDist` with the integrand of `edgeCost4_sound`
   let F : ((Fin (4 - v.val) → ℝ) × (ℝ × ℝ)) → ℝ :=
     fun q => Real.sqrt (((∑ i : Fin (4 - v.val), q.1 i) / (11 / 5 : ℝ)) ^ 2 + (q.2.1 - q.2.2) ^ 2)
   have hpt : ∀ p : (Fin (7 + m) → ℝ) × (Fin (8 + m) → ℝ),
-      ptDist (stripPt p.1 p.2 (t.val + 1 - (4 - v.val))) (stripPt p.1 p.2 (t.val + 1)) = F (proj p) := by
+      euclidDist (stripPt p.1 p.2 (t.val + 1 - (4 - v.val))) (stripPt p.1 p.2 (t.val + 1)) = F (proj p) := by
     intro ⟨E, Y⟩
-    unfold ptDist stripPt F proj projE projY
+    unfold euclidDist sqDist stripPt F proj projE projY
     have hidx1 : t.val + 1 - (4 - v.val) + 3 = t.val + v.val := by omega
     have hidx2 : t.val + 1 + 3 = t.val + 4 := by omega
     have hlt1 : t.val + 1 - (4 - v.val) + 3 < 8 + m := by omega
@@ -649,7 +642,7 @@ lemma strip_edge_integral_le {m : ℕ} (z₀ : Window 3 4 6) (w : Fin (4 + m) �
   rw [integral_comp_measurePreserving hmp hF_int.aestronglyMeasurable]
   exact edgeCost4_sound v (fullGaps zt (w t)) (fullHeights zt (w t))
 
-/-! ## Section 4: Master Single-Strip Expected Hamiltonian Path Bound -/
+/-! ## Section 4: Single-Strip Expected Hamiltonian Path Bound -/
 
 /-- Any vertex `v ∈ chosen` in a valid transition from a matched state satisfies `4 - v ≤ k + 1`. -/
 lemma stepState_chosen_active {d k : ℕ} {st st' : Mate d} {F : LinearForest k}
@@ -855,7 +848,7 @@ private lemma walkTableCost_eq_sum {d₁ G B : ℕ}
 /-- Single-strip expected path bound: given any concave DP fixed-point certificate `(V, uBound)`
 for `automaton4`, there exists a constant `C_strip` (independent of `m`) and, for every `m : ℕ`,
 a measurable function `len : (Fin (7 + m) → ℝ) × (Fin (8 + m) → ℝ) → ℝ` such that:
-1. For EVERY `(E, Y)`, there is a Hamiltonian path `P : List ℕ` visiting `{0, ..., 4 + m}`
+1. For every `(E, Y)`, there is a Hamiltonian path `P : List ℕ` visiting `{0, ..., 4 + m}`
    from `0` to `4 + m` with `listPathLen (P.map (stripPt E Y)) ≤ len (E, Y)`.
 2. `len` is integrable under `stripFullMeasure m` with
    `∫ p, len p ∂(stripFullMeasure m) ≤ (m : ℝ) * uBound + C_strip`. -/
@@ -908,7 +901,7 @@ theorem strip_expected_path_le
     (hwalk p).choose_spec.choose_spec
   let walkCost (p : Window 3 4 6 × (Fin (4 + m) → Label 4 6))
       (x : (Fin (7 + m) → ℝ) × (Fin (8 + m) → ℝ)) : ℝ :=
-    ∑ t : Fin (4 + m), stepCost ptDist (stripPt x.1 x.2) t.val (walkChoices p t)
+    ∑ t : Fin (4 + m), stepCost euclidDist (stripPt x.1 x.2) t.val (walkChoices p t)
   let p0 : Window 3 4 6 × (Fin (4 + m) → Label 4 6) :=
     (((fun _ => 0), (fun _ => 0)), fun _ => (0, 0))
   let unionBins : Set ((Fin (7 + m) → ℝ) × (Fin (8 + m) → ℝ)) :=
@@ -936,7 +929,7 @@ theorem strip_expected_path_le
       have : (⟨4 + m, Nat.lt_succ_self _⟩ : Fin (4 + m + 1)) = Fin.last (4 + m) := rfl
       rw [this, hspN, automaton4.init_eq]
     obtain ⟨P, hne, hperm, hhead, hlast, hplen⟩ :=
-      walk_to_hamiltonian_path (by norm_num) ptDist ptDist_symm (stripPt x.1 x.2)
+      walk_to_hamiltonian_path (by norm_num) euclidDist euclidDist_symm (stripPt x.1 x.2)
         (fun i => automaton4.stateOf (walkStates p i)) (walkChoices p) hst0 hstN hstep_st
     exact ⟨P, hne, hperm, hhead, hlast, by rw [listPathLen_map_eq_pathLen, hplen]⟩
   have hclaim1 : ∀ x, ∃ (P : List ℕ) (hne : P ≠ []),
@@ -976,15 +969,15 @@ theorem strip_expected_path_le
         (by rw [hsp0, automaton4.init_eq])
         (fun t => automaton4.preds_valid _ _ (hsp.2.2.1 t))
     have hstep_int_le : ∀ t : Fin (4 + m),
-        Integrable (fun x => stepCost ptDist (stripPt x.1 x.2) t.val (walkChoices p t)) (stripBinMeasure p.1 p.2) ∧
-        ∫ x, stepCost ptDist (stripPt x.1 x.2) t.val (walkChoices p t) ∂(stripBinMeasure p.1 p.2) ≤
+        Integrable (fun x => stepCost euclidDist (stripPt x.1 x.2) t.val (walkChoices p t)) (stripBinMeasure p.1 p.2) ∧
+        ∫ x, stepCost euclidDist (stripPt x.1 x.2) t.val (walkChoices p t) ∂(stripBinMeasure p.1 p.2) ≤
           chosenTableCost edgeCost4 (walkChoices p t)
             (fullGaps (runWindow p.1 (fun i : Fin t.val => p.2 ⟨i.val, by omega⟩)) (p.2 t))
             (fullHeights (runWindow p.1 (fun i : Fin t.val => p.2 ⟨i.val, by omega⟩)) (p.2 t)) := by
       intro t
       have hlist : ∀ (l : List (Fin 4)), (∀ v ∈ l, 4 - v.val ≤ t.val + 1) →
-          Integrable (fun x => stepCost ptDist (stripPt x.1 x.2) t.val l) (stripBinMeasure p.1 p.2) ∧
-          ∫ x, stepCost ptDist (stripPt x.1 x.2) t.val l ∂(stripBinMeasure p.1 p.2) ≤
+          Integrable (fun x => stepCost euclidDist (stripPt x.1 x.2) t.val l) (stripBinMeasure p.1 p.2) ∧
+          ∫ x, stepCost euclidDist (stripPt x.1 x.2) t.val l ∂(stripBinMeasure p.1 p.2) ≤
             chosenTableCost edgeCost4 l
               (fullGaps (runWindow p.1 (fun i : Fin t.val => p.2 ⟨i.val, by omega⟩)) (p.2 t))
               (fullHeights (runWindow p.1 (fun i : Fin t.val => p.2 ⟨i.val, by omega⟩)) (p.2 t)) := by
@@ -998,9 +991,9 @@ theorem strip_expected_path_le
           obtain ⟨hint_v, hle_v⟩ := strip_edge_integral_le p.1 p.2 t v (hl v (List.mem_cons_self ..))
           obtain ⟨hint_r, hle_r⟩ := ih (fun u hu => hl u (List.mem_cons_of_mem _ hu))
           have hstep_cons : (fun x : (Fin (7 + m) → ℝ) × (Fin (8 + m) → ℝ) =>
-                stepCost ptDist (stripPt x.1 x.2) t.val (v :: rest)) =
-              fun x => ptDist (stripPt x.1 x.2 (t.val + 1 - (4 - v.val))) (stripPt x.1 x.2 (t.val + 1)) +
-                stepCost ptDist (stripPt x.1 x.2) t.val rest := by
+                stepCost euclidDist (stripPt x.1 x.2) t.val (v :: rest)) =
+              fun x => euclidDist (stripPt x.1 x.2 (t.val + 1 - (4 - v.val))) (stripPt x.1 x.2 (t.val + 1)) +
+                stepCost euclidDist (stripPt x.1 x.2) t.val rest := by
             funext x; simp [stepCost]
           rw [hstep_cons]
           refine ⟨hint_v.add hint_r, ?_⟩

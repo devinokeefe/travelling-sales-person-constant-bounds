@@ -9,7 +9,7 @@ authors:
 version: "2.0.0"
 date-released: "2026-11-23"
 license: MIT
-repository-code: "https://github.com/devinokeefe/travelling-sales-person-constant-bounds"
+repository-code: "https://github.com/devinokeefe/travelling-salesman-constant-bounds"
 keywords:
   - "travelling salesman problem"
   - "Beardwood-Halton-Hammersley constant"

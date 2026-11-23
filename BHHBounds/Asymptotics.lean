@@ -4,12 +4,10 @@ import Mathlib.Probability.Independence.InfinitePi
 import Mathlib.MeasureTheory.Integral.DominatedConvergence
 
 /-!
-# Asymptotic Bridge from `IsBHHConstant` to Expected Tour Length
+# From `IsBHHConstant` to expected tour length
 
-Proves that every Beardwood–Halton–Hammersley constant `β` (`IsBHHConstant β`) satisfies
-`Filter.Tendsto (fun n => expectedTourLength n / Real.sqrt n) Filter.atTop (nhds β)`,
-via the canonical infinite product space `Measure.infinitePi` and dominated convergence
-using the elementary `4 * √n + 4` strip tour bound on `[0, 1]²`.
+If `β` is a BHH constant then `expectedTourLength n / √n → β`, by dominated convergence with the
+deterministic bound `tourLength x ≤ 4 * √n + 4` on `[0, 1]²`.
 -/
 
 open MeasureTheory Set Filter ProbabilityTheory Finset
@@ -171,7 +169,7 @@ lemma measurable_tourLength (n : ℕ) : Measurable (fun x : Fin n → Pt => tour
       simpa using hf a
   exact hinf Finset.univ Finset.univ_nonempty
 
-private lemma euclidDist_le_l1 (a b : Pt) : euclidDist a b ≤ |a.1 - b.1| + |a.2 - b.2| := by
+lemma euclidDist_le_l1 (a b : Pt) : euclidDist a b ≤ |a.1 - b.1| + |a.2 - b.2| := by
   unfold euclidDist sqDist
   rw [Real.sqrt_le_left (by positivity)]
   rw [← sq_abs (a.1 - b.1), ← sq_abs (a.2 - b.2)]

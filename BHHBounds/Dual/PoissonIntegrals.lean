@@ -2,18 +2,11 @@ import BHHBounds.Cert.AllShards
 import BHHBounds.Cert.GeomSound
 
 /-!
-# Poisson-Limit Dual Integrals and Step-Potential Algebra
+# The limiting dual integrals
 
-Defines the exact real-valued Poisson-limit integrals for the 2-factor + disjoint telescoping
-mutual-triangle moat dual, bridging `BHHBounds.Dual.Expectation` (finite-`n` convergence) and
-`BHHBounds.Cert.IntegralSound` (exact fixed-point verification):
-1. Structural validity predicates (`ValidStepPot`, `ValidBox`, `PairwiseDisjointBoxes`) and
-   proofs that the fast `native_decide` boolean checkers in `AllShards.lean` imply them.
-2. Step potential `stepPot rho w r` together with its 1D and 2D Abel-summation identities and
-   comparison with `evalStepPot`.
-3. 1D base Poisson integral `baseIntegral rho w = baseTerm1 - basePenMarg - basePenInter`.
-4. Triangle-moat Poisson integral `boxIntegral rho w act b` and `trianglePlanIntegral`, parameterized
-   by an arbitrary boolean level-activation mask `act : BoxCert → Int → Int → Int → Bool`.
+Validity predicates for certificates (`ValidStepPot`, `ValidBox`, `PairwiseDisjointBoxes`) with
+their boolean checkers, the step potential `stepPot` with its Abel-summation identities, and the
+two limits that the certificate bounds from below: `baseIntegral` and `trianglePlanIntegral`.
 -/
 
 open MeasureTheory Set Real
@@ -438,7 +431,7 @@ lemma stepPot_le_evalStepPot {rho w : Array Int} (h : ValidStepPot rho w)
       (Finset.card_le_card (Finset.filter_subset _ _)).trans (by simp)
     exact toR_le_toR (h.w_le_of_le (by omega) (by omega))
 
-/-- **1D Abel Summation** for any function `f : ℝ → ℝ` with `f 0 = 0`:
+/-- 1D Abel summation for any function `f : ℝ → ℝ` with `f 0 = 0`:
 `f (stepPot rho w r) = ∑ i, (f (w_i) - f (w_{i-1})) * 1_{ρ_i < r}`. -/
 lemma stepPot_abel_1d {rho w : Array Int} (h : ValidStepPot rho w) (f : ℝ → ℝ) (hf0 : f 0 = 0)
     (r : ℝ) :
@@ -471,7 +464,7 @@ lemma stepPot_abel_1d {rho w : Array Int} (h : ValidStepPot rho w) (f : ℝ → 
     · subst hk; simp [wPrev, toR_zero, hf0]
     · simp only [hk, ↓reduceIte, wPrev]; ring
 
-/-- **2D Abel Summation** for `g (x, y) = max 0 (x + y - d)` on `(stepPot r₁, stepPot r₂)`. -/
+/-- 2D Abel summation for `g (x, y) = max 0 (x + y - d)` on `(stepPot r₁, stepPot r₂)`. -/
 lemma stepPot_abel_2d {rho w : Array Int} (h : ValidStepPot rho w) (d r₁ r₂ : ℝ) (hd : 0 ≤ d) :
     max 0 (stepPot rho w r₁ + stepPot rho w r₂ - d) =
       (∑ i : Fin rho.size,
@@ -654,7 +647,7 @@ lemma extSurvProb_le_one (m : Nat) {V : ℝ} (hV : 0 ≤ V) : extSurvProb m V �
     rw [Real.exp_neg, ← div_eq_mul_inv, div_le_one (Real.exp_pos V)]
     exact h1
 
-/-- `extSurvProb` is antitone in BOTH `m` and `V ≥ 0`! -/
+/-- `extSurvProb` is antitone in both `m` and `V ≥ 0`. -/
 lemma extSurvProb_antitone {m₁ m₂ : Nat} {V₁ V₂ : ℝ}
     (hm : m₁ ≤ m₂) (hV1 : 0 ≤ V₁) (hV : V₁ ≤ V₂) :
     extSurvProb m₂ V₂ ≤ extSurvProb m₁ V₁ := by
@@ -721,7 +714,7 @@ lemma sum_triCrossCoeff_mono_p {rho w : Array Int} (_h : ValidStepPot rho w)
       exact sub_nonneg.mpr (max_le_max_left 0 (by linarith))
     · rw [max_eq_left h1, max_eq_left (by linarith : p₁ + yPrev + t - d ≤ 0), sub_self]
       exact sub_nonneg.mpr (max_le_max_left 0 (by linarith))
-  -- Rewrite BOTH sides by finite summation by parts!
+  -- Rewrite both sides by finite summation by parts
   have hab : ∀ p ≤ p₂,
       ∑ k : Fin rho.size, triCrossCoeff w p yPrev yj d k.val * q k.val =
         ∑ k : Fin rho.size, ψ p (toR (w.getD k.val 0)) *

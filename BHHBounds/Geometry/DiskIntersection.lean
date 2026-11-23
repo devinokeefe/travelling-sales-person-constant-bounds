@@ -4,21 +4,11 @@ import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.InverseDeriv
 
 /-!
-# Exact Two-Disk Intersection Area & Concave Segment Bounds
+# Area of the intersection of two disks
 
-Proves:
-1. `segArea c = 2 * ∫ t in c..1, √(1 - t²)` (no `arccos` required!):
-   - `segArea_antitoneOn`, `segArea_nonneg`, `segArea_one`, `segArea_neg_one`.
-   - `segArea_sub_le_midpoint`: exact midpoint-tangent upper bound
-     `segArea a - segArea b ≤ 2 * (b - a) * √(1 - ((a + b) / 2)²)`
-     via the 1-line algebraic identity `(1 - m t)² - (1 - t²)(1 - m²) = (t - m)² ≥ 0`!
-   - `segArea_sub_le_slope`: upper bound on `segArea c - segArea b` for `c ∈ [a, b]`.
-2. `diskInterArea d r₁ r₂`: exact formula for the intersection area of two closed disks of
-   radii `r₁, r₂ ≥ 0` at center distance `d ≥ 0`.
-3. `volume_disk_inter`: `volume (disk p r₁ ∩ disk q r₂) = ENNReal.ofReal (diskInterArea (euclidDist p q) r₁ r₂)`.
-4. `diskInterArea_antitone_d`: intersection area is antitone in `d`.
-5. `volume_disk_sdiff_union_ge_circumdisk` & `volume_disk_sdiff_union_ge_unionBound`:
-   elementary lower bounds on `volume (disk v ρ \ ⋃ u, disk (p u) r)` using only `diskInterArea`.
+`diskInterArea d r₁ r₂` is the area of the intersection of two closed disks of radii `r₁, r₂` at
+center distance `d` (`volume_disk_inter`), written through the circular segment area
+`segArea c = 2 * ∫ t in c..1, √(1 - t²)`. It is antitone in `d` (`diskInterArea_antitone_d`).
 -/
 
 open MeasureTheory Set Real Filter
@@ -64,7 +54,7 @@ lemma sqrt_one_sub_sq_le_tangent {t m : ℝ} (ht : t ∈ Icc (-1 : ℝ) 1) (hm :
   rw [le_div_iff₀ hsq_pos, ← Real.sqrt_mul ht2, Real.sqrt_le_left hmt]
   nlinarith [sq_nonneg (t - m)]
 
-/-- **Midpoint-Tangent Concavity Bound** on `segArea`:
+/-- Midpoint-tangent bound on `segArea`:
 for any `-1 ≤ a < b ≤ 1` with `m = (a + b) / 2`,
 `segArea a - segArea b ≤ 2 * (b - a) * √(1 - m²)`. -/
 lemma segArea_sub_le_midpoint {a b : ℝ} (ha : -1 ≤ a) (hab : a < b) (hb : b ≤ 1) :
@@ -219,7 +209,7 @@ lemma volume_disk_cap_right {r c : ℝ} (hr : 0 < r) (hc : c ∈ Icc (-1 : ℝ) 
     congr 1; funext x; simp [Set.indicator]
   rw [hsupp, ← ofReal_integral_eq_lintegral_ofReal]
   · rw [MeasureTheory.integral_Icc_eq_integral_Ioc, ← intervalIntegral.integral_of_le hrc_le]
-    -- Change of variables `x = r * t`!
+    -- Change of variables `x = r * t`
     have hcov : ∫ x in (r * c)..r, 2 * Real.sqrt (r ^ 2 - x ^ 2) =
         r ^ 2 * (2 * ∫ t in c..1, Real.sqrt (1 - t ^ 2)) := by
       have h1 := intervalIntegral.integral_comp_mul_left (f := fun x : ℝ => 2 * Real.sqrt (r ^ 2 - x ^ 2))
@@ -394,7 +384,7 @@ lemma volume_disk_inter_axis {d r₁ r₂ : ℝ} (hd : 0 ≤ d) (hr₁ : 0 ≤ r
         ext z; simp only [Cap1, hx1]
       rw [heq]; exact volume_disk_cap_right hr₁p hc1_mem
     have hvol2 : volume Cap2 = ENNReal.ofReal (r₂ ^ 2 * segArea c₂) := by
-      -- Map `z ↦ (d - z.1, z.2)` (measure-preserving reflection + translation!)
+      -- Map `z ↦ (d - z.1, z.2)` (measure-preserving reflection + translation)
       let T : Pt → Pt := fun z => (d - z.1, z.2)
       have hmp : MeasurePreserving T volume volume := by
         have h1 : MeasurePreserving (fun z : Pt => (-z.1, z.2)) volume volume := by
@@ -441,7 +431,7 @@ lemma volume_disk_inter_axis {d r₁ r₂ : ℝ} (hd : 0 ≤ d) (hr₁ : 0 ≤ r
       (mul_nonneg (sq_nonneg _) (segArea_nonneg hc1_mem.2))
       (mul_nonneg (sq_nonneg _) (segArea_nonneg hc2_mem.2))]
 
-/-- **Exact Two-Disk Intersection Volume** for arbitrary centers `p, q ∈ ℝ²` and radii `r₁, r₂ ≥ 0`. -/
+/-- Volume of the intersection of two disks, for arbitrary centers `p, q ∈ ℝ²` and radii `r₁, r₂ ≥ 0`. -/
 theorem volume_disk_inter (p q : Pt) {r₁ r₂ : ℝ} (hr₁ : 0 ≤ r₁) (hr₂ : 0 ≤ r₂) :
     volume (disk p r₁ ∩ disk q r₂) = ENNReal.ofReal (diskInterArea (euclidDist p q) r₁ r₂) := by
   let d : ℝ := euclidDist p q
@@ -495,15 +485,15 @@ theorem volume_disk_inter (p q : Pt) {r₁ r₂ : ℝ} (hr₁ : 0 ≤ r₁) (hr�
     rw [hpre, hmp.measure_preimage hmeas.nullMeasurableSet]
     exact volume_disk_inter_axis hd hr₁ hr₂
 
-/-- `diskInterArea d r₁ r₂` is antitone in `d ≥ 0`! -/
+/-- `diskInterArea d r₁ r₂` is antitone in `d ≥ 0`. -/
 lemma diskInterArea_antitone_d {r₁ r₂ d₁ d₂ : ℝ} (hr₁ : 0 ≤ r₁) (hr₂ : 0 ≤ r₂)
     (hd₁ : 0 ≤ d₁) (hd₁₂ : d₁ ≤ d₂) :
     diskInterArea d₂ r₁ r₂ ≤ diskInterArea d₁ r₁ r₂ := by
   have hd₂ : 0 ≤ d₂ := hd₁.trans hd₁₂
-  -- Geometric 5-line proof via Fubini slice lengths of `disk 0 r₁ ∩ disk (d, 0) r₂`!
+  -- Geometric 5-line proof via Fubini slice lengths of `disk 0 r₁ ∩ disk (d, 0) r₂`
   -- At each vertical line `y`, the horizontal slice of `disk 0 r₁` is `[-a, a]` and of
   -- `disk (d, 0) r₂` is `[d - b, d + b]`; their intersection length `max 0 (min a (d + b) - max (-a) (d - b))`
-  -- is nonincreasing in `d ≥ 0`!
+  -- is nonincreasing in `d ≥ 0`
   rw [← ENNReal.ofReal_le_ofReal_iff (diskInterArea_nonneg d₁ r₁ r₂),
     ← volume_disk_inter_axis hd₁ hr₁ hr₂, ← volume_disk_inter_axis hd₂ hr₁ hr₂]
   have hmeas1 : MeasurableSet (disk (0 : Pt) r₁ ∩ disk (d₁, 0) r₂) :=
@@ -535,7 +525,7 @@ lemma diskInterArea_antitone_d {r₁ r₂ d₁ d₂ : ℝ} (hr₁ : 0 ≤ r₁) 
       rw [hA, hB]; tauto
     rw [hslice d₁, hslice d₂, Real.volume_Icc, Real.volume_Icc]
     apply ENNReal.ofReal_le_ofReal
-    -- `min a (d + b) - max (-a) (d - b) = min (2a) (min (2b) (a + b - d))` (for `d ≥ 0`) is decreasing in `d`!
+    -- `min a (d + b) - max (-a) (d - b) = min (2a) (min (2b) (a + b - d))` (for `d ≥ 0`) is decreasing in `d`
     have hlen : ∀ d : ℝ, 0 ≤ d →
         min a (d + b) - max (-a) (d - b) = min (min (2 * a) (2 * b)) (a + b - d) := fun d hd0 => by
       rcases le_total a (d + b) with h1 | h1 <;> rcases le_total (-a) (d - b) with h2 | h2
@@ -577,7 +567,7 @@ lemma diskInterArea_le_min_disk {d r₁ r₂ : ℝ} (hd : 0 ≤ d) (hr₁ : 0 �
 
 /-! ## Elementary Lower Bounds on `vol(B(v, ρ) \ ⋃_{u ∈ S} B(p u, r))` -/
 
-/-- **Circumdisk lower bound:** If `p u ∈ disk c rad` for all `u`, then
+/-- If `p u ∈ disk c rad` for all `u`, then
 `⋃ u, disk (p u) r ⊆ disk c (r + rad)`, hence
 `volume (disk v ρ \ ⋃ u, disk (p u) r) ≥ π ρ² - diskInterArea (euclidDist v c) ρ (r + rad)`. -/
 lemma volume_disk_sdiff_union_ge_circumdisk {k : ℕ} (p : Fin k → Pt) (c v : Pt)
@@ -605,7 +595,7 @@ lemma volume_disk_sdiff_union_ge_circumdisk {k : ℕ} (p : Fin k → Pt) (c v : 
     volume_disk v hρ, volume_disk_inter v c hρ (add_nonneg hr hrad),
     ← ENNReal.ofReal_sub _ (diskInterArea_nonneg _ _ _)]
 
-/-- **Union-bound lower bound:**
+/-- Union bound:
 `volume (disk v ρ \ ⋃ u, disk (p u) r) ≥ π ρ² - ∑ u, diskInterArea (euclidDist v (p u)) ρ r`. -/
 lemma volume_disk_sdiff_union_ge_unionBound {k : ℕ} (p : Fin k → Pt) (v : Pt)
     {r ρ : ℝ} (hr : 0 ≤ r) (hρ : 0 ≤ ρ) :

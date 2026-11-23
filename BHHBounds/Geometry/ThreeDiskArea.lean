@@ -3,13 +3,13 @@ import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
 
 /-!
-# Elementary Three-Disk Union Area Upper Bound
+# Area of the union of three disks
 
-Proves the elementary 7-region planar decomposition upper bound on the union area of three
-closed disks of radius R centered at the vertices of a canonical triangle:
-  	hreeDiskArea r w ≤ π + r² y / 2 + (chordArea r + chordArea (r ‖w‖) + chordArea (r ‖w - e₁‖)) / 2 + excessX r w
-together with scaling to arbitrary radius R > 0 (	hreeDiskArea_scale_le) and the
-6th-order polynomial upper bound chordArea_le_poly6.
+An upper bound for the area of the union of three unit disks centered at the vertices of a canonical
+triangle, from a decomposition of the plane into seven regions:
+`threeDiskArea r w ≤ π + r² y / 2 +
+  (chordArea r + chordArea (r ‖w‖) + chordArea (r ‖w - e₁‖)) / 2 + excessX r w`,
+with `chordArea` bounded by a polynomial of degree 6 (`chordArea_le_poly6`).
 -/
 
 open MeasureTheory Set Real
@@ -388,7 +388,7 @@ lemma volume_strip_two_disks {d : ℝ} (hd0 : 0 < d) (hd1 : d ≤ 1) :
     linarith
   linarith
 
-/-- **Lemma 2 (No Bulge Across Non-Longest Side):**
+/-- No bulge across a non-longest side.
 In coordinates `U = (0,0)`, `V = (d,0)`, `W = (p, v)` (`0 < d ≤ 1`, `v > 0`),
 if `W` is strictly farther than `d` from at least one of `U, V`, then `disk W 1` adds no points
 outside `disk U 1 ∪ disk V 1` in the exterior half-strip `[0, d] × (-∞, 0]`. -/
@@ -401,7 +401,7 @@ lemma no_bulge_nonlongest {d p v : ℝ} (hd0 : 0 < d) (hd1 : d ≤ 1) (hv : 0 < 
   simp only [Set.mem_union, not_or, disk, sqDist, Set.mem_setOf_eq,
     Prod.fst_zero, Prod.snd_zero, sub_zero, one_pow, not_le] at hnot
   simp only [disk, sqDist, Set.mem_setOf_eq, one_pow] at hzW
-  -- Helper: given `0 ≤ t ≤ d / 2`, `t² + h² > 1`, `(t - q)² + (h + v)² ≤ 1` (`h ≥ 0`),
+  -- Given `0 ≤ t ≤ d / 2`, `t² + h² > 1`, `(t - q)² + (h + v)² ≤ 1` (`h ≥ 0`),
   -- deduce both `q² + v² < d²` and `(d - q)² + v² < d²`.
   have core : ∀ t q h : ℝ, 0 ≤ t → t ≤ d / 2 → 0 ≤ h → 1 < t ^ 2 + h ^ 2 →
       (t - q) ^ 2 + (h + v) ^ 2 ≤ 1 → q ^ 2 + v ^ 2 < d ^ 2 ∧ (d - q) ^ 2 + v ^ 2 < d ^ 2 := by
@@ -503,7 +503,7 @@ lemma volume_strip_excess_le {r x y : ℝ} (hr0 : 0 < r) (hr1 : r ≤ 1) :
         rw [MeasureTheory.integral_Icc_eq_integral_Ioc, ← intervalIntegral.integral_of_le (le_of_lt hr0)]
         rfl
 
-/-- **Corner Test for `excessX r w = 0`:**
+/-- Corner test for `excessX r w = 0`.
 If the meeting point `Q = (r/2, -√(1 - r²/4))` lies outside the interior of `disk (r x, r y) 1`,
 then `excessX r (x, y) = 0`. -/
 lemma excessX_eq_zero_of_corner {r : ℝ} {w : Pt} (hr0 : 0 < r) (hr1 : r ≤ 1)

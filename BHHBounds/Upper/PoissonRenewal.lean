@@ -3,16 +3,13 @@ import Mathlib.Analysis.SpecialFunctions.ExpDeriv
 import Mathlib.Analysis.Calculus.MeanValue
 
 /-!
-# Poisson Renewal Order Statistics and Multi-Strip Superposition
+# Renewal structure of a strip
 
-Proves:
-1. Basic properties of `finTourLen` (`finTourLen_continuous`, `finTourLen_perm`,
-   `finTourLen_mono_castLE`, `expectedTourLen`, `expectedTourLen_mono`).
-2. Elementary Poisson probability identities (`hasSum_poissonProb`, `poisson_chebyshev`,
-   `poisson_chernoff_upper`).
-3. 1D renewal order-statistic Jacobian (`lintegral_gapSimplex_eq_orderedSimplex`) by induction on `k`
-   and `k!`-simplex symmetry (`lintegral_orderedSimplex_mul_factorial`).
-4. Single-strip renewal identity (`single_strip_renewal_lintegral`).
+Properties of `tourLength` and `expectedTourLength`, Chebyshev and Chernoff bounds for the Poisson
+distribution, the change of variables from gaps to ordered points
+(`lintegral_gapSimplex_eq_orderedSimplex`), and `single_strip_renewal_lintegral`, which evaluates an
+integral over the event of exactly `k` arrivals in a strip as a Poisson weight times an integral
+over `k` independent points of the strip.
 -/
 
 namespace BHHBounds.Upper
@@ -20,80 +17,10 @@ namespace BHHBounds.Upper
 open MeasureTheory Set Finset BigOperators
 open scoped ENNReal NNReal
 
-/-! ## Section 1: `finTourLen` Measurability, Symmetry, Integrability & Monotonicity -/
+/-! ## Section 1: `tourLength` Measurability, Symmetry, Integrability & Monotonicity -/
 
-/-- `finTourLen x` as a finite infimum over `Equiv.Perm (Fin n)`. -/
-lemma finTourLen_eq_inf' {n : ℕ} (x : Fin n → ℝ × ℝ) :
-    finTourLen x = (Finset.univ : Finset (Equiv.Perm (Fin n))).inf' Finset.univ_nonempty
-      (fun σ => ∑ i : Fin n, ptDist (x (σ i)) (x (σ (finRotate n i)))) := by
-  unfold finTourLen
-  apply le_antisymm
-  · exact le_inf' _ _ fun σ _ => finTourLen_le_perm x σ
-  · refine le_ciInf fun σ => ?_
-    exact inf'_le _ (Finset.mem_univ σ)
-
-lemma continuous_ptDist : Continuous (fun p : (ℝ × ℝ) × (ℝ × ℝ) => ptDist p.1 p.2) := by
-  unfold ptDist; fun_prop
-
-lemma finTourLen_continuous (n : ℕ) : Continuous (finTourLen (n := n)) := by
-  have hfun : (finTourLen (n := n)) = fun x =>
-      (Finset.univ : Finset (Equiv.Perm (Fin n))).inf' Finset.univ_nonempty
-        (fun σ => ∑ i : Fin n, ptDist (x (σ i)) (x (σ (finRotate n i)))) := by
-    funext x; exact finTourLen_eq_inf' x
-  rw [hfun]
-  have hmem : ∀ s : Finset (Equiv.Perm (Fin n)), (hs : s.Nonempty) →
-      Continuous (fun x : Fin n → ℝ × ℝ =>
-        s.inf' hs (fun σ => ∑ i : Fin n, ptDist (x (σ i)) (x (σ (finRotate n i))))) := by
-    intro s
-    induction s using Finset.cons_induction with
-    | empty => intro hs; exact absurd hs Finset.not_nonempty_empty
-    | cons a s' ha ih =>
-      intro _
-      by_cases hne : s'.Nonempty
-      · have heq : (fun x : Fin n → ℝ × ℝ =>
-            (Finset.cons a s' ha).inf' (Finset.cons_nonempty _)
-              (fun σ => ∑ i : Fin n, ptDist (x (σ i)) (x (σ (finRotate n i))))) =
-            fun x => min (∑ i : Fin n, ptDist (x (a i)) (x (a (finRotate n i))))
-              (s'.inf' hne (fun σ => ∑ i : Fin n, ptDist (x (σ i)) (x (σ (finRotate n i))))) := by
-          funext x
-          exact Finset.inf'_cons (f := fun σ : Equiv.Perm (Fin n) =>
-            ∑ i : Fin n, ptDist (x (σ i)) (x (σ (finRotate n i)))) hne
-        rw [heq]
-        refine Continuous.min ?_ (ih hne)
-        exact continuous_finsetSum _ fun i _ =>
-          continuous_ptDist.comp (f := fun x : Fin n → ℝ × ℝ => (x (a i), x (a (finRotate n i))))
-            ((continuous_apply (a i)).prodMk (continuous_apply (a (finRotate n i))))
-      · rw [Finset.not_nonempty_iff_eq_empty] at hne
-        subst hne
-        have heq : (fun x : Fin n → ℝ × ℝ =>
-            (Finset.cons a ∅ ha).inf' (Finset.cons_nonempty _)
-              (fun σ => ∑ i : Fin n, ptDist (x (σ i)) (x (σ (finRotate n i))))) =
-            fun x => ∑ i : Fin n, ptDist (x (a i)) (x (a (finRotate n i))) := by
-          funext x; simp
-        rw [heq]
-        exact continuous_finsetSum _ fun i _ =>
-          continuous_ptDist.comp (f := fun x : Fin n → ℝ × ℝ => (x (a i), x (a (finRotate n i))))
-            ((continuous_apply (a i)).prodMk (continuous_apply (a (finRotate n i))))
-  exact hmem Finset.univ Finset.univ_nonempty
-
-lemma finTourLen_perm {n : ℕ} (x : Fin n → ℝ × ℝ) (τ : Equiv.Perm (Fin n)) :
-    finTourLen (x ∘ τ) = finTourLen x := by
-  apply le_antisymm
-  · refine le_ciInf fun σ => ?_
-    have h := finTourLen_le_perm (x ∘ τ) (τ⁻¹ * σ)
-    refine h.trans (le_of_eq ?_)
-    apply Finset.sum_congr rfl
-    intro i _
-    simp [Function.comp]
-  · refine le_ciInf fun σ => ?_
-    have h := finTourLen_le_perm x (τ * σ)
-    refine h.trans (le_of_eq ?_)
-    apply Finset.sum_congr rfl
-    intro i _
-    simp [Function.comp]
-
-lemma finTourLen_mono_castLE {n r : ℕ} (h : n ≤ r) (x : Fin r → ℝ × ℝ) :
-    finTourLen (fun i : Fin n => x (Fin.castLE h i)) ≤ finTourLen x := by
+lemma tourLength_mono_castLE {n r : ℕ} (h : n ≤ r) (x : Fin r → ℝ × ℝ) :
+    tourLength (fun i : Fin n => x (Fin.castLE h i)) ≤ tourLength x := by
   refine le_ciInf fun σ => ?_
   let L : List (ℝ × ℝ) := (List.finRange r).map (x ∘ σ)
   have hlen : L.length = r := by simp [L]
@@ -108,30 +35,9 @@ lemma finTourLen_mono_castLE {n r : ℕ} (h : n ≤ r) (x : Fin r → ℝ × ℝ
   have hval : ∀ i : Fin n, L[f i] = x (Fin.castLE h i) := by
     intro i
     simp [L, f]
-  calc finTourLen (fun i : Fin n => x (Fin.castLE h i))
-      ≤ cycleLen L := finTourLen_le_cycleLen_of_inj _ L f hf hval
-    _ = ∑ i : Fin r, ptDist (x (σ i)) (x (σ (finRotate r i))) := cycleLen_finRange r (x ∘ σ)
-
-/-- Uniform probability measure on `[0,1]²`. -/
-noncomputable def unitSquareMeasure : Measure (ℝ × ℝ) :=
-  (volume.restrict (Icc (0 : ℝ) 1)).prod (volume.restrict (Icc (0 : ℝ) 1))
-
-instance isProbabilityMeasure_unitSquareMeasure : IsProbabilityMeasure unitSquareMeasure := by
-  unfold unitSquareMeasure
-  haveI : IsProbabilityMeasure (volume.restrict (Icc (0 : ℝ) 1)) := by
-    constructor; simp [Real.volume_Icc]
-  infer_instance
-
-/-- `n`-fold product of `unitSquareMeasure` on `Fin n → ℝ × ℝ`. -/
-noncomputable def unitSquarePi (n : ℕ) : Measure (Fin n → ℝ × ℝ) :=
-  Measure.pi fun _ : Fin n => unitSquareMeasure
-
-instance isProbabilityMeasure_unitSquarePi (n : ℕ) : IsProbabilityMeasure (unitSquarePi n) := by
-  unfold unitSquarePi; infer_instance
-
-/-- Expected optimal TSP tour length of `n` i.i.d. uniform points in `[0,1]²`. -/
-noncomputable def expectedTourLen (n : ℕ) : ℝ :=
-  ∫ x : Fin n → ℝ × ℝ, finTourLen x ∂(unitSquarePi n)
+  calc tourLength (fun i : Fin n => x (Fin.castLE h i))
+      ≤ cycleLen L := tourLength_le_cycleLen_of_inj _ L f hf hval
+    _ = ∑ i : Fin r, euclidDist (x (σ i)) (x (σ (finRotate r i))) := cycleLen_finRange r (x ∘ σ)
 
 /-- General coordinate-projection measure-preserving lemma for `Measure.pi`. -/
 lemma measurePreserving_pi_emb_gen {α : Type*} [MeasurableSpace α] {k n : ℕ}
@@ -201,14 +107,6 @@ lemma measurePreserving_pi_equiv {α : Type*} [MeasurableSpace α] {ι₁ ι₂ 
   exact (Fintype.prod_equiv e (fun i => μ (e i) (s i)) (fun j => μ j (s (e.symm j)))
     (fun i => by simp)).symm
 
-lemma ae_mem_unitSquareMeasure :
-    ∀ᵐ p ∂unitSquareMeasure, p ∈ Icc (0 : ℝ) 1 ×ˢ Icc (0 : ℝ) 1 := by
-  unfold unitSquareMeasure
-  have h1 : ∀ᵐ x : ℝ ∂(volume.restrict (Icc (0 : ℝ) 1)), x ∈ Icc (0 : ℝ) 1 :=
-    ae_restrict_mem measurableSet_Icc
-  exact (Measure.ae_prod_iff_ae_ae (measurableSet_Icc.prod measurableSet_Icc)).mpr
-    (h1.mono fun x hx => h1.mono fun y hy => ⟨hx, hy⟩)
-
 lemma ae_mem_unitSquarePi (n : ℕ) :
     ∀ᵐ x ∂(unitSquarePi n), ∀ i : Fin n, x i ∈ Icc (0 : ℝ) 1 ×ˢ Icc (0 : ℝ) 1 := by
   have h : ∀ i : Fin n, ∀ᵐ x ∂(unitSquarePi n), x i ∈ Icc (0 : ℝ) 1 ×ˢ Icc (0 : ℝ) 1 := by
@@ -218,23 +116,23 @@ lemma ae_mem_unitSquarePi (n : ℕ) :
     exact hmp.quasiMeasurePreserving.ae ae_mem_unitSquareMeasure
   exact ae_all_iff.mpr h
 
-lemma finTourLen_integrable (n : ℕ) : Integrable (finTourLen (n := n)) (unitSquarePi n) := by
+lemma tourLength_integrable (n : ℕ) : Integrable (tourLength (n := n)) (unitSquarePi n) := by
   refine Integrable.mono' (integrable_const (4 * Real.sqrt (n : ℝ) + 4))
-    (finTourLen_continuous n).aestronglyMeasurable ?_
+    (continuous_tourLength n).aestronglyMeasurable ?_
   filter_upwards [ae_mem_unitSquarePi n] with x hx
-  rw [Real.norm_of_nonneg (finTourLen_nonneg x)]
-  exact finTourLen_unitSquare_le x hx
+  rw [Real.norm_of_nonneg (tourLength_nonneg x)]
+  exact tourLength_unitSquare_le x hx
 
-lemma expectedTourLen_mono {n r : ℕ} (h : n ≤ r) :
-    expectedTourLen n ≤ expectedTourLen r := by
-  unfold expectedTourLen
+lemma expectedTourLength_mono {n r : ℕ} (h : n ≤ r) :
+    expectedTourLength n ≤ expectedTourLength r := by
+  unfold expectedTourLength
   let emb : Fin n ↪ Fin r := ⟨Fin.castLE h, fun a b hab => Fin.ext (by simpa using congrArg Fin.val hab)⟩
   have hmp : MeasurePreserving (fun x : Fin r → ℝ × ℝ => fun i : Fin n => x (emb i))
       (unitSquarePi r) (unitSquarePi n) :=
     measurePreserving_pi_emb_gen (fun _ : Fin r => unitSquareMeasure) emb
-  rw [← hmp.map_eq, integral_map hmp.measurable.aemeasurable (finTourLen_continuous n).aestronglyMeasurable]
-  refine integral_mono_of_nonneg (ae_of_all _ fun _ => finTourLen_nonneg _)
-    (finTourLen_integrable r) (ae_of_all _ fun x => finTourLen_mono_castLE h x)
+  rw [← hmp.map_eq, integral_map hmp.measurable.aemeasurable (continuous_tourLength n).aestronglyMeasurable]
+  refine integral_mono_of_nonneg (ae_of_all _ fun _ => tourLength_nonneg _)
+    (tourLength_integrable r) (ae_of_all _ fun x => tourLength_mono_castLE h x)
 
 /-! ## Section 2: Elementary Poisson Probabilities, Chebyshev & Chernoff Tails -/
 
@@ -585,7 +483,7 @@ lemma lintegral_gapSimplex_eq_orderedSimplex :
       rw [Measure.volume_eq_prod, MeasureTheory.lintegral_prod_symm]
       exact (hmeas_ind.comp splitEquiv.symm.measurable).aemeasurable
     rw [hlhs, hrhs]
-    -- Helper: how `partialSumsDiv (k + 1)` acts on `splitEquiv.symm (e_last, e')`
+    -- How `partialSumsDiv (k + 1)` acts on `splitEquiv.symm (e_last, e')`
     have hps_snoc : ∀ (e_last : ℝ) (e' : Fin k → ℝ),
         partialSumsDiv (k + 1) μ (splitEquiv.symm (e_last, e')) =
           splitEquiv.symm (((∑ i : Fin k, e' i) + e_last) / μ, partialSumsDiv k μ e') := by
@@ -896,10 +794,10 @@ noncomputable def stripUnitPt (M : ℕ) (s : Fin M) {m : ℕ}
   ((stripPt E Y i).1 / ((M : ℝ) * (11 / 5 : ℝ)),
    ((s.val : ℝ) + (stripPt E Y i).2 / (11 / 5 : ℝ)) / (M : ℝ))
 
-lemma ptDist_stripUnitPt {M : ℕ} (hM : 0 < M) (s : Fin M) {m : ℕ}
+lemma euclidDist_stripUnitPt {M : ℕ} (hM : 0 < M) (s : Fin M) {m : ℕ}
     (E : Fin (7 + m) → ℝ) (Y : Fin (8 + m) → ℝ) (a b : ℕ) :
-    ptDist (stripUnitPt M s E Y a) (stripUnitPt M s E Y b) =
-      ptDist (stripPt E Y a) (stripPt E Y b) / ((M : ℝ) * (11 / 5 : ℝ)) := by
+    euclidDist (stripUnitPt M s E Y a) (stripUnitPt M s E Y b) =
+      euclidDist (stripPt E Y a) (stripPt E Y b) / ((M : ℝ) * (11 / 5 : ℝ)) := by
   have hpos : (0 : ℝ) < (M : ℝ) * (11 / 5 : ℝ) := by positivity
   have hM0 : (M : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr (by omega)
   let c : ℝ := ((M : ℝ) * (11 / 5 : ℝ))⁻¹
@@ -910,9 +808,9 @@ lemma ptDist_stripUnitPt {M : ℕ} (hM : 0 < M) (s : Fin M) {m : ℕ}
     unfold stripUnitPt; dsimp only [pa, t, c]; apply Prod.ext <;> (field_simp; ring)
   have h2 : stripUnitPt M s E Y b = (pb.1 + t.1, pb.2 + t.2) := by
     unfold stripUnitPt; dsimp only [pa, pb, t, c]; apply Prod.ext <;> (field_simp; ring)
-  rw [h1, h2, ptDist_translate t pa pb]
+  rw [h1, h2, euclidDist_translate t pa pb]
   dsimp only [pa, pb]
-  rw [ptDist_scale (by positivity : 0 ≤ c)]
+  rw [euclidDist_scale (by positivity : 0 ≤ c)]
   dsimp only [c]; rw [inv_mul_eq_div]
 
 /-- Lebesgue measure restricted to strip `s`: `(0, 1] × (s/M, (s+1)/M]`. -/
@@ -1097,7 +995,7 @@ lemma exp1Measure_Ioi {a : ℝ} (ha : 0 ≤ a) :
 local instance : IsProbabilityMeasure exp1Measure := isProbabilityMeasure_exp1Measure
 local instance : IsProbabilityMeasure unifHMeasure := isProbabilityMeasure_unifHMeasure
 
-/-- **Single-Strip Renewal Identity:** Integrating a symmetric measurable function `F` of the `k`
+/-- Integrating a symmetric measurable function `F` of the `k`
 arrival points in strip `s` over `stripArrivalEvent M m k` equals
 `poissonProb μ k * M^k * ∫⁻ x, F x ∂(stripBoxMeasure M s)^k`. -/
 theorem single_strip_renewal_lintegral {M : ℕ} (hM : 0 < M) (m k : ℕ) (hk : k < 4 + m)

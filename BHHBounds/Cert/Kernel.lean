@@ -1,11 +1,10 @@
 /-!
-# Executable Fixed-Point Certificate Kernel (Pure, Monad-Free, Zero Mathlib)
+# Integer certificate checker
 
-Pure Lean 4 integer fixed-point evaluators (`SCALE = 10^6`) written with clean
-structural/tail recursion (no `Id.run do` / `let mut`) so that:
-1. All 24 certificate shards compile in parallel with zero Mathlib startup cost and
-   run at native C loop speed under `native_decide`.
-2. Every function admits straightforward induction proofs in `BHHBounds.Cert.Soundness`.
+Fixed-point evaluators at scale `S = 10 ^ 6`, run by `native_decide` in the shard files. This file
+imports nothing, so the shards compile without loading Mathlib. The functions use structural or
+tail recursion so that the soundness proofs (`ArithSound`, `GeomSound`, `BaseSound`, `BoxSound`)
+can induct on them.
 -/
 
 namespace BHHBounds.Cert
@@ -18,10 +17,10 @@ def piHi : Int := 3141593
 def eQtrLo : Int := 778800
 def eQtrHi : Int := 778801
 
-/-! ## Pure Integer Square Root (Zero Mathlib Dependencies) -/
+/-! ## Integer square root -/
 
 /-- Exact integer square root `⌊√n⌋` via binary search on `[lo, hi]` with invariant
-`lo * lo ≤ n < hi * hi` (verified directly in `Soundness.lean`). -/
+`lo * lo ≤ n < hi * hi`. -/
 def natSqrtBin (n lo hi : Nat) : Nat :=
   if hi ≤ lo + 1 then lo
   else
@@ -84,7 +83,7 @@ def powHi : Nat → Int → Int
   | 0, _ => S
   | n + 1, b => mulHi b (powHi n b)
 
-/-- Certified LOWER bound on `exp(-x / S) * S` for `x ≥ 0`. -/
+/-- Certified lower bound on `exp(-x / S) * S` for `x ≥ 0`. -/
 def expNegLo (x : Int) : Int :=
   if x ≤ 0 then S
   else
@@ -104,7 +103,7 @@ def expNegLo (x : Int) : Int :=
       let poly := S - r + t2 - t3 + t4 - t5
       if poly ≤ 0 then 0 else mulLo poly (powLo q eQtrLo)
 
-/-- Certified UPPER bound on `exp(-x / S) * S` for `x ≥ 0`. -/
+/-- Certified upper bound on `exp(-x / S) * S` for `x ≥ 0`. -/
 def expNegHi (x : Int) : Int :=
   if x ≤ 0 then S
   else
@@ -149,7 +148,7 @@ def segBinSlopeHi (k : Nat) : Int :=
   let srHi := sqrtSqHi (4 * sRad2 * S * S)
   (srHi + 255) / 256
 
-/-- Pure recursive suffix sum of `segBinAreaHi k` for `k = idx .. 511`. -/
+/-- Suffix sum of `segBinAreaHi k` for `k = idx .. 511`. -/
 def segSuffixSum (idx : Nat) : Int :=
   if idx ≥ segNTot then 0
   else segBinAreaHi idx + segSuffixSum (idx + 1)
@@ -168,7 +167,7 @@ def segTabHiArr : Array Int :=
 def segSlopeHiArr : Array Int :=
   Array.ofFn (n := segNTot) fun i => segBinSlopeHi i.val
 
-/-- Certified UPPER bound on `segArea (c / S) * S` for `c ∈ [-S, S]`. -/
+/-- Certified upper bound on `segArea (c / S) * S` for `c ∈ [-S, S]`. -/
 @[inline] def segEvalHi (c : Int) : Int :=
   if c ≥ S then 0
   else if c ≤ -S then piHi
@@ -182,7 +181,7 @@ def segSlopeHiArr : Array Int :=
     let extra := (slope * remNum + denom - 1) / denom
     min piHi (base + extra)
 
-/-- Certified UPPER bound on `diskInterArea (d/S) (r1/S) (r2/S) * S` for `d, r1, r2 ≥ 0`. -/
+/-- Certified upper bound on `diskInterArea (d/S) (r1/S) (r2/S) * S` for `d, r1, r2 ≥ 0`. -/
 @[inline] def circleInterHi (d r1 r2 : Int) : Int :=
   if r1 ≤ 0 ∨ r2 ≤ 0 ∨ d ≥ r1 + r2 then 0
   else
@@ -262,7 +261,7 @@ def triAreaHi (l0 l1 x0 x1 y0 y1 rad : Int) : Int :=
     let u := min b c
     (u - a) * (3 * c * (u + a) - 2 * (u * u + u * a + a * a))
 
-/-! ## 1D Base Term Pure Recursive Integer Verifier -/
+/-! ## Base term verifier -/
 
 @[inline] def jointSurvHi (d r1 r2 : Int) (k1 k2 : Bool) : Int :=
   let a1Lo := mulLo piLo (mulLo r1 r1)
@@ -379,7 +378,7 @@ def baseVerifyInt (rho w : Array Int) (nDUniform : Nat) : Int :=
     let penInter_9 := (piHi * penInterRaw + 5999999999) / 6000000000
     term1_9 - penMarg_9 - penInter_9
 
-/-! ## Triangle Box Pure Recursive Integer Verifier -/
+/-! ## Triangle box verifier -/
 
 structure AngleTable where
   nT : Nat

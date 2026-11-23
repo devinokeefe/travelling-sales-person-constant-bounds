@@ -124,7 +124,7 @@ lemma merge_anchor_free {α : Type*} {w k : ℕ} (dist : α → α → ℝ)
     ring
 
 /-- Merge two distinct free paths `l₁` (endpoints `i₁, j₁`, attaching at `i₁`) and `l₂`
-(endpoints `i₂, j₂`, attaching at `i₂`). Handles all singleton/non-singleton combinations! -/
+(endpoints `i₂, j₂`, attaching at `i₂`). Handles all singleton/non-singleton combinations. -/
 lemma merge_free_free {α : Type*} {w k : ℕ} (dist : α → α → ℝ)
     (hsym : ∀ x y, dist x y = dist y x) (p : ℕ → α)
     {m : Mate w} {F : LinearForest k} (hm : Matches m F)
@@ -299,7 +299,7 @@ lemma merge_free_free {α : Type*} {w k : ℕ} (dist : α → α → ℝ)
     rw [hsum]
     ring
 
-/-- Helper: if slot `i` has `m i = j.val` and `i ≠ j` (or `l₁` is singleton at `i`), and `i₂` is a
+/-- If slot `i` has `m i = j.val` and `i ≠ j` (or `l₁` is singleton at `i`), and `i₂` is a
 different slot with `m i₂ ≠ i.val`, then their free paths `l₁` and `l₂` are distinct. -/
 lemma free_ne_of_not_mate {w k : ℕ}
     {i₁ j₁ i₂ j₂ : Fin w} {l₁ l₂ : List ℕ}
@@ -557,7 +557,7 @@ theorem stepState_sound {α : Type*} {d k : ℕ} (dist : α → α → ℝ)
     obtain ⟨F1, hMF1, hlen1⟩ := foldlM_connectToNew_sound dist hsym p chosen (addIsolated st) m1 F0 hMF0 hfold
     exact ⟨F1, shiftWindow_sound hMF1 hs, by rw [hlen1, hlen0]⟩
 
-/-- **Main Automaton Theorem:** Any valid walk of length `N` in the bandwidth-`d` frontier
+/-- Any valid walk of length `N` in the bandwidth-`d` frontier
 automaton starting and ending at `initState d` produces a single Hamiltonian path from `0`
 to `N` visiting every vertex in `{0, ..., N}` exactly once, whose Euclidean path length
 equals the sum of step costs along the walk. -/

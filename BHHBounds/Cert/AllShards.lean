@@ -25,23 +25,18 @@ import BHHBounds.Cert.Shards.Shard22
 import BHHBounds.Cert.Shards.Shard23
 
 /-!
-# Aggregation of All 24 Verified Triangle Shards
+# All shards
 
-Combines `shard00_verified` .. `shard23_verified` (zero recomputation!) into a single theorem
-`allShards_verified` for `allBoxes` (2,923 boxes), and certifies via fast `native_decide` checks
-that:
-1. `(stepPotRho, stepPotW)` is a valid strictly increasing / nondecreasing step potential;
-2. every box in `allBoxes` lies strictly inside `quarterLens`, has valid strictly increasing
-   telescoping levels satisfying half-clearance `2 * (pi01 + y_j) ≤ r_j`, and satisfies
-   `evalStepPot (l1 - 1) = evalStepPot l1`;
-3. all 2,923 open boxes in `allBoxes` are pairwise disjoint.
+Concatenates the 24 shards into `allBoxes` (2,923 boxes), adds up their certified gains, and checks
+by `native_decide` that the step potential is valid and that the boxes are valid and pairwise
+disjoint.
 -/
 
 namespace BHHBounds.Cert
 
 open BHHBounds.Cert.Shards
 
-/-- All 2,923 certified triangle boxes concatenated across Shards 00..23. -/
+/-- The 2,923 boxes of all 24 shards. -/
 def allBoxes : List BoxCert :=
   (((((((((((((((((((((((shard00Boxes ++ shard01Boxes) ++ shard02Boxes) ++ shard03Boxes) ++
     shard04Boxes) ++ shard05Boxes) ++ shard06Boxes) ++ shard07Boxes) ++
@@ -50,7 +45,7 @@ def allBoxes : List BoxCert :=
     shard16Boxes) ++ shard17Boxes) ++ shard18Boxes) ++ shard19Boxes) ++
     shard20Boxes) ++ shard21Boxes) ++ shard22Boxes) ++ shard23Boxes)
 
-/-! ## Decidable Structural Validity Checkers -/
+/-! ## Structural checkers -/
 
 def checkMonotoneAux (rho w : Array Int) (i : Nat) : Bool :=
   if i + 1 ≥ rho.size then true
@@ -97,7 +92,7 @@ def allPairwiseDisjointBool : List BoxCert → Bool
   | [] => true
   | a :: rest => rest.all (boxesDisjointBool a) && allPairwiseDisjointBool rest
 
-/-! ## Fast `native_decide` Structural Certificates -/
+/-! ## Structural checks -/
 
 theorem stepPot_valid_bool : isValidStepPotBool stepPotRho stepPotW = true := by
   native_decide
@@ -108,7 +103,7 @@ theorem allBoxes_valid_bool : allBoxes.all (isValidBoxBool stepPotRho stepPotW) 
 theorem allBoxes_disjoint_bool : allPairwiseDisjointBool allBoxes = true := by
   native_decide
 
-/-! ## Shard Summation (Zero Recomputation!) -/
+/-! ## Summing the shards -/
 
 private theorem foldl_add_shift {α : Type} (f : α → Int) (xs : List α) (init : Int) :
     xs.foldl (fun acc x => acc + f x) init = init + xs.foldl (fun acc x => acc + f x) 0 := by
@@ -132,7 +127,7 @@ private theorem add_shard_le {f : List BoxCert → Int}
     a + b ≤ f (xs ++ ys) := by
   rw [hadd]; exact Int.add_le_add ha hb
 
-/-- Combined certified triangle-moat gain across all 24 shards (2,923 boxes): `5431036 / 10^9`. -/
+/-- The certified triangle-moat gain of all 24 shards: `5431036 / 10 ^ 9`. -/
 theorem allShards_verified :
     5431036 ≤ verifyShardInt stepPotRho stepPotW angleTable40 allBoxes := by
   have hadd := verifyShardInt_append stepPotRho stepPotW angleTable40
@@ -161,7 +156,7 @@ theorem allShards_verified :
   have s23 := add_shard_le hadd s22 shard23_verified
   exact Int.le_trans (by decide) s23
 
-/-- Combined total certified integer lower bound: `650928770 / 10^9 = 0.650928770 > 0.6508522354`. -/
+/-- The base and triangle certificates add up to `650928770 / 10 ^ 9`. -/
 theorem total_cert_verified :
     650928770 ≤ baseVerifyInt stepPotRho stepPotW 1500 +
       verifyShardInt stepPotRho stepPotW angleTable40 allBoxes :=

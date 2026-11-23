@@ -394,9 +394,8 @@ lemma sum_wordsEndingAt_succ {d₁ G B : ℕ} (hd : 0 < d₁) (k : ℕ) (z' : Wi
     (fun q => f (q.1, snocND q.2 (newestLabel hd z')))]
   rfl
 
-/-- **Main Concave DP Fixed-Point Theorem (Conditional Form):**
-If `dpOp AG edgeCost V u' z' ≤ V u' z' + uBound` for all `u', z'`, and the base `m = 0`
-average is bounded by `V u z' + C₀`, then for ALL `m : ℕ` and ALL `u', z'`, the conditional
+/-- If `dpOp AG edgeCost V u' z' ≤ V u' z' + uBound` for all `u', z'`, and the base `m = 0`
+average is bounded by `V u z' + C₀`, then for all `m : ℕ` and all `u', z'`, the conditional
 average of `optDP AG edgeCost m` given final window `z'` is at most
 `V u' z' + m * uBound + C₀`. -/
 theorem concave_dp_conditional_bound {d₁ U G B : ℕ} (hd : 0 < d₁) (hG : 0 < G) (hB : 0 < B)
@@ -498,7 +497,7 @@ theorem concave_dp_conditional_bound {d₁ U G B : ℕ} (hd : 0 < d₁) (hG : 0 
     rw [hcast]
     linarith
 
-/-- **Unconditional Average Bound:** Averaging uniformly over ALL `(z₀, w)` of length `AG.reachSteps + m`
+/-- Averaging uniformly over all `(z₀, w)` of length `AG.reachSteps + m`
 gives at most `m * uBound + avg_z V(u', z) + C₀`. -/
 theorem concave_dp_total_bound {d₁ U G B : ℕ} (hd : 0 < d₁) (hG : 0 < G) (hB : 0 < B)
     (AG : AutomatonGraph d₁ U)

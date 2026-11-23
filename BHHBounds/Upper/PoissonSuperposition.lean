@@ -1,15 +1,12 @@
 import BHHBounds.Upper.PoissonRenewal
 
 /-!
-# Multi-Strip Superposition, Histogram Multinomial Identity, and Bad-Strip Tail
+# Superposition of strips
 
-Proves:
-1. `unitSquareMeasure = ∑ s : Fin M, stripBoxMeasure M s` and
-   `unitSquarePi r = ∑ a : Fin r → Fin M, Measure.pi fun i => stripBoxMeasure M (a i)`.
-2. Multinomial histogram count `card_hist_mul_fact` and union-bound tail
-   `bad_assignments_poisson_sum_le`.
-3. Multi-strip renewal identity `multi_strip_hist_sum` matching the `M`-strip renewal integral
-   with the Poisson-weighted sum of `unitSquarePi r` over all assignments `a` of histogram `k`.
+The unit square is cut into `M` strips, so `unitSquarePi r` is a sum over assignments of the points
+to strips. `multi_strip_hist_sum` matches the `M`-strip renewal integral with the Poisson-weighted
+sum over assignments with a given histogram, and `bad_assignments_poisson_sum_le` bounds the
+assignments that overfill a strip.
 -/
 
 namespace BHHBounds.Upper
@@ -851,7 +848,7 @@ lemma multi_strip_renewal_gen {M : ℕ} (hM : 0 < M) (m : ℕ) :
     | inl j => rfl
     | inr p => simp
 
-/-- **Master `M`-Strip Histogram Identity:** For any `M > 0`, `m`, `r`, and histogram
+/-- For any `M > 0`, `m`, `r`, and histogram
 `k : Fin M → ℕ` with `∑ s, k s = r` and `∀ s, k s < 4 + m`, the Poisson-weighted sum of `∫⁻ F`
 over all assignments `a : Fin r → Fin M` with `hist a = k` equals the `M`-strip renewal integral
 over `multiArrivalEvent`. -/

@@ -370,7 +370,7 @@ lemma shiftWindow_sound {d k : ℕ} {m : Mate (d + 1)} {m' : Mate d}
         · simp only [hj', hmj, Nat.cast_nonneg, ge_iff_le, ↓reduceIte, Fin.val_succ]; omega
         · rw [← slotGlobal_succ d k i, ← slotGlobal_succ d k j', hj']; exact hlr
 
-/-- Helper: splitting a free path out of `F.free` via a permutation `F.free.Perm (l :: rest)`. -/
+/-- Splitting a free path out of `F.free` via a permutation `F.free.Perm (l :: rest)`. -/
 lemma perm_extract {α : Type*} {l : α} {L : List α} (hl : l ∈ L) :
     ∃ rest : List α, L.Perm (l :: rest) := by
   induction L with
@@ -381,7 +381,7 @@ lemma perm_extract {α : Type*} {l : α} {L : List α} (hl : l ∈ L) :
     · obtain ⟨rest, hperm⟩ := ih ht
       exact ⟨a :: rest, (hperm.cons a).trans (List.Perm.swap l a rest)⟩
 
-/-- Helper: two distinct elements of `L` can both be extracted simultaneously. -/
+/-- Two distinct elements of `L` can both be extracted simultaneously. -/
 lemma perm_extract_two {α : Type*} {l₁ l₂ : α} {L : List α}
     (h₁ : l₁ ∈ L) (h₂ : l₂ ∈ L) (hne : l₁ ≠ l₂) :
     ∃ rest : List α, L.Perm (l₁ :: l₂ :: rest) := by

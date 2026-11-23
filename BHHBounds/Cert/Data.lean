@@ -1,7 +1,7 @@
 import BHHBounds.Cert.Kernel
 
 /-!
-# Concrete Step Potential, Angle Table, and Base Certificate
+# Step potential, angle table and base certificate
 -/
 
 namespace BHHBounds.Cert

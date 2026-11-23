@@ -5,20 +5,12 @@ import Mathlib.Analysis.SpecialFunctions.Complex.LogBounds
 import Mathlib.MeasureTheory.Integral.Prod
 
 /-!
-# Finite-`n` Probability, Geometry, and Pointwise Dual Infrastructure
+# Finite-`n` tools and the pointwise dual bound
 
-Provides all finite-`n` building blocks for `BHHBounds/Dual/Expectation.lean`:
-1. Elementary binomial-to-Poisson convergence limits (`tendsto_one_sub_div_pow`,
-   `tendsto_binom_one`, `tendsto_binom_two`, `tendsto_one_sub_inv_sqrt_sq`).
-2. `unitSquarePi` splitting (`measurePreserving_splitFinEquiv`), exchangeability
-   (`measurePreserving_perm_pi`), product expectation (`integral_prod_unitSquarePi`), and exact
-   i.i.d. hit-count expectations (`prob_hitCount_eq_zero`, `prob_hitCount_eq_one`,
-   `prob_hitCount_le_one`, `prob_twoSet_joint`, `prob_tri_ext_surv`).
-3. Interior buffer `interiorBox`, `disk_subset_unitSquare`, and exact rigid-motion/scaling
-   area identities for disks and triangle disk unions inside `[0, 1]²`.
-4. Second-nearest-neighbor distance `nn2`, canonical triangle coordinates `canonShape`,
-   uniqueness of canonical ordering, and the deterministic pointwise dual lower bound
-   `pointwise_dual_lower_bound` for `n ≥ 4`.
+Binomial-to-Poisson limits, splitting and exchangeability of `unitSquarePi`, hit-count
+probabilities, the second-nearest-neighbor distance `nn2`, the canonical coordinates `canonShape`
+of a triangle, and `pointwise_dual_lower_bound`, the dual bound for every configuration of `n ≥ 4`
+points.
 -/
 
 open MeasureTheory Set Real Filter Finset
@@ -1034,7 +1026,7 @@ def canonShape (p₀ p₁ p₂ : Pt) : ℝ × Pt :=
   let uy := p₂.2 - p₀.2
   (L, ((ux * dx + uy * dy) / L ^ 2, |-(ux * dy) + uy * dx| / L ^ 2))
 
-/-- The rigid embedding of `triVerts L (wx, wy)` recovers `(p₀, p₁, p₂)` identically! -/
+/-- The rigid embedding of `triVerts L (wx, wy)` recovers `(p₀, p₁, p₂)` identically. -/
 lemma triEmbed_canonShape {p₀ p₁ p₂ : Pt} (hL : 0 < euclidDist p₀ p₁) :
     let sh := canonShape p₀ p₁ p₂
     let L := sh.1
@@ -1134,7 +1126,7 @@ lemma canonShape_edge_dists {p₀ p₁ p₂ : Pt} (hL : 0 < euclidDist p₀ p₁
   exact ⟨h01, h02, h12⟩
 
 /-- Strict edge ordering for any triple with canonical shape in `(0, ∞) × quarterLens`:
-`d(p₀, p₂) < d(p₁, p₂) < d(p₀, p₁)`! -/
+`d(p₀, p₂) < d(p₁, p₂) < d(p₀, p₁)`. -/
 lemma canonShape_strict_edges {p₀ p₁ p₂ : Pt}
     (hL : 0 < (canonShape p₀ p₁ p₂).1) (hql : (canonShape p₀ p₁ p₂).2 ∈ quarterLens) :
     euclidDist p₀ p₂ < euclidDist p₁ p₂ ∧ euclidDist p₁ p₂ < euclidDist p₀ p₁ := by
@@ -1151,8 +1143,8 @@ lemma canonShape_strict_edges {p₀ p₁ p₂ : Pt}
   rw [hd.1, hd.2.1, hd.2.2]
   exact ⟨mul_lt_mul_of_pos_left hn1 hL, by nlinarith⟩
 
-/-- Uniqueness of canonical ordering: among all orderings of `{a, b, c}`, at most ONE ordering
-maps into `(0, ∞) × quarterLens`! -/
+/-- Uniqueness of canonical ordering: among all orderings of `{a, b, c}`, at most one ordering
+maps into `(0, ∞) × quarterLens`. -/
 lemma canonShape_unique_ordering {n : ℕ} {X : Fin n → Pt}
     {u₁ v₁ t₁ u₂ v₂ t₂ : Fin n}
     (hset : ({u₁, v₁, t₁} : Finset (Fin n)) = {u₂, v₂, t₂})
@@ -1220,7 +1212,7 @@ def activeMoatWidth (act : BoxCert → Int → Int → Int → Bool) (b : BoxCer
     if act b t.1 t.2.1 t.2.2 ∧ toR t.2.1 < R then toR t.2.2 - toR t.1 else 0).sum
 
 /-- Elementary list-induction telescoping inequality for `activeMoatWidth`:
-handles inactive levels (via convexity of `φ`) with ZERO loss! -/
+handles inactive levels (via convexity of `φ`) with zero loss. -/
 lemma activeMoatWidth_telescoping_le (act : BoxCert → Int → Int → Int → Bool) (b : BoxCert)
     {pi01 : Int} {R : ℝ} {φ : ℝ → ℝ}
     (hφ_conv : ∀ a b d : ℝ, a ≤ b → 0 ≤ d → φ (a + d) - φ a ≤ φ (b + d) - φ b) :
@@ -1261,7 +1253,7 @@ lemma activeMoatWidth_telescoping_le (act : BoxCert → Int → Int → Int → 
         simp only [boxLevelTriples, activeMoatWidth, List.map_cons, List.sum_cons] at hih ⊢
         rw [if_neg (fun h => hact h.1), if_neg (fun h => hact h.1), zero_add, zero_add]
         exact hih
-    · -- Since `r` is strictly increasing, NO remaining level has `toR r' < R`!
+    · -- Since `r` is strictly increasing, no remaining level has `toR r' < R`
       have hall_zero : ∀ (ls : List (Int × Int)) (rp yp : Int),
           LevelsValid pi01 rp yp ls → rj ≤ rp →
           ((boxLevelTriples ls yp).map fun t =>
@@ -1361,9 +1353,7 @@ def MatchesBox {n : ℕ} (b : BoxCert) (rBuf : ℝ) (X : Fin n → Pt) (u v t : 
     (Real.sqrt (n : ℝ) * (X v).1, Real.sqrt (n : ℝ) * (X v).2)
     (Real.sqrt (n : ℝ) * (X t).1, Real.sqrt (n : ℝ) * (X t).2) ∈ boxRegion b
 
-/-- **Deterministic Pointwise Dual Lower Bound on `Fin n → Pt` (`n ≥ 4`).**
-
-For every point configuration `X : Fin n → Pt`, the rescaled optimal tour length `√n * tourLength X`
+/-- For every point configuration `X : Fin n → Pt`, the rescaled optimal tour length `√n * tourLength X`
 is bounded below by the base 2-factor dual plus the linear sum over all boxes `b ∈ boxes`, all
 ordered triples `(u, v, t)` matching `b`, and all active cleared levels `(yPrev, rj, yj)` of `b`. -/
 theorem pointwise_dual_lower_bound {n : ℕ} (hn : 4 ≤ n)
@@ -1398,7 +1388,7 @@ theorem pointwise_dual_lower_bound {n : ℕ} (hn : 4 ≤ n)
         (Real.sqrt (n : ℝ) * (X i).2 - Real.sqrt (n : ℝ) * (X j).2) ^ 2 =
         (Real.sqrt (n : ℝ)) ^ 2 * (((X i).1 - (X j).1) ^ 2 + ((X i).2 - (X j).2) ^ 2) := by ring
     dsimp only; rw [hsq, Real.sqrt_mul (sq_nonneg _), Real.sqrt_sq (Real.sqrt_nonneg _)]
-  -- For any 3-subset `S`, define `y S` as the active moat width if `S` matches some (unique!) `(b, u, v, t)`.
+  -- For any 3-subset `S`, define `y S` as the active moat width if `S` matches some (unique) `(b, u, v, t)`.
   let tripleY : Finset (Fin n) → ℝ := fun S =>
     if hcard : S.card = 3 then
       (boxes.map fun b =>
@@ -1407,7 +1397,7 @@ theorem pointwise_dual_lower_bound {n : ℕ} (hn : 4 ≤ n)
             activeMoatWidth act b b.levels 0 (tripleClearance hn d S hcard)
           else 0).sum
     else 0
-  -- Uniqueness: for a fixed 3-subset `S`, at most ONE `(b ∈ boxes, u, v, t)` satisfies `MatchesBox b rBuf X u v t ∧ {u,v,t} = S`!
+  -- Uniqueness: for a fixed 3-subset `S`, at most one `(b ∈ boxes, u, v, t)` satisfies `MatchesBox b rBuf X u v t ∧ {u,v,t} = S`
   have huniq_match : ∀ {b₁ b₂ : BoxCert} {u₁ v₁ t₁ u₂ v₂ t₂ : Fin n},
       b₁ ∈ boxes → b₂ ∈ boxes →
       MatchesBox b₁ rBuf X u₁ v₁ t₁ → MatchesBox b₂ rBuf X u₂ v₂ t₂ →
@@ -1420,7 +1410,7 @@ theorem pointwise_dual_lower_bound {n : ℕ} (hn : 4 ≤ n)
     subst hu; subst hv; subst ht
     refine ⟨?_, rfl, rfl, rfl⟩
     by_contra hne
-    -- Extract pairwise disjointness of `b₁ ≠ b₂` from `PairwiseDisjointBoxes boxes`!
+    -- Extract pairwise disjointness of `b₁ ≠ b₂` from `PairwiseDisjointBoxes boxes`
     have hdisj_b : Disjoint (boxRegion b₁) (boxRegion b₂) := by
       have hpw : ∀ (ls : List BoxCert), PairwiseDisjointBoxes ls →
           ∀ a ∈ ls, ∀ c ∈ ls, a ≠ c → Disjoint (boxRegion a) (boxRegion c) := by
@@ -1439,7 +1429,7 @@ theorem pointwise_dual_lower_bound {n : ℕ} (hn : 4 ≤ n)
             · exact ihtl htl a hat c hct hac
       exact hpw boxes hdisj b₁ hb₁ b₂ hb₂ hne
     exact Set.disjoint_left.mp hdisj_b hm₁.2.2.2.2 hm₂.2.2.2.2
-  -- Also `boxes` has no duplicates (any valid box has a nonempty open `boxRegion`, so `¬ Disjoint (boxRegion b) (boxRegion b)`)!
+  -- Also `boxes` has no duplicates (any valid box has a nonempty open `boxRegion`, so `¬ Disjoint (boxRegion b) (boxRegion b)`)
   have hnodup : boxes.Nodup := by
     have hnd : ∀ (ls : List BoxCert), (∀ b ∈ ls, ValidBox rho w b) → PairwiseDisjointBoxes ls → ls.Nodup := by
       intro ls
@@ -1459,7 +1449,7 @@ theorem pointwise_dual_lower_bound {n : ℕ} (hn : 4 ≤ n)
         exact Set.disjoint_left.mp hd_disj hmid hmid
     exact hnd boxes hboxes hdisj
   -- Key property of `tripleY S`: whenever `S` has card 3, either `tripleY S = 0`, OR there is a unique
-  -- `(b ∈ boxes, u, v, t)` matching `S` and `tripleY S = activeMoatWidth ...`!
+  -- `(b ∈ boxes, u, v, t)` matching `S` and `tripleY S = activeMoatWidth ...`
   have htripleY_nn : ∀ S : Finset (Fin n), 0 ≤ tripleY S := by
     intro S
     dsimp only [tripleY]
@@ -1473,7 +1463,7 @@ theorem pointwise_dual_lower_bound {n : ℕ} (hn : 4 ≤ n)
     · exact le_rfl
   -- Active triple family `F := {S ∈ powersetCard 3 univ | 0 < tripleY S}`
   let F : Finset (Finset (Fin n)) := (Finset.powersetCard 3 Finset.univ).filter fun S => 0 < tripleY S
-  -- Every `S ∈ F` is isolated AND satisfies half-clearance!
+  -- Every `S ∈ F` is isolated and satisfies half-clearance
   have hF_prop : ∀ S ∈ F,
       S.Nonempty ∧ S ≠ Finset.univ ∧ IsIsolated d S ∧
       (∃ r : ℝ, (∀ x ∈ S, ∀ z ∉ S, r < d x z) ∧ (∀ x ∈ S, pot x + tripleY S ≤ r / 2)) := by
@@ -1484,7 +1474,7 @@ theorem pointwise_dual_lower_bound {n : ℕ} (hn : 4 ≤ n)
     have hproper : S ≠ Finset.univ := fun he => by
       have : S.card = n := by rw [he, Finset.card_univ, Fintype.card_fin]
       omega
-    -- Extract the unique `(b ∈ boxes, u, v, t)` with `0 < activeMoatWidth`!
+    -- Extract the unique `(b ∈ boxes, u, v, t)` with `0 < activeMoatWidth`
     have hex_match : ∃ b ∈ boxes, ∃ u v t : Fin n,
         MatchesBox b rBuf X u v t ∧ ({u, v, t} : Finset (Fin n)) = S ∧
         tripleY S = activeMoatWidth act b b.levels 0 (tripleClearance hn d S hcard) := by
@@ -1526,7 +1516,7 @@ theorem pointwise_dual_lower_bound {n : ℕ} (hn : 4 ≤ n)
       obtain ⟨u, v, t, hmatch, hSeq⟩ := hex_uvt
       refine ⟨b, hb, u, v, t, hmatch, hSeq, ?_⟩
       dsimp only [tripleY]; rw [dif_pos hcard]
-      -- By uniqueness + `hnodup`, ONLY `(b, u, v, t)` contributes!
+      -- By uniqueness + `hnodup`, only `(b, u, v, t)` contributes
       have hsum_single : ∀ b' ∈ boxes,
           (∑ u' : Fin n, ∑ v' : Fin n, ∑ t' : Fin n,
             if MatchesBox b' rBuf X u' v' t' ∧ ({u', v', t'} : Finset (Fin n)) = S then
@@ -1561,7 +1551,7 @@ theorem pointwise_dual_lower_bound {n : ℕ} (hn : 4 ≤ n)
           boxes.map (fun b' => if b' = b then activeMoatWidth act b b.levels 0 (tripleClearance hn d S hcard) else 0) :=
         List.map_congr_left hsum_single
       rw [hmap_eq]
-      -- Sum of `(if b' = b then c else 0)` over a `Nodup` list containing `b` equals `c`!
+      -- Sum of `(if b' = b then c else 0)` over a `Nodup` list containing `b` equals `c`
       have hlist_single : ∀ (ls : List BoxCert) (c : ℝ), ls.Nodup → b ∈ ls →
           (ls.map fun b' => if b' = b then c else 0).sum = c := by
         intro ls c
@@ -1638,7 +1628,7 @@ theorem pointwise_dual_lower_bound {n : ℕ} (hn : 4 ≤ n)
       unfold toR at htmp ⊢; push_cast at htmp ⊢
       rw [← add_div, ← mul_div_assoc]; exact htmp
     linarith [hpi_le x hx, hy_le, hyS_eq]
-  -- Pairwise disjointness & non-interference of `F`!
+  -- Pairwise disjointness & non-interference of `F`
   have hF_disj : (F : Set (Finset (Fin n))).PairwiseDisjoint id := by
     intro S₁ hS₁ S₂ hS₂ hne
     have hc1 : S₁.card = 3 := (Finset.mem_powersetCard.mp (Finset.mem_filter.mp hS₁).1).2
@@ -1646,7 +1636,7 @@ theorem pointwise_dual_lower_bound {n : ℕ} (hn : 4 ≤ n)
     exact isolated_pairwiseDisjoint d 3 hc1 hc2 (hF_prop S₁ hS₁).2.2.1 (hF_prop S₂ hS₂).2.2.1 hne
   have hNI := nonInterference_of_halfClearance d (rescaledDist_symm X) pot F hF_disj tripleY
     fun S hS _ => (hF_prop S hS).2.2.2
-  -- Apply `twoFactor_moat_dual_lower_bound` to an optimal tour `σ` of `X`!
+  -- Apply `twoFactor_moat_dual_lower_bound` to an optimal tour `σ` of `X`
   obtain ⟨σ, hσ⟩ := exists_optimal_tour X
   have hdual := twoFactor_moat_dual_lower_bound (by omega) d (rescaledDist_symm X) pot F
     (fun S hS => (hF_prop S hS).1) (fun S hS => (hF_prop S hS).2.1) hF_disj tripleY
@@ -1654,10 +1644,10 @@ theorem pointwise_dual_lower_bound {n : ℕ} (hn : 4 ≤ n)
   have htour_eq : ∑ i : Fin n, d (σ i) (σ (finRotate n i)) = Real.sqrt (n : ℝ) * tourLength X := by
     rw [hσ, Finset.mul_sum]; rfl
   rw [htour_eq] at hdual
-  -- Finally, telescope each active moat term in `F` and compare to the linear sum over `(b, u, v, t, lv)`!
+  -- Finally, telescope each active moat term in `F` and compare to the linear sum over `(b, u, v, t, lv)`
   refine le_trans ?_ hdual
   refine add_le_add le_rfl ?_
-  -- Rewrite the linear sum by grouping over `S ∈ powersetCard 3 univ` (since every matched `(u,v,t)` has `{u,v,t}.card = 3`)!
+  -- Rewrite the linear sum by grouping over `S ∈ powersetCard 3 univ` (since every matched `(u,v,t)` has `{u,v,t}.card = 3`)
   have hgroup :
       (boxes.map fun b =>
         ∑ u : Fin n, ∑ v : Fin n, ∑ t : Fin n,
@@ -1682,7 +1672,7 @@ theorem pointwise_dual_lower_bound {n : ℕ} (hn : 4 ≤ n)
                       (max 0 (pot x + toR lv.2.2 + pot z - d x z) - max 0 (pot x + toR lv.1 + pot z - d x z))
                 else 0).sum
             else 0).sum := by
-    -- Swap `List.sum` over `boxes` and `Finset.sum` over `S`!
+    -- Swap `List.sum` over `boxes` and `Finset.sum` over `S`
     have hlist_finset : ∀ (ls : List BoxCert) (f : BoxCert → Finset (Fin n) → ℝ),
         (ls.map fun b => ∑ S ∈ Finset.powersetCard 3 Finset.univ, f b S).sum =
         ∑ S ∈ Finset.powersetCard 3 Finset.univ, (ls.map fun b => f b S).sum := by
@@ -1709,7 +1699,7 @@ theorem pointwise_dual_lower_bound {n : ℕ} (hn : 4 ≤ n)
     · rw [if_neg hm]; symm
       exact Finset.sum_eq_zero fun S _ => if_neg (fun h => hm h.1)
   rw [hgroup]
-  -- Compare term-by-term over `S ∈ powersetCard 3 univ` (terms with `tripleY S = 0` are `0` on both sides)!
+  -- Compare term-by-term over `S ∈ powersetCard 3 univ` (terms with `tripleY S = 0` are `0` on both sides)
   have hsum_F : ∑ S ∈ F, (2 * tripleY S - ∑ u ∈ S, ∑ v ∈ Finset.univ \ S,
         (max 0 (pot u + tripleY S + pot v - d u v) - max 0 (pot u + pot v - d u v))) =
       ∑ S ∈ Finset.powersetCard 3 Finset.univ, (2 * tripleY S - ∑ u ∈ S, ∑ v ∈ Finset.univ \ S,
@@ -1745,7 +1735,7 @@ theorem pointwise_dual_lower_bound {n : ℕ} (hn : 4 ≤ n)
   -- Case split: does `S` match some `(b ∈ boxes, u, v, t)`?
   by_cases hex : ∃ b ∈ boxes, ∃ u v t : Fin n, MatchesBox b rBuf X u v t ∧ ({u, v, t} : Finset (Fin n)) = S
   · obtain ⟨b, hb, u, v, t, hmatch, hSeq⟩ := hex
-    -- Both LHS and `tripleY S` collapse to the single matching `(b, u, v, t)`!
+    -- Both LHS and `tripleY S` collapse to the single matching `(b, u, v, t)`
     have hcollapse : ∀ (g : BoxCert → ℝ),
         (boxes.map fun b' => ∑ u' : Fin n, ∑ v' : Fin n, ∑ t' : Fin n,
           if MatchesBox b' rBuf X u' v' t' ∧ ({u', v', t'} : Finset (Fin n)) = S then g b' else 0).sum =

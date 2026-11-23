@@ -1,15 +1,12 @@
 import BHHBounds.Dual.FiniteN
 
 /-!
-# Finite-`n` to Poisson Convergence for the 1D Base Dual
+# Limit of the base dual
 
-Proves integrability and exact asymptotic bounds for the 2-factor base dual on `n` i.i.d.
-uniform points in `[0, 1]²`:
-1. `integrable_baseTerm1_integrand`, `integrable_basePen_integrand`: integrability of the
-   first-order potential sum and the pair-penalty sum under `unitSquarePi n`.
-2. `baseTerm1_lower_tendsto`: finite-`n` lower bound sequence converging to `baseTerm1 rho w`.
-3. `basePen_upper_tendsto`: finite-`n` upper bound sequence converging to
-   `basePenMarg rho w + basePenInter rho w`.
+For `n` uniform points in `[0, 1]²`, the expected first-order term is bounded below by a sequence
+converging to `baseTerm1 rho w` (`baseTerm1_lower_tendsto`), and the expected pair penalty is
+bounded above by one converging to `basePenMarg rho w + basePenInter rho w`
+(`basePen_upper_tendsto`).
 -/
 
 open MeasureTheory Set Real Filter Finset Topology

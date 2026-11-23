@@ -1,17 +1,12 @@
 import BHHBounds.Upper.PoissonSuperposition
 
 /-!
-# End-to-End Poissonization and Multi-Strip Serpentine Tour Bound
+# From strips to the unit square
 
-Proves:
-1. `Exp(1)` mean/variance and right-boundary deviation `stripEndX_abs_dev_le`.
-2. `serpentine_finTourLen_le` and `serpentine_cycleLen_le_bound`: every Poisson arrival set
-   with `< 4 + m` points per strip is visited by the serpentine concatenation of the `M`
-   bandwidth-4 DP strip paths, with total length bounded by the sum of strip lengths plus
-   `O(M^{3/4})` stitching error.
-3. `expectedTourLen_finite_bound`: finite-`(n, M, m, R)` coupling inequality.
-4. `expectedTourLen_div_sqrt_le_of_dp`: for any concave DP certificate `(V, uBound)` on
-   `automaton4`, `expectedTourLen n / √n ≤ uBound + ε` for all sufficiently large `n`.
+The strips are traversed in serpentine order and their paths joined into one tour, and a Poisson
+number of points is compared with exactly `n` points. The result is
+`expectedTourLength_div_sqrt_le_of_dp`: a DP certificate `(V, uBound)` for `automaton4` gives
+`expectedTourLength n / √n ≤ uBound + ε` for all large `n`.
 -/
 
 namespace BHHBounds.Upper
@@ -188,15 +183,15 @@ lemma flatten_finRange_getElem {α : Type*} :
       exact flatten_finRange_getElem (fun j => L j.castSucc) (fun j => hL j.castSucc) s' u hu
 
 /-- If each strip `s : Fin (M' + 1)` has a Hamiltonian path `P s` visiting `0..4+m`,
-then the serpentine concatenation of the rescaled paths upper-bounds `finTourLen` of any
+then the serpentine concatenation of the rescaled paths upper-bounds `tourLength` of any
 arrival configuration with `k s < 4 + m` points per strip. -/
-lemma serpentine_finTourLen_le {M' m r : ℕ}
+lemma serpentine_tourLength_le {M' m r : ℕ}
     (k : Fin (M' + 1) → ℕ) (hk : ∀ s, k s < 4 + m)
     (e : (Σ s : Fin (M' + 1), Fin (k s)) ≃ Fin r)
     (ω : Fin (M' + 1) → (Fin (7 + m) → ℝ) × (Fin (8 + m) → ℝ))
     (P : Fin (M' + 1) → List ℕ)
     (hP : ∀ s, (P s).Perm (List.range (4 + m + 1))) :
-    finTourLen (fun i : Fin r =>
+    tourLength (fun i : Fin r =>
       stripArrPts (M' + 1) m (k (e.symm i).1) (e.symm i).1 (ω (e.symm i).1) (e.symm i).2) ≤
     cycleLen (serpentineConcat fun s : Fin (M' + 1) =>
       (P s).map (stripUnitPt (M' + 1) s (ω s).1 (ω s).2)) := by
@@ -287,7 +282,7 @@ lemma serpentine_finTourLen_le {M' m r : ℕ}
           (B - 1 - (P s).idxOf (j.val + 1)) = (P s).idxOf (j.val + 1) := by
         rw [List.length_map, hPlen s]; omega
       simp_rw [hsub, hPget]; rfl
-  exact finTourLen_le_cycleLen_of_inj _ (serpentineConcat Q) f hf_inj hf_val
+  exact tourLength_le_cycleLen_of_inj _ (serpentineConcat Q) f hf_inj hf_val
 
 /-- Pointwise bound on `cycleLen (serpentineConcat Q)` in terms of strip path lengths
 and right-boundary deviations `|stripEndX μ (ω s).1 - 1|`. -/
@@ -322,7 +317,7 @@ lemma serpentine_cycleLen_le_bound {M' m : ℕ}
       | nil => simp [listPathLen]
       | cons b rest' =>
         simp only [List.map_cons, listPathLen] at ih ⊢
-        rw [ih, ptDist_stripUnitPt hMpos s, add_div]
+        rw [ih, euclidDist_stripUnitPt hMpos s, add_div]
   have hpath_sum : ∑ s : Fin M, listPathLen (Q s) ≤
       (∑ s : Fin M, len (ω s)) / ((M : ℝ) * (11 / 5 : ℝ)) := by
     rw [Finset.sum_div]
@@ -330,7 +325,7 @@ lemma serpentine_cycleLen_le_bound {M' m : ℕ}
     dsimp only [Q]
     rw [hlist_scale s (P s)]
     exact div_le_div_of_nonneg_right (hlen s) (by positivity)
-  -- Helper: coordinates of `head` and `getLast` of `Q s`
+  -- Coordinates of `head` and `getLast` of `Q s`
   have hQhead : ∀ s : Fin M, (Q s).head (hQne s) = stripUnitPt M s (ω s).1 (ω s).2 0 := fun s => by
     dsimp only [Q]; rw [List.head_map, hhead s]
   have hQlast : ∀ s : Fin M, (Q s).getLast (hQne s) = stripUnitPt M s (ω s).1 (ω s).2 (4 + m) := fun s => by
@@ -355,9 +350,9 @@ lemma serpentine_cycleLen_le_bound {M' m : ℕ}
   -- 2. Adjacent strip jumps: bound each jump `s : Fin M'`
   have hjump_le : ∀ s : Fin M',
       (if s.val % 2 = 0 then
-          ptDist ((Q s.castSucc).getLast (hQne _)) ((Q s.succ).getLast (hQne _))
+          euclidDist ((Q s.castSucc).getLast (hQne _)) ((Q s.succ).getLast (hQne _))
         else
-          ptDist ((Q s.castSucc).head (hQne _)) ((Q s.succ).head (hQne _))) ≤
+          euclidDist ((Q s.castSucc).head (hQne _)) ((Q s.succ).head (hQne _))) ≤
       |stripEndX μ (ω s.castSucc).1 - 1| + |stripEndX μ (ω s.succ).1 - 1| + 2 / (M : ℝ) := by
     intro s
     have hys1 := hy_band s.castSucc (4 + m) (by omega)
@@ -367,7 +362,7 @@ lemma serpentine_cycleLen_le_bound {M' m : ℕ}
     have hsucc_val : (s.succ.val : ℝ) = (s.castSucc.val : ℝ) + 1 := by simp
     split_ifs
     · rw [hQlast, hQlast]
-      have hl1 := ptDist_le_l1 (stripUnitPt M s.castSucc (ω s.castSucc).1 (ω s.castSucc).2 (4 + m))
+      have hl1 := euclidDist_le_l1 (stripUnitPt M s.castSucc (ω s.castSucc).1 (ω s.castSucc).2 (4 + m))
         (stripUnitPt M s.succ (ω s.succ).1 (ω s.succ).2 (4 + m))
       rw [hlast_x, hlast_x] at hl1
       have hdx : |stripEndX μ (ω s.castSucc).1 - stripEndX μ (ω s.succ).1| ≤
@@ -388,7 +383,7 @@ lemma serpentine_cycleLen_le_bound {M' m : ℕ}
           linarith [hys1.2, hys2.1]
       linarith
     · rw [hQhead, hQhead]
-      have hl1 := ptDist_le_l1 (stripUnitPt M s.castSucc (ω s.castSucc).1 (ω s.castSucc).2 0)
+      have hl1 := euclidDist_le_l1 (stripUnitPt M s.castSucc (ω s.castSucc).1 (ω s.castSucc).2 0)
         (stripUnitPt M s.succ (ω s.succ).1 (ω s.succ).2 0)
       rw [hhead_x, hhead_x, sub_self, abs_zero, zero_add] at hl1
       have hdy : |(stripUnitPt M s.castSucc (ω s.castSucc).1 (ω s.castSucc).2 0).2 -
@@ -406,9 +401,9 @@ lemma serpentine_cycleLen_le_bound {M' m : ℕ}
   -- Sum adjacent jumps: `≤ 2 * ∑ s, |stripEndX - 1| + 2`
   have hsum_jumps : (∑ s : Fin M',
       if s.val % 2 = 0 then
-        ptDist ((Q s.castSucc).getLast (hQne _)) ((Q s.succ).getLast (hQne _))
+        euclidDist ((Q s.castSucc).getLast (hQne _)) ((Q s.succ).getLast (hQne _))
       else
-        ptDist ((Q s.castSucc).head (hQne _)) ((Q s.succ).head (hQne _))) ≤
+        euclidDist ((Q s.castSucc).head (hQne _)) ((Q s.succ).head (hQne _))) ≤
       2 * (∑ s : Fin M, |stripEndX μ (ω s).1 - 1|) + 2 := by
     have h1 := Finset.sum_le_sum (s := (Finset.univ : Finset (Fin M'))) fun s _ => hjump_le s
     rw [Finset.sum_add_distrib, Finset.sum_add_distrib, Finset.sum_const, Finset.card_univ,
@@ -425,7 +420,7 @@ lemma serpentine_cycleLen_le_bound {M' m : ℕ}
       linarith
     linarith
   -- 3. Closing edge: `≤ |stripEndX (last) - 1| + 2`
-  have hclose : ptDist (if M' % 2 = 0 then (Q (Fin.last M')).getLast (hQne _) else (Q (Fin.last M')).head (hQne _))
+  have hclose : euclidDist (if M' % 2 = 0 then (Q (Fin.last M')).getLast (hQne _) else (Q (Fin.last M')).head (hQne _))
       ((Q 0).head (hQne 0)) ≤ (∑ s : Fin M, |stripEndX μ (ω s).1 - 1|) + 2 := by
     have hlast_term : |stripEndX μ (ω (Fin.last M')).1 - 1| ≤ ∑ s : Fin M, |stripEndX μ (ω s).1 - 1| :=
       Finset.single_le_sum (f := fun s : Fin M => |stripEndX μ (ω s).1 - 1|)
@@ -453,7 +448,7 @@ lemma serpentine_cycleLen_le_bound {M' m : ℕ}
     rw [hQhead 0]
     split_ifs
     · rw [hQlast]
-      have hl1 := ptDist_le_l1 (stripUnitPt M (Fin.last M') (ω (Fin.last M')).1 (ω (Fin.last M')).2 (4 + m))
+      have hl1 := euclidDist_le_l1 (stripUnitPt M (Fin.last M') (ω (Fin.last M')).1 (ω (Fin.last M')).2 (4 + m))
         (stripUnitPt M 0 (ω 0).1 (ω 0).2 0)
       rw [hlast_x, hhead_x, sub_zero] at hl1
       have hx : |stripEndX μ (ω (Fin.last M')).1| ≤ |stripEndX μ (ω (Fin.last M')).1 - 1| + 1 := by
@@ -464,7 +459,7 @@ lemma serpentine_cycleLen_le_bound {M' m : ℕ}
         abs_le.mpr ⟨by linarith [hyl_01.1, hy0_01.2], by linarith [hyl_01.2, hy0_01.1]⟩
       linarith
     · rw [hQhead]
-      have hl1 := ptDist_le_l1 (stripUnitPt M (Fin.last M') (ω (Fin.last M')).1 (ω (Fin.last M')).2 0)
+      have hl1 := euclidDist_le_l1 (stripUnitPt M (Fin.last M') (ω (Fin.last M')).1 (ω (Fin.last M')).2 0)
         (stripUnitPt M 0 (ω 0).1 (ω 0).2 0)
       rw [hhead_x, hhead_x, sub_self, abs_zero, zero_add] at hl1
       have hy : |(stripUnitPt M (Fin.last M') (ω (Fin.last M')).1 (ω (Fin.last M')).2 0).2 -
@@ -473,7 +468,7 @@ lemma serpentine_cycleLen_le_bound {M' m : ℕ}
       linarith [Finset.sum_nonneg (s := Finset.univ) fun (s : Fin M) _ => abs_nonneg (stripEndX μ (ω s).1 - 1)]
   linarith
 
-/-! ## Section 3: Finite-`(n, M, m, R)` Master Coupling Inequality -/
+/-! ## Section 3: Finite-`(n, M, m, R)` Coupling Inequality -/
 
 lemma ae_mem_stripBoxMeasure {M : ℕ} (hM : 0 < M) (s : Fin M) :
     ∀ᵐ p ∂(stripBoxMeasure M s), p ∈ Icc (0 : ℝ) 1 ×ˢ Icc (0 : ℝ) 1 := by
@@ -511,17 +506,17 @@ lemma ae_mem_stripFullMeasure_Y (m : ℕ) :
   exact measurePreserving_snd.quasiMeasurePreserving.ae (ae_all_iff.mpr h1)
 
 set_option maxHeartbeats 800000 in
-/-- **Master Finite-`(n, M, m, R)` Coupling Bound:** Given any concave DP fixed-point certificate
+/-- Given any concave DP fixed-point certificate
 `(V, uBound)` on `automaton4`, there exists `C_strip` independent of `(n, M, m, R)` such that
 for all `M ≥ 1`, `m`, and `n ≤ R` (with `μ = M * (11 / 5)^2`):
-`(∑ r ∈ Icc n R, poissonProb (M * μ) r) * expectedTourLen n ≤ ...`. -/
-theorem expectedTourLen_finite_bound
+`(∑ r ∈ Icc n R, poissonProb (M * μ) r) * expectedTourLength n ≤ ...`. -/
+theorem expectedTourLength_finite_bound
     (V : Fin 56 → Window 3 4 6 → ℝ) (uBound : ℝ)
     (hfp : ∀ u' z', dpOp automaton4 edgeCost4 V u' z' ≤ V u' z' + uBound) :
     ∃ C_strip : ℝ, ∀ (M' m n R : ℕ), n ≤ R →
       let M : ℕ := M' + 1
       let μ : ℝ := (M : ℝ) * (11 / 5 : ℝ) ^ 2
-      (∑ r ∈ Finset.Icc n R, poissonProb ((M : ℝ) * μ) r) * expectedTourLen n ≤
+      (∑ r ∈ Finset.Icc n R, poissonProb ((M : ℝ) * μ) r) * expectedTourLength n ≤
         ((m : ℝ) * uBound + C_strip) / (11 / 5 : ℝ) +
         3 * (M : ℝ) * Real.sqrt ((((4 + m : ℕ) : ℝ) / μ - 1) ^ 2 + ((4 + m : ℕ) : ℝ) / μ ^ 2) +
         4 +
@@ -621,25 +616,25 @@ theorem expectedTourLen_finite_bound
       linarith
     linarith
   -- Step 1: Work in `ℝ≥0∞` via `ENNReal.ofReal`.
-  -- First show `ENNReal.ofReal ((∑ r ∈ Icc n R, poissonProb (M * μ) r) * expectedTourLen n)` is bounded by
-  -- `∑ r ∈ Icc n R, ENNReal.ofReal (poissonProb (M * μ) r) * ∫⁻ x, ENNReal.ofReal (finTourLen x) ∂(unitSquarePi r)`.
-  have hlhs_enn : ENNReal.ofReal ((∑ r ∈ Finset.Icc n R, poissonProb ((M : ℝ) * μ) r) * expectedTourLen n) ≤
+  -- First show `ENNReal.ofReal ((∑ r ∈ Icc n R, poissonProb (M * μ) r) * expectedTourLength n)` is bounded by
+  -- `∑ r ∈ Icc n R, ENNReal.ofReal (poissonProb (M * μ) r) * ∫⁻ x, ENNReal.ofReal (tourLength x) ∂(unitSquarePi r)`.
+  have hlhs_enn : ENNReal.ofReal ((∑ r ∈ Finset.Icc n R, poissonProb ((M : ℝ) * μ) r) * expectedTourLength n) ≤
       ∑ r ∈ Finset.Icc n R, ENNReal.ofReal (poissonProb ((M : ℝ) * μ) r) *
-        ∫⁻ x : Fin r → ℝ × ℝ, ENNReal.ofReal (finTourLen x) ∂(unitSquarePi r) := by
-    have hmono_sum : (∑ r ∈ Finset.Icc n R, poissonProb ((M : ℝ) * μ) r) * expectedTourLen n ≤
-        ∑ r ∈ Finset.Icc n R, poissonProb ((M : ℝ) * μ) r * expectedTourLen r := by
+        ∫⁻ x : Fin r → ℝ × ℝ, ENNReal.ofReal (tourLength x) ∂(unitSquarePi r) := by
+    have hmono_sum : (∑ r ∈ Finset.Icc n R, poissonProb ((M : ℝ) * μ) r) * expectedTourLength n ≤
+        ∑ r ∈ Finset.Icc n R, poissonProb ((M : ℝ) * μ) r * expectedTourLength r := by
       rw [Finset.sum_mul]
       exact Finset.sum_le_sum fun r hr =>
-        mul_le_mul_of_nonneg_left (expectedTourLen_mono (Finset.mem_Icc.mp hr).1)
+        mul_le_mul_of_nonneg_left (expectedTourLength_mono (Finset.mem_Icc.mp hr).1)
           (poissonProb_nonneg (by positivity) r)
     refine (ENNReal.ofReal_le_ofReal hmono_sum).trans ?_
-    rw [ENNReal.ofReal_sum_of_nonneg (f := fun r => poissonProb ((M : ℝ) * μ) r * expectedTourLen r)
+    rw [ENNReal.ofReal_sum_of_nonneg (f := fun r => poissonProb ((M : ℝ) * μ) r * expectedTourLength r)
       (fun r _ => mul_nonneg (poissonProb_nonneg (by positivity) r)
-        (integral_nonneg fun x => finTourLen_nonneg x))]
+        (integral_nonneg fun x => tourLength_nonneg x))]
     refine Finset.sum_le_sum fun r _ => ?_
     rw [ENNReal.ofReal_mul (poissonProb_nonneg (by positivity) r)]
-    dsimp only [expectedTourLen]
-    rw [ofReal_integral_eq_lintegral_ofReal (finTourLen_integrable r) (ae_of_all _ fun x => finTourLen_nonneg x)]
+    dsimp only [expectedTourLength]
+    rw [ofReal_integral_eq_lintegral_ofReal (tourLength_integrable r) (ae_of_all _ fun x => tourLength_nonneg x)]
   -- Step 2: For each `r ∈ Icc n R`, split `unitSquarePi r` into `Good(r)` (`∀ s, hist a s < 4 + m`) and `Bad(r)`.
   let goodK (r : ℕ) : Finset (Fin M → Fin (4 + m)) :=
     Finset.univ.filter fun kf : Fin M → Fin (4 + m) => ∑ s : Fin M, (kf s).val = r
@@ -651,7 +646,7 @@ theorem expectedTourLen_finite_bound
       (ae_mem_stripFullMeasure_Y m)
   have hsplit_r : ∀ r ∈ Finset.Icc n R,
       ENNReal.ofReal (poissonProb ((M : ℝ) * μ) r) *
-        ∫⁻ x : Fin r → ℝ × ℝ, ENNReal.ofReal (finTourLen x) ∂(unitSquarePi r) ≤
+        ∫⁻ x : Fin r → ℝ × ℝ, ENNReal.ofReal (tourLength x) ∂(unitSquarePi r) ≤
       (∑ kf ∈ goodK r, ∫⁻ ω in evK kf, ENNReal.ofReal (serpBound ω) ∂P_M) +
       ENNReal.ofReal ((4 * Real.sqrt (R : ℝ) + 4) * poissonProb ((M : ℝ) * μ) r *
         (((Finset.univ.filter fun a : Fin r → Fin M => ∃ s : Fin M, 4 + m ≤ hist a s).card : ℝ) / (M : ℝ) ^ r)) := by
@@ -672,10 +667,10 @@ theorem expectedTourLen_finite_bound
     conv_lhs => rw [hpartA, Finset.sum_union hdisjA, mul_add]
     refine add_le_add ?_ ?_
     · -- Good part: group `goodA` by `kf : Fin M → Fin (4 + m)` with `∑ s, (kf s).val = r`
-      have hgroup : ∑ a ∈ goodA, ∫⁻ x : Fin r → ℝ × ℝ, ENNReal.ofReal (finTourLen x)
+      have hgroup : ∑ a ∈ goodA, ∫⁻ x : Fin r → ℝ × ℝ, ENNReal.ofReal (tourLength x)
             ∂(Measure.pi fun i : Fin r => stripBoxMeasure M (a i)) =
           ∑ kf ∈ goodK r, ∑ a ∈ Finset.univ.filter (fun a : Fin r → Fin M => hist a = fun s => (kf s).val),
-            ∫⁻ x : Fin r → ℝ × ℝ, ENNReal.ofReal (finTourLen x)
+            ∫⁻ x : Fin r → ℝ × ℝ, ENNReal.ofReal (tourLength x)
               ∂(Measure.pi fun i : Fin r => stripBoxMeasure M (a i)) := by
         rw [← Finset.sum_biUnion]
         · congr 1; ext a
@@ -696,11 +691,11 @@ theorem expectedTourLen_finite_bound
       let e : (Σ s : Fin M, Fin (kf s).val) ≃ Fin r :=
         Fintype.equivFinOfCardEq (by rw [Fintype.card_sigma]; simp only [Fintype.card_fin]; exact hr_kf)
       have hhist := multi_strip_hist_sum hMpos m r (fun s => (kf s).val) (fun s => (kf s).isLt) hr_kf e
-        (fun x => ENNReal.ofReal (finTourLen x))
-        (ENNReal.measurable_ofReal.comp (finTourLen_continuous r).measurable)
-        (fun σ x => by rw [finTourLen_perm])
+        (fun x => ENNReal.ofReal (tourLength x))
+        (ENNReal.measurable_ofReal.comp (continuous_tourLength r).measurable)
+        (fun σ x => by rw [tourLength_perm])
       rw [hhist]
-      -- Bound `finTourLen (multiArrPts)` by `serpBound ω` a.e. on `evK kf`.
+      -- Bound `tourLength (multiArrPts)` by `serpBound ω` a.e. on `evK kf`.
       refine setLIntegral_mono_ae' (MeasurableSet.univ_pi fun s =>
         measurableSet_stripArrivalEvent M m (kf s).val (kf s).isLt) ?_
       filter_upwards [hae_Y_M] with ω hYω _
@@ -712,7 +707,7 @@ theorem expectedTourLen_finite_bound
           (P s).getLast hne = 4 + m ∧
           listPathLen ((P s).map (stripPt (ω s).1 (ω s).2)) ≤ len (ω s) := fun s =>
         (hlen_path (ω s)).choose_spec
-      have h1 := serpentine_finTourLen_le (fun s => (kf s).val) (fun s => (kf s).isLt) e ω P
+      have h1 := serpentine_tourLength_le (fun s => (kf s).val) (fun s => (kf s).isLt) e ω P
         (fun s => (hPspec s).choose_spec.1)
       have h2 := serpentine_cycleLen_le_bound ω hYω P
         (fun s => (hPspec s).choose)
@@ -720,12 +715,12 @@ theorem expectedTourLen_finite_bound
         (fun s => (hPspec s).choose_spec.2.2.1)
         len (fun s => (hPspec s).choose_spec.2.2.2)
       exact h1.trans h2
-    · -- Bad part: on each `a ∈ badA`, `finTourLen x ≤ 4 * √r + 4 ≤ 4 * √R + 4` a.e., and total mass is `M^(-r)`.
+    · -- Bad part: on each `a ∈ badA`, `tourLength x ≤ 4 * √r + 4 ≤ 4 * √R + 4` a.e., and total mass is `M^(-r)`.
       have hrR : (r : ℝ) ≤ (R : ℝ) := by exact_mod_cast (Finset.mem_Icc.mp hr).2
       have hsqrt_le : 4 * Real.sqrt (r : ℝ) + 4 ≤ 4 * Real.sqrt (R : ℝ) + 4 := by
         have := Real.sqrt_le_sqrt hrR; linarith
       have ha_le : ∀ a : Fin r → Fin M,
-          ∫⁻ x : Fin r → ℝ × ℝ, ENNReal.ofReal (finTourLen x)
+          ∫⁻ x : Fin r → ℝ × ℝ, ENNReal.ofReal (tourLength x)
             ∂(Measure.pi fun i : Fin r => stripBoxMeasure M (a i)) ≤
           ENNReal.ofReal (4 * Real.sqrt (R : ℝ) + 4) * ((M : ℝ≥0∞)⁻¹) ^ r := by
         intro a
@@ -750,11 +745,11 @@ theorem expectedTourLen_finite_bound
             simp only [t, ↓reduceIte]
             exact ae_iff.mp (ae_mem_stripBoxMeasure hMpos (a i))
           exact ae_iff.mpr hnull
-        calc ∫⁻ x, ENNReal.ofReal (finTourLen x) ∂(Measure.pi fun i : Fin r => stripBoxMeasure M (a i))
+        calc ∫⁻ x, ENNReal.ofReal (tourLength x) ∂(Measure.pi fun i : Fin r => stripBoxMeasure M (a i))
             ≤ ∫⁻ _, ENNReal.ofReal (4 * Real.sqrt (R : ℝ) + 4)
                 ∂(Measure.pi fun i : Fin r => stripBoxMeasure M (a i)) :=
               lintegral_mono_ae (hae_sq.mono fun x hx =>
-                ENNReal.ofReal_le_ofReal ((finTourLen_unitSquare_le x hx).trans hsqrt_le))
+                ENNReal.ofReal_le_ofReal ((tourLength_unitSquare_le x hx).trans hsqrt_le))
           _ = ENNReal.ofReal (4 * Real.sqrt (R : ℝ) + 4) *
                 (Measure.pi fun i : Fin r => stripBoxMeasure M (a i)) Set.univ := lintegral_const _
           _ = ENNReal.ofReal (4 * Real.sqrt (R : ℝ) + 4) * ((M : ℝ≥0∞)⁻¹) ^ r := by
@@ -762,7 +757,7 @@ theorem expectedTourLen_finite_bound
               rw [← Set.pi_univ, Measure.pi_pi]
               simp [stripBoxMeasure_univ hMpos]
       calc ENNReal.ofReal (poissonProb ((M : ℝ) * μ) r) *
-            ∑ a ∈ badA, ∫⁻ x, ENNReal.ofReal (finTourLen x) ∂(Measure.pi fun i : Fin r => stripBoxMeasure M (a i))
+            ∑ a ∈ badA, ∫⁻ x, ENNReal.ofReal (tourLength x) ∂(Measure.pi fun i : Fin r => stripBoxMeasure M (a i))
           ≤ ENNReal.ofReal (poissonProb ((M : ℝ) * μ) r) *
             ∑ _ ∈ badA, (ENNReal.ofReal (4 * Real.sqrt (R : ℝ) + 4) * ((M : ℝ≥0∞)⁻¹) ^ r) := by
             gcongr; exact ha_le _
@@ -821,14 +816,14 @@ theorem expectedTourLen_finite_bound
     rw [hfact, mul_assoc]
     exact mul_le_mul_of_nonneg_left (bad_assignments_poisson_sum_le hMpos (le_of_lt hμ_pos) (4 + m) n R) (by positivity)
   -- Combine in `ℝ≥0∞` and convert back to `ℝ`.
-  have htot_enn : ENNReal.ofReal ((∑ r ∈ Finset.Icc n R, poissonProb ((M : ℝ) * μ) r) * expectedTourLen n) ≤
+  have htot_enn : ENNReal.ofReal ((∑ r ∈ Finset.Icc n R, poissonProb ((M : ℝ) * μ) r) * expectedTourLength n) ≤
       ENNReal.ofReal (∫ ω, serpBound ω ∂P_M +
         (4 * Real.sqrt (R : ℝ) + 4) * (M : ℝ) * ∑ j ∈ Finset.Icc (4 + m) R, poissonProb μ j) := by
     rw [ENNReal.ofReal_add (integral_nonneg hserp_nonneg)
       (mul_nonneg (by positivity) (Finset.sum_nonneg fun j _ => poissonProb_nonneg (le_of_lt hμ_pos) j))]
-    calc ENNReal.ofReal ((∑ r ∈ Finset.Icc n R, poissonProb ((M : ℝ) * μ) r) * expectedTourLen n)
+    calc ENNReal.ofReal ((∑ r ∈ Finset.Icc n R, poissonProb ((M : ℝ) * μ) r) * expectedTourLength n)
         ≤ ∑ r ∈ Finset.Icc n R, ENNReal.ofReal (poissonProb ((M : ℝ) * μ) r) *
-            ∫⁻ x : Fin r → ℝ × ℝ, ENNReal.ofReal (finTourLen x) ∂(unitSquarePi r) := hlhs_enn
+            ∫⁻ x : Fin r → ℝ × ℝ, ENNReal.ofReal (tourLength x) ∂(unitSquarePi r) := hlhs_enn
       _ ≤ ∑ r ∈ Finset.Icc n R,
             ((∑ kf ∈ goodK r, ∫⁻ ω in evK kf, ENNReal.ofReal (serpBound ω) ∂P_M) +
               ENNReal.ofReal ((4 * Real.sqrt (R : ℝ) + 4) * poissonProb ((M : ℝ) * μ) r *
@@ -841,7 +836,7 @@ theorem expectedTourLen_finite_bound
       _ ≤ ENNReal.ofReal (∫ ω, serpBound ω ∂P_M) +
           ENNReal.ofReal ((4 * Real.sqrt (R : ℝ) + 4) * (M : ℝ) * ∑ j ∈ Finset.Icc (4 + m) R, poissonProb μ j) :=
           add_le_add hgood_sum hbad_sum
-  have htot_real : (∑ r ∈ Finset.Icc n R, poissonProb ((M : ℝ) * μ) r) * expectedTourLen n ≤
+  have htot_real : (∑ r ∈ Finset.Icc n R, poissonProb ((M : ℝ) * μ) r) * expectedTourLength n ≤
       ∫ ω, serpBound ω ∂P_M +
         (4 * Real.sqrt (R : ℝ) + 4) * (M : ℝ) * ∑ j ∈ Finset.Icc (4 + m) R, poissonProb μ j := by
     have hrhs_nn : 0 ≤ ∫ ω, serpBound ω ∂P_M +
@@ -851,7 +846,7 @@ theorem expectedTourLen_finite_bound
     exact (ENNReal.ofReal_le_ofReal_iff hrhs_nn).mp htot_enn
   linarith [hserp_exp_le]
 
-/-! ## Section 4: Asymptotic Upper Bound `expectedTourLen n / √n ≤ uBound + ε` -/
+/-! ## Section 4: Asymptotic Upper Bound `expectedTourLength n / √n ≤ uBound + ε` -/
 
 /-- Elementary polynomial lower bound on `exp x`: `x ^ k / k! ≤ exp x` for `x ≥ 0`. -/
 lemma pow_div_factorial_le_exp {x : ℝ} (hx : 0 ≤ x) (k : ℕ) :
@@ -864,12 +859,12 @@ lemma pow_div_factorial_le_exp {x : ℝ} (hx : 0 ≤ x) (k : ℕ) :
 
 set_option maxHeartbeats 800000 in
 /-- Asymptotic upper bound: for any concave DP fixed-point certificate `(V, uBound)`
-on `automaton4`, `expectedTourLen n / √n ≤ uBound + ε` for all sufficiently large `n`. -/
-theorem expectedTourLen_div_sqrt_le_of_dp
+on `automaton4`, `expectedTourLength n / √n ≤ uBound + ε` for all sufficiently large `n`. -/
+theorem expectedTourLength_div_sqrt_le_of_dp
     (V : Fin 56 → Window 3 4 6 → ℝ) (uBound : ℝ)
     (hfp : ∀ u' z', dpOp automaton4 edgeCost4 V u' z' ≤ V u' z' + uBound) :
-    ∀ ε > 0, ∃ N : ℕ, ∀ n ≥ N, expectedTourLen n / Real.sqrt (n : ℝ) ≤ uBound + ε := by
-  obtain ⟨C_strip, hfin⟩ := expectedTourLen_finite_bound V uBound hfp
+    ∀ ε > 0, ∃ N : ℕ, ∀ n ≥ N, expectedTourLength n / Real.sqrt (n : ℝ) ≤ uBound + ε := by
+  obtain ⟨C_strip, hfin⟩ := expectedTourLength_finite_bound V uBound hfp
   intro ε hε
   set Uabs : ℝ := |uBound| + 1
   set Cabs : ℝ := |C_strip| + 1
@@ -971,7 +966,6 @@ theorem expectedTourLen_div_sqrt_le_of_dp
       have := Nat.le_ceil (2 * lam)
       dsimp only [R]; linarith
     exact_mod_cast h1
-  -- Apply the finite coupling bound.
   have hmain := hfin M' m n R hnR
   simp only [hM_eq] at hmain
   -- Step 1: Chebyshev lower bound on `p_good := ∑ r ∈ Icc n R, poissonProb lam r ≥ 1 - 1 / q^2 ≥ 1/2`
@@ -1200,15 +1194,15 @@ theorem expectedTourLen_div_sqrt_le_of_dp
           rw [hlhs_r5]
           nlinarith only [hr5_le, show (0 : ℝ) ≤ (r : ℝ) ^ 5 by positivity]
   -- Step 3: Divide `hmain` by `√n` and then by `p_good ≥ 1 - 1 / r ≥ 1 / 2`.
-  have hdiv_sn : p_good * (expectedTourLen n / Real.sqrt (n : ℝ)) ≤
+  have hdiv_sn : p_good * (expectedTourLength n / Real.sqrt (n : ℝ)) ≤
       uBound + (3 * Uabs + Cabs + 10 + 10 ^ 15) / (r : ℝ) := by
-    have h1 : p_good * expectedTourLen n / Real.sqrt (n : ℝ) ≤
+    have h1 : p_good * expectedTourLength n / Real.sqrt (n : ℝ) ≤
         (((m : ℝ) * uBound + C_strip) / c +
           3 * (M : ℝ) * Real.sqrt ((((4 + m : ℕ) : ℝ) / μ - 1) ^ 2 + ((4 + m : ℕ) : ℝ) / μ ^ 2) + 4 +
           (4 * Real.sqrt (R : ℝ) + 4) * (M : ℝ) * ∑ j ∈ Finset.Icc (4 + m) R, poissonProb μ j) / Real.sqrt (n : ℝ) :=
       div_le_div_of_nonneg_right hmain (le_of_lt hsn_pos)
-    have hlhs_eq : p_good * expectedTourLen n / Real.sqrt (n : ℝ) =
-        p_good * (expectedTourLen n / Real.sqrt (n : ℝ)) := by ring
+    have hlhs_eq : p_good * expectedTourLength n / Real.sqrt (n : ℝ) =
+        p_good * (expectedTourLength n / Real.sqrt (n : ℝ)) := by ring
     rw [← hlhs_eq]
     have hadd_div : (((m : ℝ) * uBound + C_strip) / c +
           3 * (M : ℝ) * Real.sqrt ((((4 + m : ℕ) : ℝ) / μ - 1) ^ 2 + ((4 + m : ℕ) : ℝ) / μ ^ 2) + 4 +
@@ -1224,11 +1218,11 @@ theorem expectedTourLen_div_sqrt_le_of_dp
   -- Conclude `L_n / √n ≤ (uBound + E) / p_good ≤ uBound + 2 * E + 2 * Uabs / r ≤ uBound + ε`.
   set E : ℝ := (3 * Uabs + Cabs + 10 + 10 ^ 15) / (r : ℝ)
   have hE_nn : 0 ≤ E := by dsimp only [E, Uabs, Cabs]; positivity
-  have hL_nn : 0 ≤ expectedTourLen n / Real.sqrt (n : ℝ) :=
-    div_nonneg (integral_nonneg fun x => finTourLen_nonneg x) (le_of_lt hsn_pos)
+  have hL_nn : 0 ≤ expectedTourLength n / Real.sqrt (n : ℝ) :=
+    div_nonneg (integral_nonneg fun x => tourLength_nonneg x) (le_of_lt hsn_pos)
   have hUE_nn : 0 ≤ uBound + E := le_trans (mul_nonneg (by linarith) hL_nn) hdiv_sn
-  have hfinal_p : expectedTourLen n / Real.sqrt (n : ℝ) ≤ uBound + E + 2 * (uBound + E) / (r : ℝ) := by
-    have h1 : expectedTourLen n / Real.sqrt (n : ℝ) ≤ (uBound + E) / p_good :=
+  have hfinal_p : expectedTourLength n / Real.sqrt (n : ℝ) ≤ uBound + E + 2 * (uBound + E) / (r : ℝ) := by
+    have h1 : expectedTourLength n / Real.sqrt (n : ℝ) ≤ (uBound + E) / p_good :=
       (le_div_iff₀ (by linarith)).mpr (by linarith)
     refine h1.trans ?_
     rw [div_le_iff₀ (by linarith)]

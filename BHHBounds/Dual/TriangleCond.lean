@@ -1,15 +1,11 @@
 import BHHBounds.Dual.FiniteN
 
 /-!
-# Conditional Triangle Expectation and Poisson Convergence
+# Conditional expectation given a matched triangle
 
-Provides the conditional-expectation layer for matched isolated triangles in `[0, 1]²`:
-1. `finExtSurvProb` and `triCondVal`: exact finite-`n` external survival probability and canonical
-   conditional expectation given a matched triangle shape `(L, pt)`.
-2. `cond_integral_Z_eq_triCondVal`: exact evaluation of the `(n - 3)`-fold conditional integral
-   over the remaining `n - 3` points `Z : Fin (n - 3) → Pt` for a fixed matched triple `Y`.
-3. `measurable_triCondVal`, `triCondVal_bound`, and `tendsto_triCondVal`: joint measurability,
-   uniform envelope on `boxRegion b`, and dominated-convergence limit as `n → ∞`.
+`triCondVal` is the expectation over the remaining `n - 3` points given a matched triangle of shape
+`(L, pt)`. It is computed exactly (`cond_integral_Z_eq_triCondVal`), bounded uniformly on a box
+(`triCondVal_bound`), and converges as `n → ∞` (`tendsto_triCondVal`).
 -/
 
 open MeasureTheory Set Real Filter Finset
@@ -1167,7 +1163,7 @@ theorem cond_integral_Z_eq_triCondVal {n : ℕ} (hn : 5 ≤ n)
             ((Finset.univ.erase j).filter fun j' : Fin (n - 3) => Z j' ∈ D_phys k (Z j)).card ≤ 1
           then (1 : ℝ) else 0)
     else 0
-  -- Pointwise rewrite of the entire `Z`-integrand!
+  -- Pointwise rewrite of the entire `Z`-integrand
   have hptwise : ∀ Z : Fin (n - 3) → Pt,
       (if ∀ x ∈ S₃, ∀ z ∉ S₃, toR rj < rescaledDist (join Z) x z then
         2 * (toR yj - toR yPrev) -
@@ -1359,7 +1355,7 @@ theorem cond_integral_Z_eq_triCondVal {n : ℕ} (hn : 5 ≤ n)
     split_ifs
     · rw [Real.norm_of_nonneg h2dy_nn]
     · rw [norm_zero]; exact h2dy_nn
-  -- Apply `integral_termJ_eq` for integrability, exchangeability, Fubini, and inner survival probs!
+  -- Apply `integral_termJ_eq` for integrability, exchangeability, Fubini, and inner survival probs
   let coeffQ : Fin 3 → Fin rho.size → Pt → ℝ := fun u k q =>
     triCrossCoeff w (triVertPot rho w L pt u) (toR yPrev) (toR yj)
       (sqN * euclidDist q (Y u)) k.val
@@ -1400,8 +1396,8 @@ theorem cond_integral_Z_eq_triCondVal {n : ℕ} (hn : 5 ≤ n)
     rw [hmul, integral_const_mul, prob_hitCount_eq_zero (n - 3) hU_meas, hU_area]
   rw [hterm1, htermJ_eval.2]
   dsimp only [coeffQ]
-  -- Define the canonical integrand on `Pt` in physical coordinates `q` (via `Φ⁻¹ q`!)
-  -- Using `hRbuf_ext`, whenever `triCrossCoeff ≠ 0`, `D_phys k q ⊆ unitSquare` and `q ∈ unitSquare`!
+  -- Define the canonical integrand on `Pt` in physical coordinates `q` (via `Φ⁻¹ q`)
+  -- Using `hRbuf_ext`, whenever `triCrossCoeff ≠ 0`, `D_phys k q ⊆ unitSquare` and `q ∈ unitSquare`
   let Φinv : Pt → Pt := fun q =>
     let dx := (q.1 - (Y 0).1) / invSqN
     let dy := (q.2 - (Y 0).2) / invSqN
@@ -1475,7 +1471,7 @@ theorem cond_integral_Z_eq_triCondVal {n : ℕ} (hn : 5 ≤ n)
     refine ⟨hsub, hsub ?_⟩
     change sqDist q q ≤ (toR (rho.getD k.val 0) / sqN) ^ 2
     rw [sqDist_self]; positivity
-  -- Pointwise equality of inner-integral expression and `G_canon` for ALL `q : Pt`!
+  -- Pointwise equality of inner-integral expression and `G_canon` for all `q : Pt`
   have hG_eq : ∀ q : Pt,
       (if q ∉ U_phys then
         ∑ u : Fin 3, ∑ k : Fin rho.size,

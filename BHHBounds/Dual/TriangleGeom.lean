@@ -1,16 +1,11 @@
 import BHHBounds.Dual.FiniteN
 
 /-!
-# Measurability, Integrability, and 3-Point Geometric Change of Variables
+# Change of variables for three points
 
-Provides foundational geometric and measure-theoretic lemmas for triangle-moat level analysis:
-1. Measurability of canonical triangle shape (`measurable_canonShape`), box regions
-   (`measurableSet_boxRegion`), and integrability of the finite-`n` triangle-moat level
-   integrand on `unitSquarePi n` (`integrable_levelGain_integrand`).
-2. Rigid-motion + scaling inverse `triEmbedInv`, its Lebesgue change-of-variables formula
-   (`integral_comp_triEmbedInv`), and signed radial integration (`integral_radial_eq_signed`).
-3. Exact 3-point change-of-variables formula on `unitSquarePi 3` for bounded measurable
-   functions of the canonical shape (`integral_unitSquarePi3_canonShape`).
+Measurability of `canonShape`, the inverse `triEmbedInv` of the rigid embedding with its
+change-of-variables formula, and the resulting formula for integrals over `unitSquarePi 3` of
+functions of the canonical shape (`integral_unitSquarePi3_canonShape`).
 -/
 
 open MeasureTheory Set Real Filter Finset

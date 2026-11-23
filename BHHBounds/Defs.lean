@@ -7,11 +7,10 @@ import Mathlib.Analysis.Real.Sqrt
 import Mathlib.Tactic
 
 /-!
-# Core Definitions for Planar Euclidean TSP / BHH Constant Bounds
+# Definitions
 
-Self-contained definitions of planar points, Euclidean distance, closed disks,
-minimum tour length on `Fin n → Pt`, the unit square `[0, 1]²`, and the
-Beardwood–Halton–Hammersley constant predicate `IsBHHConstant`.
+Points of the plane, Euclidean distance, disks, the length of a shortest tour, the uniform measure
+on `[0, 1]²`, and the predicate `IsBHHConstant`.
 -/
 
 open MeasureTheory Set Real

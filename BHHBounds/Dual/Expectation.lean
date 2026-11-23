@@ -2,13 +2,11 @@ import BHHBounds.Dual.BaseLimit
 import BHHBounds.Dual.TriangleLimit
 
 /-!
-# Expectation Assembly: `baseIntegral + trianglePlanIntegral ≤ β`
+# Expected dual bound
 
-Integrates the deterministic pointwise dual bound (`FiniteN.pointwise_dual_lower_bound`) over
-`unitSquarePi n`, combines the 1D base limits (`BaseLimit.baseTerm1_lower_tendsto`,
-`BaseLimit.basePen_upper_tendsto`) with the finite sum of triangle-moat level limits
-(`TriangleLimit.levelGain_tendsto`), and concludes `baseIntegral rho w + trianglePlanIntegral rho w act boxes ≤ β`
-for every BHH constant `β` via `le_of_eventually_expectedTourLength`.
+Integrates `pointwise_dual_lower_bound` over `unitSquarePi n` and passes to the limit:
+`baseIntegral rho w + trianglePlanIntegral rho w act boxes` is an asymptotic lower bound for
+`expectedTourLength n / √n`.
 -/
 
 open MeasureTheory Set Real Filter Finset Topology
@@ -39,7 +37,7 @@ private lemma integrable_tourLength_div_sqrt {n : ℕ} (hn : 1 ≤ n) :
   rw [div_le_iff₀ hsn_pos]
   linarith [tourLength_unitSquare_le X hX]
 
-/-- Helper: every triple `(yPrev, rj, yj)` in `boxLevelTriples lvls y0` satisfies the invariants
+/-- Every triple `(yPrev, rj, yj)` in `boxLevelTriples lvls y0` satisfies the invariants
 required by `levelGain_tendsto`. -/
 private lemma boxLevelTriples_invariants {pi01 : Int} :
     ∀ (lvls : List (Int × Int)) (rPrev yPrev : Int),
@@ -59,7 +57,7 @@ private lemma boxLevelTriples_invariants {pi01 : Int} :
     · obtain ⟨h1, h2, h3, h4⟩ := ih rj yj hrest (by omega) lv htail
       exact ⟨h1, h2, lt_trans hr_lt h3, h4⟩
 
-/-- Helper: existence of a uniform interior buffer radius `Rbuf` large enough for `(rho, w)` and
+/-- Existence of a uniform interior buffer radius `Rbuf` large enough for `(rho, w)` and
 every box and level in `boxes`. -/
 private lemma exists_uniform_Rbuf {rho w : Array Int} (hpot : ValidStepPot rho w)
     (boxes : List BoxCert) :
@@ -125,7 +123,7 @@ private lemma exists_uniform_Rbuf {rho w : Array Int} (hpot : ValidStepPot rho w
     have h4 : M ≤ Rbuf := le_max_left _ _
     linarith
 
-/-- Helper: finite list sum of convergent sequences converges to the sum of their limits. -/
+/-- Finite list sum of convergent sequences converges to the sum of their limits. -/
 private lemma tendsto_list_sum {α : Type*} (ls : List α) (f : α → ℕ → ℝ) (L : α → ℝ)
     (hf : ∀ a ∈ ls, Tendsto (f a) atTop (nhds (L a))) :
     Tendsto (fun n : ℕ => (ls.map fun a => f a n).sum) atTop (nhds (ls.map L).sum) := by
@@ -135,7 +133,7 @@ private lemma tendsto_list_sum {α : Type*} (ls : List α) (f : α → ℕ → �
     simp only [List.map_cons, List.sum_cons]
     exact (hf a List.mem_cons_self).add (ih fun x hx => hf x (List.mem_cons_of_mem a hx))
 
-/-- Helper: finite list sum of integrable functions is integrable. -/
+/-- Finite list sum of integrable functions is integrable. -/
 private lemma integrable_list_sum {α Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω}
     (ls : List α) (f : α → Ω → ℝ) (hf : ∀ a ∈ ls, Integrable (f a) μ) :
     Integrable (fun ω => (ls.map fun a => f a ω).sum) μ := by
@@ -145,7 +143,7 @@ private lemma integrable_list_sum {α Ω : Type*} [MeasurableSpace Ω] {μ : Mea
     simp only [List.map_cons, List.sum_cons]
     exact (hf a List.mem_cons_self).add (ih fun x hx => hf x (List.mem_cons_of_mem a hx))
 
-/-- Helper: Bochner integral commutes with `List.sum` of integrable functions. -/
+/-- Bochner integral commutes with `List.sum` of integrable functions. -/
 private lemma integral_list_sum {α Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω}
     (ls : List α) (f : α → Ω → ℝ) (hf : ∀ a ∈ ls, Integrable (f a) μ) :
     ∫ ω, (ls.map fun a => f a ω).sum ∂μ = (ls.map fun a => ∫ ω, f a ω ∂μ).sum := by
@@ -156,17 +154,18 @@ private lemma integral_list_sum {α Ω : Type*} [MeasurableSpace Ω] {μ : Measu
     have hrest_int := integrable_list_sum rest f fun x hx => hf x (List.mem_cons_of_mem a hx)
     rw [integral_add (hf a List.mem_cons_self) hrest_int, ih fun x hx => hf x (List.mem_cons_of_mem a hx)]
 
-/-- **Main Expectation Theorem:** For every BHH constant `β`, every valid step potential `(rho, w)`,
-and every pairwise-disjoint list `boxes` of valid certified triangle boxes under any boolean
-activation mask `act`:
-`baseIntegral rho w + trianglePlanIntegral rho w act boxes ≤ β`. -/
-theorem bhh_ge_base_add_trianglePlan {β : ℝ} (hβ : IsBHHConstant β)
+/-- For a valid step potential `(rho, w)`, a pairwise disjoint list `boxes` of valid boxes and any
+activation mask `act`, `baseIntegral rho w + trianglePlanIntegral rho w act boxes` is an asymptotic
+lower bound for `expectedTourLength n / √n`. -/
+theorem eventually_base_add_trianglePlan_le
     {rho w : Array Int} {boxes : List BoxCert}
     (act : BoxCert → Int → Int → Int → Bool)
     (hpot : ValidStepPot rho w)
     (hboxes : ∀ b ∈ boxes, ValidBox rho w b)
     (hdisj : PairwiseDisjointBoxes boxes) :
-    baseIntegral rho w + trianglePlanIntegral rho w act boxes ≤ β := by
+    ∀ ε > 0, ∀ᶠ n : ℕ in atTop,
+      baseIntegral rho w + trianglePlanIntegral rho w act boxes - ε ≤
+        expectedTourLength n / Real.sqrt (n : ℝ) := by
   obtain ⟨Rbuf, hRbuf_nn, hRbuf_rho, hRbuf_w, hRbuf_r, hRbuf_box⟩ := exists_uniform_Rbuf hpot boxes
   obtain ⟨fBase1, hfBase1_le, hfBase1_lim⟩ := baseTerm1_lower_tendsto hpot hRbuf_nn hRbuf_rho
   obtain ⟨gBasePen, hgBasePen_ge, hgBasePen_lim⟩ := basePen_upper_tendsto hpot hRbuf_nn hRbuf_w hRbuf_r
@@ -448,8 +447,8 @@ theorem bhh_ge_base_add_trianglePlan {β : ℝ} (hβ : IsBHHConstant β)
     have hbp := hgBasePen_ge n hn
     dsimp only [seqL]
     linarith
-  -- 4. Conclude via `le_of_eventually_expectedTourLength`
-  refine le_of_eventually_expectedTourLength hβ fun ε hε => ?_
+  -- 4. `seqL n` is eventually within `ε` of its limit
+  intro ε hε
   have hev := (Metric.tendsto_atTop.mp hseqL_lim) ε hε
   obtain ⟨N, hN⟩ := hev
   filter_upwards [Filter.eventually_ge_atTop (max 4 N)] with n hn

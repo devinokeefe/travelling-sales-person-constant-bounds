@@ -2,12 +2,10 @@ import BHHBounds.Dual.TriangleGeom
 import BHHBounds.Dual.TriangleCond
 
 /-!
-# Poisson Limit for Individual Triangle-Moat Levels (`levelGain_tendsto`)
+# Limit of one triangle-moat level
 
-Combines the 3-point geometric change-of-variables formula (`TriangleGeom.integral_unitSquarePi3_canonShape`)
-and the exact inner conditional expectation (`TriangleCond.cond_integral_Z_eq_triCondVal`,
-`TriangleCond.triCondVal_bound`, `TriangleCond.tendsto_triCondVal`) with permutation exchangeability
-and dominated convergence to prove `levelGain_tendsto`.
+`levelGain_tendsto`: the expected gain of one level of a box converges to `levelGain`, by
+exchangeability, the three-point change of variables and dominated convergence.
 -/
 
 open MeasureTheory Set Real Filter Finset Topology

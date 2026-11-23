@@ -7,15 +7,10 @@ import Mathlib.Analysis.Real.Pi.Bounds
 import Mathlib.Tactic
 
 /-!
-# Soundness of Fixed-Point Arithmetic, Exponential, Cubic Integral, and Angle Table
+# Soundness of the fixed-point arithmetic in `Cert.Kernel`
 
-Proves real-analytic soundness of all arithmetic primitives in `BHHBounds.Cert.Kernel`:
-1. `natSqrt_spec`: `(natSqrt n)² ≤ n < (natSqrt n + 1)²`.
-2. `mulLo_le`, `le_mulHi`, `le_divHi`, `sqrtSqLo_le`, `le_sqrtSqHi`, `fdiv_le`, `le_cdiv`.
-3. `piLo_le_pi`, `pi_le_piHi`, `eQtrLo_le_exp`, `exp_le_eQtrHi`.
-4. `expNegLo_le` and `le_expNegHi`: exact bounds on `Real.exp (-(x / S))` for all `x ≥ 0`.
-5. `intDPosNum_eq`: exact evaluation of `∫ d in a..b, d * max 0 (c - d)`.
-6. `angleTable40_sound`: certified bounds on `cos`, `sin` at all 40 sector midpoints and half-width `π / 40`.
+Rounding, square roots, `π`, `exp (-x)`, the radial integral `∫ d in a..b, d * max 0 (c - d)` and
+the `cos`/`sin` enclosures of `angleTable40`, each compared with its real counterpart.
 -/
 
 open Real Set MeasureTheory
@@ -287,7 +282,7 @@ lemma exp_neg_taylor_lo {t : ℝ} (ht0 : 0 ≤ t) (ht1 : t ≤ 1 / 4) :
   rw [abs_le] at hb
   rw [abs_neg, abs_of_nonneg ht0] at hb
   have h1 := hb.1
-  -- `t^6 / 720 - t^7 * (8 / (5040 * 7)) ≥ 0` since `t ≤ 1/4`!
+  -- `t^6 / 720 - t^7 * (8 / (5040 * 7)) ≥ 0` since `t ≤ 1/4`
   have hrem : t ^ 7 * ((7 + 1 : ℝ) / ((5040 : ℝ) * 7)) ≤ t ^ 6 / 720 := by
     have ht6 : 0 ≤ t ^ 6 := by positivity
     rw [pow_succ]
@@ -651,7 +646,7 @@ lemma cos_sin_taylor6 {x : ℝ} (hx : 0 ≤ x) :
      Real.cos x ≤ 1 - x ^ 2 / 2 + x ^ 4 / 24 - x ^ 6 / 720 + x ^ 8 / 40320) ∧
     (x - x ^ 3 / 6 + x ^ 5 / 120 - x ^ 7 / 5040 ≤ Real.sin x ∧
      Real.sin x ≤ x - x ^ 3 / 6 + x ^ 5 / 120 - x ^ 7 / 5040 + x ^ 9 / 362880) := by
-  -- Helper: if `f 0 = 0` and `f' ≥ 0` on `[0, x]`, then `f x ≥ 0`!
+  -- If `f 0 = 0` and `f' ≥ 0` on `[0, x]`, then `f x ≥ 0`
   have nonneg_of_deriv : ∀ (f f' : ℝ → ℝ), f 0 = 0 →
       (∀ t, HasDerivAt f (f' t) t) → (∀ t ≥ 0, 0 ≤ f' t) → ∀ t ≥ 0, 0 ≤ f t := by
     intro f f' h0 hd hnn t ht
@@ -777,7 +772,7 @@ lemma base_angle_bounds (k : Fin 5) :
     (cLo ≤ Real.cos θ ∧ Real.cos θ ≤ cHi) ∧ (sLo ≤ Real.sin θ ∧ Real.sin θ ≤ sHi) := by
   have hpi_lo : (3.141592 : ℝ) < Real.pi := Real.pi_gt_d6
   have hpi_hi : Real.pi < (3.141593 : ℝ) := Real.pi_lt_d6
-  -- Extract concrete integer values via `decide` so `norm_num` closes immediately!
+  -- Extract concrete integer values via `decide` so `norm_num` closes immediately
   have hv0 : angleTable40.cmLo.getD 0 0 = 996916 ∧ angleTable40.cmHi.getD 0 0 = 996919 ∧
       angleTable40.smLo.getD 0 0 = 78458 ∧ angleTable40.smHi.getD 0 0 = 78461 := by decide
   have hv1 : angleTable40.cmLo.getD 1 0 = 972368 ∧ angleTable40.cmHi.getD 1 0 = 972371 ∧
@@ -840,11 +835,11 @@ lemma base_angle_bounds (k : Fin 5) :
     exact ⟨⟨by linarith [hI.1.1, htb.1.1], by linarith [hI.1.2, hta.1.2]⟩,
            ⟨by linarith [hI.2.1, hta.2.1], by linarith [hI.2.2, htb.2.2]⟩⟩
 
-/-- **Complete Soundness of `angleTable40`**:
+/-- Soundness of `angleTable40`:
 1. `2π / 40 ≤ toR angleTable40.dtHi`,
 2. `toR angleTable40.chLo ≤ cos (π / 40)` and `sin (π / 40) ≤ toR angleTable40.shHi`,
 3. For all `it : Fin 40`, with midpoint `tm = (it + 1/2) * (2π / 40) = (2*it + 1) * π / 40`,
-   `cmLo[it] ≤ cos tm ≤ cmHi[it]` and `smLo[it] ≤ sin tm ≤ smHi[it]`! -/
+   `cmLo[it] ≤ cos tm ≤ cmHi[it]` and `smLo[it] ≤ sin tm ≤ smHi[it]`. -/
 theorem angleTable40_sound :
     (2 * Real.pi / 40 ≤ toR angleTable40.dtHi) ∧
     (toR angleTable40.chLo ≤ Real.cos (Real.pi / 40) ∧
@@ -868,8 +863,8 @@ theorem angleTable40_sound :
     have hsh : toR (angleTable40.smHi.getD 0 0) ≤ toR angleTable40.shHi :=
       div_le_div_of_nonneg_right (by exact_mod_cast hsh_i) (le_of_lt S_pos)
     exact ⟨hch.trans h0.1.1, h0.2.2.trans hsh⟩
-  · -- Use 8-fold symmetry (`π/2 - θ`, `π - θ`, `2π - θ`) to reduce all 40 indices to `hbase0..4`!
-    -- Helper checking symmetry against our concrete arrays via `decide`!
+  · -- Use 8-fold symmetry (`π/2 - θ`, `π - θ`, `2π - θ`) to reduce all 40 indices to `hbase0..4`
+    -- Helper checking symmetry against our concrete arrays via `decide`
     have hsym_check :
         (∀ i : Fin 5,
           -- Octant 1 (k = 9 - i): cos = sin(i), sin = cos(i)

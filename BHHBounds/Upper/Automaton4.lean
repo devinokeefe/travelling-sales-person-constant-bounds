@@ -1,10 +1,9 @@
 import BHHBounds.Upper.DP
 
 /-!
-# Concrete Bandwidth-4 Frontier Automaton (56 states, 140 transitions)
+# The bandwidth-4 frontier automaton
 
-All automaton invariants (`init_eq`, `preds_ne`, `preds_valid`, `reachWalk`) are
-kernel-checked by `decide` with zero extra axioms.
+56 states and 140 transitions. Its invariants are checked by `decide`.
 -/
 
 namespace BHHBounds.Upper

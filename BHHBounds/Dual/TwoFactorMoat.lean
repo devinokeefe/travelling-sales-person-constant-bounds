@@ -1,27 +1,19 @@
 import BHHBounds.Defs
 
 /-!
-# Deterministic 2-Factor + Disjoint Moat Dual Inequality
+# The 2-factor and moat dual inequality
 
-Proves the completely elementary, deterministic lower bound on the length of any
-Hamiltonian tour on `n ≥ 4` points in `ℝ²`:
-
-1. `twoFactor_moat_dual_lower_bound`: For any vertex potentials `π : Fin n → ℝ`,
-   any pairwise-disjoint family `F : Finset (Finset (Fin n))` of proper nonempty subsets
-   with nonnegative moat widths `y : Finset (Fin n) → ℝ` satisfying the non-interference
-   condition `(π u + y S) + (π v + y S') ≤ d u v` whenever `S ≠ S' ∈ F` have `y S > 0, y S' > 0`
-   and `u ∈ S, v ∈ S'`, every tour `σ` satisfies:
-   ```
-   ∑ i, d (σ i) (σ (finRotate n i))
-     ≥ 2 ∑ u, π u
-       - (1/2) ∑ u, ∑ v ∈ univ.erase u, max 0 (π u + π v - d u v)
-       + ∑ S ∈ F, [2 * y S - ∑ u ∈ S, ∑ v ∈ univ \ S,
-           (max 0 (π u + y S + π v - d u v) - max 0 (π u + π v - d u v))]
-   ```
-2. `isolatedTriples_pairwiseDisjoint`: Triples `S` with `R(S) > diam(S)` are pairwise disjoint.
-3. `isolatedTriple_secondNearest`: For every `u ∈ S` in an isolated triple, the 2nd nearest
-   neighbor distance of `u` is `max (d u a) (d u b)` where `S = {u, a, b}`.
-4. `telescoping_moat_identity`: Exact telescoping decomposition over clearance levels `r_1 < ... < r_J`.
+`twoFactor_moat_dual_lower_bound`: for vertex potentials `π` and a pairwise disjoint family `F` of
+proper nonempty vertex sets with moat widths `y ≥ 0` that do not interfere, every tour `σ` satisfies
+```
+∑ i, d (σ i) (σ (finRotate n i))
+  ≥ 2 ∑ u, π u
+    - (1/2) ∑ u, ∑ v ∈ univ.erase u, max 0 (π u + π v - d u v)
+    + ∑ S ∈ F, (2 * y S - ∑ u ∈ S, ∑ v ∈ univ \ S,
+        (max 0 (π u + y S + π v - d u v) - max 0 (π u + π v - d u v)))
+```
+Isolated triples are pairwise disjoint (`isolatedTriples_pairwiseDisjoint`), and moats on nested
+clearance levels telescope (`telescoping_moat_identity`).
 -/
 
 open Finset
@@ -204,9 +196,7 @@ private lemma card_filter_mem_le_one {n : ℕ} (F : Finset (Finset (Fin n)))
   by_contra hne
   exact Finset.disjoint_left.mp (hdisj hS₁.1 hS₂.1 hne) hS₁.2 hS₂.2
 
-/-- **Deterministic 2-Factor + Disjoint Moat Dual Lower Bound.**
-
-For any symmetric nonnegative edge weights `d`, any vertex potentials `π`, and any
+/-- For any symmetric nonnegative edge weights `d`, any vertex potentials `π`, and any
 pairwise-disjoint family `F` of proper nonempty subsets with nonnegative moat widths `y`
 satisfying the non-interference condition `(π u + y S) + (π v + y S') ≤ d u v` whenever
 `S ≠ S' ∈ F` have `y S > 0, y S' > 0`, `u ∈ S`, `v ∈ S'`, every cyclic tour `σ` has total
@@ -368,7 +358,7 @@ theorem twoFactor_moat_dual_lower_bound {n : ℕ} (hn : 3 ≤ n)
       have hyv := hy_nn Sv hSv_f.1
       by_cases hyu0 : 0 < y Su
       · by_cases hyv0 : 0 < y Sv
-        · -- Both positive: non-interference gives `s u v ≤ d u v`, so `pen u v = 0`!
+        · -- Both positive: non-interference gives `s u v ≤ d u v`, so `pen u v = 0`
           have hle := hNI Su hSu_f.1 Sv hSv_f.1 hne_SS hyu0 hyv0 u hSu_f.2.1 v hSv_f.2.2
           have hp0 : pen u v = 0 := by
             dsimp only [pen]; rw [hs_val]; exact max_eq_left (by linarith)
@@ -462,18 +452,18 @@ theorem twoFactor_moat_dual_lower_bound {n : ℕ} (hn : 3 ≤ n)
       rw [hpart1, hpart2]; ring
     rw [hregroup] at hraw
     linarith
-  -- Step 5: Combine everything!
+  -- Step 5: Combine everything
   rw [Finset.sum_sub_distrib]
   linarith
 
 /-! ## Isolated Triples & Telescoping Moat Identity -/
 
-/-- A subset `S` is **isolated** (with respect to symmetric distances `d`) if every external edge
+/-- A subset `S` is isolated (with respect to symmetric distances `d`) if every external edge
 `(u, v)` with `u ∈ S, v ∉ S` is strictly longer than every internal edge `(a, b)` of `S`. -/
 def IsIsolated {n : ℕ} (d : Fin n → Fin n → ℝ) (S : Finset (Fin n)) : Prop :=
   ∀ u ∈ S, ∀ a ∈ S, ∀ v ∉ S, d u a < d u v
 
-/-- Distinct isolated subsets of the same cardinality are pairwise disjoint! -/
+/-- Distinct isolated subsets of the same cardinality are pairwise disjoint. -/
 lemma isolated_pairwiseDisjoint {n : ℕ} (d : Fin n → Fin n → ℝ)
     (k : ℕ) {S₁ S₂ : Finset (Fin n)} (hS₁ : S₁.card = k) (hS₂ : S₂.card = k)
     (hI₁ : IsIsolated d S₁) (hI₂ : IsIsolated d S₂) (hne : S₁ ≠ S₂) :
@@ -518,12 +508,10 @@ lemma nonInterference_of_halfClearance {n : ℕ} (d : Fin n → Fin n → ℝ)
   have h2 : r' < d u v := by rw [hd_sym]; exact hr'_out v hv u hu_notS'
   linarith [hr_cap u hu, hr'_cap v hv]
 
-/-- **Exact Telescoping Moat Identity.**
-
-Given a finite list of clearance-moat steps `levels : List (ℝ × ℝ)` with strictly increasing
+/-- Given a finite list of clearance-moat steps `levels : List (ℝ × ℝ)` with strictly increasing
 clearance thresholds and nondecreasing moat widths (or simply arbitrary `r_j` with `y_j`
 accumulated on `R > r_j`), if `y_prev = 0` initially and `R > r_j` is nested (monotone in `j`),
-then `2 * y_eff - (φ y_eff - φ 0)` telescopes identically over all levels! -/
+then `2 * y_eff - (φ y_eff - φ 0)` telescopes identically over all levels. -/
 lemma telescoping_moat_identity {m : ℕ} (R : ℝ)
     (r : Fin m → ℝ) (hr_mono : Monotone r)
     (y : Fin (m + 1) → ℝ) (hy0 : y 0 = 0)
@@ -532,18 +520,16 @@ lemma telescoping_moat_identity {m : ℕ} (R : ℝ)
     2 * yEff - φ yEff =
       ∑ j : Fin m, if r j < R then
         (2 * (y j.succ - y j.castSucc) - (φ (y j.succ) - φ (y j.castSucc))) else 0 := by
-  -- Prove by induction on `m`!
   induction m with
   | zero =>
     simp [hφ0]
   | succ k ih =>
     by_cases hlast : r (Fin.last k) < R
-    · -- Since `r` is monotone and `r (last k) < R`, ALL `r j < R`!
+    · -- Since `r` is monotone and `r (last k) < R`, all `r j < R`
       have hall : ∀ j : Fin (k + 1), r j < R := fun j =>
         lt_of_le_of_lt (hr_mono (Fin.le_last j)) hlast
       simp only [hall, ↓reduceIte]
       have hyEff : ∑ j : Fin (k + 1), (y j.succ - y j.castSucc) = y (Fin.last (k + 1)) := by
-        -- Standard Fin telescoping sum
         have htel : ∀ (p : ℕ) (f : Fin (p + 1) → ℝ),
             ∑ j : Fin p, (f j.succ - f j.castSucc) = f (Fin.last p) - f 0 := by
           intro p f
@@ -575,7 +561,7 @@ lemma telescoping_moat_identity {m : ℕ} (R : ℝ)
             rw [h2, h3]; ring
         rw [htel (k + 1) (fun t => φ (y t)), hy0, hφ0, sub_zero]
       rw [hyEff, Finset.sum_sub_distrib, ← Finset.mul_sum, hyEff, htel_φ]
-    · -- `¬ (r (last k) < R)`: drop the last term and apply IH!
+    · -- `¬ (r (last k) < R)`: drop the last term and apply IH
       have hih := ih (fun j => r j.castSucc) (fun a b hab => hr_mono (Fin.castSucc_le_castSucc_iff.mpr hab))
         (fun t => y t.castSucc) hy0
       dsimp only at hih ⊢

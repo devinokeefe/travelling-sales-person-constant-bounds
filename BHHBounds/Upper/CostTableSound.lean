@@ -981,7 +981,7 @@ theorem costFlat2_checked : checkCostFlat2 = true := by native_decide
 theorem costFlat3_checked : checkCostFlat3 = true := by native_decide
 theorem costFlat4_checked : checkCostFlat4 = true := by native_decide
 
-/-! ## Section 5: Master Conditional Expectation Bound `edgeCost4_sound` -/
+/-! ## Section 5: Conditional Expectation Bound `edgeCost4_sound` -/
 
 private lemma foldl_add_range (n : ℕ) (f : ℕ → ℕ) (init : ℕ) :
     (List.range n).foldl (fun acc i => acc + f i) init = init + ∑ i : Fin n, f i.val := by
@@ -1389,7 +1389,7 @@ theorem edgeBin_integral_le_cert {k : ℕ} (gs : Fin (k + 1) → Fin 4) (imax : 
   edgeBin_integral_le_cert_gen coarseMomInt fineMomInt (fun _ => coarseMomInt_ge)
     (fun _ hj => fineMomInt_ge hj) gs imax ya yb
 
-/-- **Main Cost-Table Soundness Theorem:** Every entry `edgeCost4 v gs ys` upper-bounds the exact
+/-- Every entry `edgeCost4 v gs ys` upper-bounds the exact
 conditional expected Euclidean edge length for the corresponding `4 - v` exponential gaps and
 endpoint heights `Y_v, Y_4`. -/
 theorem edgeCost4_sound (v : Fin 4) (gs : Fin 4 → Fin 4) (ys : Fin 5 → Fin 6) :

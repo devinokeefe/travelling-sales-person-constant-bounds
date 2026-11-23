@@ -4,16 +4,11 @@ import Mathlib.MeasureTheory.Integral.Bochner.Basic
 import Mathlib.Tactic
 
 /-!
-# Analytic Soundness of the Rational Strip Edge-Cost Table
+# Analytic lemmas for the edge-cost table
 
-Proves:
-1. Rational atanh series upper/lower enclosures for `Real.log x` (`x ≥ 1`).
-2. Exact 1st and 2nd moments of `Exp(1)` conditioned on equiprobable quantile bins
-   `[log(n/(n-j)), log(n/(n-j-1))]`.
-3. Exact 2nd moment `δ^2 + 1/6` of the difference of two independent uniform
-   variables shifted by `δ`.
-4. Elementary `√` expectation bound `∫ √Z dμ ≤ √M` whenever `∫ Z dμ ≤ M` on a
-   probability space (via `(√Z - √M)^2 ≥ 0`).
+Rational enclosures of `Real.log` from the `atanh` series, moments of `Exp(1)` on an interval, the
+second moment of a difference of independent uniform variables, and `∫ √Z ≤ √M` when `∫ Z ≤ M` on a
+probability space.
 -/
 
 namespace BHHBounds.Upper

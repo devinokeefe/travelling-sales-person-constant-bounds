@@ -1,16 +1,11 @@
 import BHHBounds.Dual.PoissonIntegrals
 
 /-!
-# Soundness of the 1D Base Fixed-Point Verifier (`baseVerifyInt`)
+# Soundness of `baseVerifyInt`
 
-Proves `baseVerifyInt_le_baseIntegral`: for any valid step potential `(rho, w)` and `nD > 0`,
-  `(baseVerifyInt rho w nD : ℝ) / 10 ^ 9 ≤ baseIntegral rho w`.
-
-Splits cleanly into three parts:
-1. `baseTerm1Loop_le`: first-order term `2 E[π(N₂(0))]`.
-2. `basePenMarg_le`: marginal pair-penalty integral via `intDPosNum_eq`.
-3. `basePenInter_le`: supermodular 2D interaction integral over `rho`-aligned `d`-knots using
-   `diskInterArea_antitone_d`, `jointSurvHi_sound`, and `intDPosNum_eq`.
+`baseVerifyInt_le_baseIntegral`: for a valid step potential `(rho, w)` and `nD > 0`,
+`(baseVerifyInt rho w nD : ℝ) / 10 ^ 9 ≤ baseIntegral rho w`. The three parts of `baseIntegral`
+(first-order term, marginal penalty, interaction penalty) are bounded separately.
 -/
 
 open MeasureTheory Set Real
@@ -297,7 +292,7 @@ private lemma basePenMargLoop_ge_aux {rho w : Array Int} (hpot : ValidStepPot rh
             (numTot : ℝ) / (6 * (S : ℝ) ^ 4) := by
           dsimp only [numTot]; unfold toR; push_cast; ring
         linarith
-      · -- Case `wi ≤ ri`: `qf d = exp(-π r^2)` on all of `[0, toR wi]`, and `g d = 0` on `[toR wi, toR ri]`!
+      · -- Case `wi ≤ ri`: `qf d = exp(-π r^2)` on all of `[0, toR wi]`, and `g d = 0` on `[toR wi, toR ri]`
         have hwle : wi ≤ ri := by omega
         have hint1 : IntervalIntegrable (fun d => g d * qf d) volume 0 (toR wi) := by
           refine ((hg_cont.mul (continuous_const (y := Real.exp (-(Real.pi * (toR ri) ^ 2))))).intervalIntegrable 0 (toR wi)).congr_ae ?_
@@ -478,7 +473,7 @@ private lemma mergeSortedLists_getLast {xs ys : List Int} {b : Int}
       have hne : ∀ l : List Int, l.getLast? = some b → l ≠ [] := fun l hl h => by rw [h] at hl; simp at hl
       unfold mergeSortedLists
       split_ifs with h1 h2
-      · -- `x < y < b`, so `xs'` cannot be `[]`!
+      · -- `x < y < b`, so `xs'` cannot be `[]`
         have hxs_ne : xs' ≠ [] := by
           intro hnil; subst hnil
           simp only [List.getLast?_singleton, Option.some.injEq] at hxs
@@ -667,7 +662,7 @@ private lemma basePenInter_pair_le {rho w : Array Int} (hpot : ValidStepPot rho 
   have habR : toR da ≤ toR db := toR_le_toR (le_of_lt hdb)
   have hri_nn : 0 ≤ ri := hpot.rho_nonneg i.isLt
   have hrj_nn : 0 ≤ rj := hpot.rho_nonneg j.isLt
-  -- For all `d ∈ Ioo (toR da) (toR db)`, `(toR ri < d) = k1` and `(toR rj < d) = k2`!
+  -- For all `d ∈ Ioo (toR da) (toR db)`, `(toR ri < d) = k1` and `(toR rj < d) = k2`
   have hflag : ∀ (r : Int), (r ≤ da ∨ db ≤ r) → ∀ d ∈ Set.Ioo (toR da) (toR db),
       decide (toR r < d) = decide (db > r) := by
     intro r hr d hd
@@ -685,7 +680,7 @@ private lemma basePenInter_pair_le {rho w : Array Int} (hpot : ValidStepPot rho 
     exact (intervalIntegrable_jointSurvReal (toR ri) (toR rj) (toR_nonneg hri_nn) (toR_nonneg hrj_nn)
       k1 k2 (toR da) (toR db) (toR_nonneg hda) habR).continuousOn_mul hcont.continuousOn
       |> fun h => by simpa [mul_comm] using h
-  -- Rewrite integrand to constant flags `(k1, k2)` a.e. on `Ioc (toR da) (toR db)`!
+  -- Rewrite integrand to constant flags `(k1, k2)` a.e. on `Ioc (toR da) (toR db)`
   have hae : ∀ᵐ d ∂volume, d ∈ Set.uIoc (toR da) (toR db) →
       d * baseInterCoeff w i.val j.val d *
         jointSurvReal d (toR ri) (toR rj) (decide (toR ri < d)) (decide (toR rj < d)) =
@@ -698,7 +693,7 @@ private lemma basePenInter_pair_le {rho w : Array Int} (hpot : ValidStepPot rho 
     have hIoo : d ∈ Set.Ioo (toR da) (toR db) := ⟨hdmem.1, lt_of_le_of_ne hdmem.2 hdne⟩
     rw [hflag ri hno_i d hIoo, hflag rj hno_j d hIoo]
   rw [intervalIntegral.integral_congr_ae hae]
-  -- Pointwise bound: for all `d ∈ [toR da, toR db]`, `jointSurvReal d ≤ toR (jointSurvHi da ri rj k1 k2)`!
+  -- Pointwise bound: for all `d ∈ [toR da, toR db]`, `jointSurvReal d ≤ toR (jointSurvHi da ri rj k1 k2)`
   have hjs_le : ∀ d ∈ Set.Icc (toR da) (toR db),
       jointSurvReal d (toR ri) (toR rj) k1 k2 ≤ toR (jointSurvHi da ri rj k1 k2) := by
     intro d hd
@@ -724,7 +719,7 @@ private lemma basePenInter_pair_le {rho w : Array Int} (hpot : ValidStepPot rho 
         (mul_nonneg ((toR_nonneg hda).trans hd.1) (baseInterCoeff_nonneg hpot i j d))
   dsimp only [Pi.mul_apply] at hmono_int
   rw [intervalIntegral.integral_mul_const] at hmono_int
-  -- Evaluate `∫ d in (toR da)..(toR db), d * baseInterCoeff w i j d = coeffNum / (6 S^3)`!
+  -- Evaluate `∫ d in (toR da)..(toR db), d * baseInterCoeff w i j d = coeffNum / (6 S^3)`
   have hcoeff_eq : ∫ d in (toR da)..(toR db), d * baseInterCoeff w i.val j.val d =
       (coeffNum : ℝ) / (6 * (S : ℝ) ^ 3) := by
     have h1 := intDPosNum_eq (a := da) (b := db) (c := wi + wj) (le_of_lt hdb)
@@ -866,7 +861,7 @@ private lemma basePenInterJ_ge {rho w : Array Int} (hpot : ValidStepPot rho w)
           have hrhs_np : (coeffNum : ℝ) / (6 * (S : ℝ) ^ 3) * toR (jointSurvHi da ri (rho.getD j 0) k1 (decide (db > rho.getD j 0))) ≤ 0 :=
             mul_nonpos_of_nonpos_of_nonneg (div_nonpos_of_nonpos_of_nonneg hcnp (mul_nonneg (by norm_num) (pow_nonneg (le_of_lt S_pos) 3))) hjs_nn
           exact mul_nonpos_of_nonneg_of_nonpos hmult_nn (hpair.trans hrhs_np)
-      · -- `wi + wj ≤ da`: `baseInterCoeff w i j d = 0` for all `d ≥ toR da`!
+      · -- `wi + wj ≤ da`: `baseInterCoeff w i j d = 0` for all `d ≥ toR da`
         have hacc' : acc' - acc = 0 := by dsimp only [acc']; rw [if_neg hwiwj]; ring
         rw [hacc', Int.cast_zero, zero_div]
         have hzero : ∫ d in (toR da)..(toR db),
@@ -1100,7 +1095,7 @@ private lemma basePenInterKnots_ge {rho w : Array Int} (hpot : ValidStepPot rho 
         baseInterCoeff w i.val j.val d *
           jointSurvReal d (toR (rho.getD i.val 0)) (toR (rho.getD j.val 0))
             (decide (toR (rho.getD i.val 0) < d)) (decide (toR (rho.getD j.val 0) < d))
-      -- Helper: `F` is integrable on any `[toR x, toR y]` with `0 ≤ x ≤ y`!
+      -- `F` is integrable on any `[toR x, toR y]` with `0 ≤ x ≤ y`
       have hF_int : ∀ x y : Int, 0 ≤ x → x ≤ y →
           (∀ k : Nat, k < rho.size → rho.getD k 0 ≤ x ∨ y ≤ rho.getD k 0) →
           IntervalIntegrable F volume (toR x) (toR y) := by
@@ -1155,7 +1150,7 @@ private lemma basePenInterKnots_ge {rho w : Array Int} (hpot : ValidStepPot rho 
           exact Finset.sum_congr rfl fun j _ => by ring
         · have heq : x = y := by omega
           subst heq; exact IntervalIntegrable.refl
-      -- Also `F` is integrable on `[toR db, toR b]` by induction along any sorted chain!
+      -- Also `F` is integrable on `[toR db, toR b]` by induction along any sorted chain
       have hF_chain : ∀ (l : List Int) (x : Int),
           l.Pairwise (· ≤ ·) → l.head? = some x → l.getLast? = some b → 0 ≤ x →
           (∀ k : Nat, k < rho.size → ∀ u v : Int,
@@ -1376,9 +1371,9 @@ lemma basePenInter_le {rho w : Array Int} (hpot : ValidStepPot rho w)
           dsimp only [penInter_9]; simpa using h
         exact div_le_div_of_nonneg_right h' (by positivity)
 
-/-! ## Headline 1D Base Soundness Theorem -/
+/-! ## Soundness of `baseVerifyInt` -/
 
-/-- **Certified Soundness of `baseVerifyInt`**: for any valid step potential `(rho, w)` and
+/-- For any valid step potential `(rho, w)` and
 `nD > 0`, `(baseVerifyInt rho w nD : ℝ) / 10^9 ≤ baseIntegral rho w`. -/
 theorem baseVerifyInt_le_baseIntegral {rho w : Array Int} (hpot : ValidStepPot rho w)
     {nD : Nat} (hnD : 0 < nD) :

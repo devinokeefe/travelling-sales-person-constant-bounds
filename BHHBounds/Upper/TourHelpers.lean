@@ -1,4 +1,5 @@
 import BHHBounds.Upper.AutomatonSound
+import BHHBounds.Asymptotics
 import Mathlib.Analysis.Real.Sqrt
 import Mathlib.Data.Fintype.Perm
 import Mathlib.Data.Fin.Tuple.Sort
@@ -7,83 +8,42 @@ import Mathlib.Data.Nat.Sqrt
 import Mathlib.Tactic
 
 /-!
-# Geometric & Combinatorial Tour Helpers for the End-to-End BHH Upper Bound
+# Paths, cycles and tours
 
-Zero `import Mathlib` — compiles fast. Proves:
-1. Euclidean distance `ptDist` triangle inequality, symmetry, scaling, L1 bound.
-2. `listPathLen` and `cycleLen`, cyclic rotation invariance, reversal invariance,
-   and **sublist shortcutting** (`cycleLen_sublist_le`).
-3. `finTourLen` (matching `BHHBounds.tourLength`), bounded by `cycleLen L` whenever every
-   point `x i` appears at a distinct position in `L`.
-4. Deterministic strip bound `finTourLen x ≤ 4 * √n + 4` for `x i ∈ [0,1]²` (used for
-   Dominated Convergence in `ToBHH.lean`).
-5. Serpentine stitching of `M` strip Hamiltonian paths into a single closed cycle.
+Scaling and translation of `euclidDist`, the length of a path and of a cycle through a list of
+points, removal of points from a cycle (`cycleLen_sublist_le`), the comparison of `tourLength`
+with a cycle through the same points, and the serpentine concatenation of strip paths.
 -/
 
 namespace BHHBounds.Upper
 
 open Set Finset
 
-/-- Euclidean distance on `ℝ × ℝ` (matches `BHHBounds.euclidDist`). -/
-noncomputable def ptDist (a b : ℝ × ℝ) : ℝ :=
-  Real.sqrt ((a.1 - b.1) ^ 2 + (a.2 - b.2) ^ 2)
-
-lemma ptDist_nonneg (a b : ℝ × ℝ) : 0 ≤ ptDist a b := Real.sqrt_nonneg _
-
-lemma ptDist_self (a : ℝ × ℝ) : ptDist a a = 0 := by simp [ptDist]
-
-lemma ptDist_symm (a b : ℝ × ℝ) : ptDist a b = ptDist b a := by
-  unfold ptDist; congr 1; ring
-
-lemma ptDist_le_l1 (a b : ℝ × ℝ) : ptDist a b ≤ |a.1 - b.1| + |a.2 - b.2| := by
-  unfold ptDist
-  rw [Real.sqrt_le_left (by positivity)]
-  have h1 : (a.1 - b.1) ^ 2 = |a.1 - b.1| ^ 2 := (sq_abs _).symm
-  have h2 : (a.2 - b.2) ^ 2 = |a.2 - b.2| ^ 2 := (sq_abs _).symm
-  rw [h1, h2]
-  nlinarith [abs_nonneg (a.1 - b.1), abs_nonneg (a.2 - b.2)]
-
-lemma ptDist_triangle (a b c : ℝ × ℝ) : ptDist a c ≤ ptDist a b + ptDist b c := by
-  unfold ptDist
-  set x1 := a.1 - b.1; set y1 := a.2 - b.2
-  set x2 := b.1 - c.1; set y2 := b.2 - c.2
-  have hsum : (a.1 - c.1) ^ 2 + (a.2 - c.2) ^ 2 = (x1 + x2) ^ 2 + (y1 + y2) ^ 2 := by
-    dsimp only [x1, y1, x2, y2]; ring
-  rw [hsum, Real.sqrt_le_left (add_nonneg (Real.sqrt_nonneg _) (Real.sqrt_nonneg _))]
-  have hsq1 : Real.sqrt (x1 ^ 2 + y1 ^ 2) ^ 2 = x1 ^ 2 + y1 ^ 2 := Real.sq_sqrt (by positivity)
-  have hsq2 : Real.sqrt (x2 ^ 2 + y2 ^ 2) ^ 2 = x2 ^ 2 + y2 ^ 2 := Real.sq_sqrt (by positivity)
-  have hcs : x1 * x2 + y1 * y2 ≤ Real.sqrt (x1 ^ 2 + y1 ^ 2) * Real.sqrt (x2 ^ 2 + y2 ^ 2) := by
-    rw [← Real.sqrt_mul (by positivity)]
-    have hnn : (x1 * x2 + y1 * y2) ^ 2 ≤ (x1 ^ 2 + y1 ^ 2) * (x2 ^ 2 + y2 ^ 2) := by
-      nlinarith [sq_nonneg (x1 * y2 - y1 * x2)]
-    exact Real.le_sqrt_of_sq_le hnn
-  nlinarith [add_sq (Real.sqrt (x1 ^ 2 + y1 ^ 2)) (Real.sqrt (x2 ^ 2 + y2 ^ 2))]
-
-lemma ptDist_scale {s : ℝ} (hs : 0 ≤ s) (a b : ℝ × ℝ) :
-    ptDist (s * a.1, s * a.2) (s * b.1, s * b.2) = s * ptDist a b := by
-  unfold ptDist
+lemma euclidDist_scale {s : ℝ} (hs : 0 ≤ s) (a b : ℝ × ℝ) :
+    euclidDist (s * a.1, s * a.2) (s * b.1, s * b.2) = s * euclidDist a b := by
+  unfold euclidDist sqDist
   have h : (s * a.1 - s * b.1) ^ 2 + (s * a.2 - s * b.2) ^ 2 =
       s ^ 2 * ((a.1 - b.1) ^ 2 + (a.2 - b.2) ^ 2) := by ring
   rw [h, Real.sqrt_mul (sq_nonneg s), Real.sqrt_sq hs]
 
-lemma ptDist_translate (t a b : ℝ × ℝ) :
-    ptDist (a.1 + t.1, a.2 + t.2) (b.1 + t.1, b.2 + t.2) = ptDist a b := by
-  unfold ptDist; congr 1; ring
+lemma euclidDist_translate (t a b : ℝ × ℝ) :
+    euclidDist (a.1 + t.1, a.2 + t.2) (b.1 + t.1, b.2 + t.2) = euclidDist a b := by
+  unfold euclidDist sqDist; congr 1; ring
 
 /-! ## Open Path Length and Closed Cycle Length on `List (ℝ × ℝ)` -/
 
 noncomputable def listPathLen : List (ℝ × ℝ) → ℝ
   | [] => 0
   | [_] => 0
-  | a :: b :: rest => ptDist a b + listPathLen (b :: rest)
+  | a :: b :: rest => euclidDist a b + listPathLen (b :: rest)
 
 lemma listPathLen_nonneg : ∀ l : List (ℝ × ℝ), 0 ≤ listPathLen l
   | [] => le_rfl
   | [_] => le_rfl
-  | a :: b :: rest => add_nonneg (ptDist_nonneg a b) (listPathLen_nonneg (b :: rest))
+  | a :: b :: rest => add_nonneg (euclidDist_nonneg a b) (listPathLen_nonneg (b :: rest))
 
 lemma listPathLen_map_eq_pathLen (l : List ℕ) (p : ℕ → ℝ × ℝ) :
-    listPathLen (l.map p) = pathLen ptDist l p := by
+    listPathLen (l.map p) = pathLen euclidDist l p := by
   match l with
   | [] => rfl
   | [_] => rfl
@@ -94,7 +54,7 @@ lemma listPathLen_map_eq_pathLen (l : List ℕ) (p : ℕ → ℝ × ℝ) :
 
 lemma listPathLen_append_singleton :
     ∀ (l : List (ℝ × ℝ)) (h : l ≠ []) (x : ℝ × ℝ),
-      listPathLen (l ++ [x]) = listPathLen l + ptDist (l.getLast h) x
+      listPathLen (l ++ [x]) = listPathLen l + euclidDist (l.getLast h) x
   | [], h, _ => absurd rfl h
   | [a], _, x => by simp [listPathLen]
   | a :: b :: rest, _, x => by
@@ -105,7 +65,7 @@ lemma listPathLen_append_singleton :
 
 lemma listPathLen_append :
     ∀ (l₁ l₂ : List (ℝ × ℝ)) (h₁ : l₁ ≠ []) (h₂ : l₂ ≠ []),
-      listPathLen (l₁ ++ l₂) = listPathLen l₁ + ptDist (l₁.getLast h₁) (l₂.head h₂) + listPathLen l₂
+      listPathLen (l₁ ++ l₂) = listPathLen l₁ + euclidDist (l₁.getLast h₁) (l₂.head h₂) + listPathLen l₂
   | [], _, h₁, _ => absurd rfl h₁
   | _, [], _, h₂ => absurd rfl h₂
   | [a], b :: rest, _, _ => by simp [listPathLen]
@@ -123,25 +83,25 @@ lemma listPathLen_reverse : ∀ l : List (ℝ × ℝ), listPathLen l.reverse = l
     have hrev_ne : (b :: rest).reverse ≠ [] := by simp
     rw [List.reverse_cons, listPathLen_append_singleton _ hrev_ne a]
     have hlast : (b :: rest).reverse.getLast hrev_ne = b := by simp
-    rw [hlast, listPathLen_reverse (b :: rest), listPathLen, ptDist_symm]
+    rw [hlast, listPathLen_reverse (b :: rest), listPathLen, euclidDist_symm]
     ring
 
 /-- Length of the closed cycle visiting `l` in order and returning from last to first. -/
 noncomputable def cycleLen : List (ℝ × ℝ) → ℝ
   | [] => 0
   | [_] => 0
-  | a :: b :: rest => listPathLen (a :: b :: rest) + ptDist ((a :: b :: rest).getLast (List.cons_ne_nil _ _)) a
+  | a :: b :: rest => listPathLen (a :: b :: rest) + euclidDist ((a :: b :: rest).getLast (List.cons_ne_nil _ _)) a
 
 lemma cycleLen_nonneg : ∀ l : List (ℝ × ℝ), 0 ≤ cycleLen l
   | [] => le_rfl
   | [_] => le_rfl
-  | _ :: _ :: _ => add_nonneg (listPathLen_nonneg _) (ptDist_nonneg _ _)
+  | _ :: _ :: _ => add_nonneg (listPathLen_nonneg _) (euclidDist_nonneg _ _)
 
 lemma cycleLen_eq_pathLen_add_close (l : List (ℝ × ℝ)) (h : l ≠ []) :
-    cycleLen l = listPathLen l + ptDist (l.getLast h) (l.head h) := by
+    cycleLen l = listPathLen l + euclidDist (l.getLast h) (l.head h) := by
   match l with
   | [] => exact absurd rfl h
-  | [a] => simp [cycleLen, listPathLen, ptDist_self]
+  | [a] => simp [cycleLen, listPathLen, euclidDist_self]
   | a :: b :: rest => rfl
 
 lemma cycleLen_rotate (a : ℝ × ℝ) (l : List (ℝ × ℝ)) :
@@ -155,7 +115,7 @@ lemma cycleLen_rotate (a : ℝ × ℝ) (l : List (ℝ × ℝ)) :
     rw [listPathLen_append_singleton (b :: rest) hne2 a]
     simp only [List.getLast_append_singleton, List.head_append_of_ne_nil hne2, List.head_cons,
       List.getLast_cons hne2, listPathLen]
-    rw [ptDist_symm a b]
+    rw [euclidDist_symm a b]
     ring
 
 lemma cycleLen_append_comm (l₁ l₂ : List (ℝ × ℝ)) :
@@ -178,7 +138,7 @@ lemma cycleLen_cons_le (a : ℝ × ℝ) (l : List (ℝ × ℝ)) :
     have hne : b :: c :: rest ≠ [] := List.cons_ne_nil _ _
     rw [cycleLen_eq_pathLen_add_close _ hne, cycleLen_eq_pathLen_add_close _ (List.cons_ne_nil _ _)]
     simp only [listPathLen, List.getLast_cons hne, List.head_cons]
-    linarith [ptDist_triangle ((b :: c :: rest).getLast hne) a b]
+    linarith [euclidDist_triangle ((b :: c :: rest).getLast hne) a b]
 
 lemma cycleLen_middle_drop (l₁ l₂ : List (ℝ × ℝ)) (b : ℝ × ℝ) :
     cycleLen (l₁ ++ l₂) ≤ cycleLen (l₁ ++ b :: l₂) := by
@@ -199,15 +159,12 @@ private lemma cycleLen_append_sublist_le {l₁ l₂ : List (ℝ × ℝ)} (h : l�
     rw [h1, h2]
     exact ih (l₀ ++ [a])
 
-/-- **Sublist Shortcutting:** Removing any points from a tour never increases its cycle length. -/
+/-- Removing any points from a tour never increases its cycle length. -/
 theorem cycleLen_sublist_le {l₁ l₂ : List (ℝ × ℝ)} (h : l₁.Sublist l₂) :
     cycleLen l₁ ≤ cycleLen l₂ := by
   simpa using cycleLen_append_sublist_le h []
 
-/-! ## Connection to `finTourLen` (matching `BHHBounds.tourLength`) -/
-
-noncomputable def finTourLen {n : ℕ} (x : Fin n → ℝ × ℝ) : ℝ :=
-  ⨅ σ : Equiv.Perm (Fin n), ∑ i : Fin n, ptDist (x (σ i)) (x (σ (finRotate n i)))
+/-! ## Tours and cycles -/
 
 private lemma finRange_head (n : ℕ) : (List.finRange (n + 1)).head (by simp) = 0 := by
   simp [List.finRange_succ]
@@ -222,7 +179,7 @@ private lemma finRotate_castSucc_eq {n : ℕ} (i : Fin n) :
 
 lemma listPathLen_finRange (n : ℕ) (x : Fin (n + 1) → ℝ × ℝ) :
     listPathLen ((List.finRange (n + 1)).map x) =
-      ∑ i : Fin n, ptDist (x i.castSucc) (x i.succ) := by
+      ∑ i : Fin n, euclidDist (x i.castSucc) (x i.succ) := by
   induction n with
   | zero => simp [List.finRange_succ, listPathLen]
   | succ n ih =>
@@ -242,7 +199,7 @@ lemma listPathLen_finRange (n : ℕ) (x : Fin (n + 1) → ℝ × ℝ) :
     rfl
 
 lemma cycleLen_finRange (n : ℕ) (x : Fin n → ℝ × ℝ) :
-    cycleLen ((List.finRange n).map x) = ∑ i : Fin n, ptDist (x i) (x (finRotate n i)) := by
+    cycleLen ((List.finRange n).map x) = ∑ i : Fin n, euclidDist (x i) (x (finRotate n i)) := by
   cases n with
   | zero => simp [cycleLen]
   | succ n =>
@@ -259,35 +216,25 @@ lemma cycleLen_finRange (n : ℕ) (x : Fin n → ℝ × ℝ) :
       rw [finRotate_castSucc_eq]
     · rw [finRotate_last]
 
-lemma finTourLen_le_perm {n : ℕ} (x : Fin n → ℝ × ℝ) (σ : Equiv.Perm (Fin n)) :
-    finTourLen x ≤ ∑ i : Fin n, ptDist (x (σ i)) (x (σ (finRotate n i))) := by
-  unfold finTourLen
-  exact ciInf_le (Set.Finite.bddBelow (Set.finite_range _)) σ
-
-lemma finTourLen_nonneg {n : ℕ} (x : Fin n → ℝ × ℝ) : 0 ≤ finTourLen x := by
-  unfold finTourLen
-  exact Real.iInf_nonneg fun σ => Finset.sum_nonneg fun i _ => ptDist_nonneg _ _
-
-lemma finTourLen_perm_eq {n : ℕ} (x : Fin n → ℝ × ℝ) (τ : Equiv.Perm (Fin n)) :
-    finTourLen (x ∘ τ) = finTourLen x := by
-  unfold finTourLen
+lemma tourLength_perm {n : ℕ} (x : Fin n → ℝ × ℝ) (τ : Equiv.Perm (Fin n)) :
+    tourLength (x ∘ τ) = tourLength x := by
+  unfold tourLength
   exact Equiv.iInf_congr (Equiv.mulLeft τ) fun σ => by simp [Function.comp]
 
 /-- Given an injective map `f : Fin n → Fin L.length` with `L[f i] = x i`, there is a
 permutation `σ` such that `(finRange n).map (x ∘ σ)` is a sublist of `L`, hence
-`finTourLen x ≤ cycleLen L`. -/
-lemma finTourLen_le_cycleLen_of_inj {n : ℕ} (x : Fin n → ℝ × ℝ) (L : List (ℝ × ℝ))
+`tourLength x ≤ cycleLen L`. -/
+lemma tourLength_le_cycleLen_of_inj {n : ℕ} (x : Fin n → ℝ × ℝ) (L : List (ℝ × ℝ))
     (f : Fin n → Fin L.length) (hf : Function.Injective f) (hval : ∀ i, L[f i] = x i) :
-    finTourLen x ≤ cycleLen L := by
+    tourLength x ≤ cycleLen L := by
   -- Sort `f` into strictly increasing order using `Tuple.sort f`
   let σ : Equiv.Perm (Fin n) := Tuple.sort f
   have hmono : Monotone (f ∘ σ) := Tuple.monotone_sort f
   have hstrict : StrictMono (f ∘ σ) := hmono.strictMono_of_injective (hf.comp σ.injective)
-  -- Helper: any strictly increasing index map `g : Fin m → Fin L.length` yields a sublist
+  -- Any strictly increasing index map `g : Fin m → Fin L.length` yields a sublist
   have hsub : ∀ {m : ℕ} (g : Fin m → Fin L.length), StrictMono g →
       ((List.finRange m).map (fun i => L[g i])).Sublist L := by
     intro m g hg
-    -- Prove by induction on `L` using `List.sublist_iff_exists_fin_orderEmbedding_get_eq`
     let emb : Fin m ↪o Fin L.length := OrderEmbedding.ofStrictMono g hg
     have hiff := List.sublist_iff_exists_fin_orderEmbedding_get_eq
       (l := (List.finRange m).map (fun i => L[g i])) (l' := L)
@@ -299,174 +246,9 @@ lemma finTourLen_le_cycleLen_of_inj {n : ℕ} (x : Fin n → ℝ × ℝ) (L : Li
       congr 1; funext i; exact (hval (σ i)).symm
     rw [heq]
     exact hsub (f ∘ σ) hstrict
-  calc finTourLen x ≤ ∑ i : Fin n, ptDist (x (σ i)) (x (σ (finRotate n i))) := finTourLen_le_perm x σ
+  calc tourLength x ≤ ∑ i : Fin n, euclidDist (x (σ i)) (x (σ (finRotate n i))) := tourLength_le_perm x σ
     _ = cycleLen ((List.finRange n).map (x ∘ σ)) := (cycleLen_finRange n (x ∘ σ)).symm
     _ ≤ cycleLen L := cycleLen_sublist_le hsubL
-
-/-! ## Deterministic `4√n + 4` Strip Bound on `[0,1]²` (DCT Envelope) -/
-
-private lemma ptDist_unitSquare_le_two {a b : ℝ × ℝ}
-    (ha : a ∈ Icc (0 : ℝ) 1 ×ˢ Icc (0 : ℝ) 1) (hb : b ∈ Icc (0 : ℝ) 1 ×ˢ Icc (0 : ℝ) 1) :
-    ptDist a b ≤ 2 := by
-  have hx : |a.1 - b.1| ≤ 1 := abs_sub_le_iff.mpr ⟨by linarith [ha.1.2, hb.1.1], by linarith [hb.1.2, ha.1.1]⟩
-  have hy : |a.2 - b.2| ≤ 1 := abs_sub_le_iff.mpr ⟨by linarith [ha.2.2, hb.2.1], by linarith [hb.2.2, ha.2.1]⟩
-  linarith [ptDist_le_l1 a b]
-
-private lemma fin_sum_telescope : ∀ (m : ℕ) (f : Fin (m + 1) → ℝ),
-    ∑ i : Fin m, (f i.succ - f i.castSucc) = f (Fin.last m) - f 0
-  | 0, f => by simp
-  | m' + 1, f => by
-    rw [Fin.sum_univ_castSucc]
-    have h4 : ∀ i : Fin m', i.castSucc.succ = i.succ.castSucc := fun i => Fin.ext (by simp)
-    simp_rw [h4]
-    rw [fin_sum_telescope m' (fun j => f j.castSucc)]
-    have h2 : (Fin.last m').succ = Fin.last (m' + 1) := Fin.ext (by simp)
-    have h3 : (0 : Fin (m' + 1)).castSucc = (0 : Fin (m' + 2)) := rfl
-    rw [h2, h3]; ring
-
-/-- **Deterministic Strip Tour Bound:** Any `n` points in `[0,1]²` admit a closed tour of length
-at most `4 * √n + 4`. -/
-theorem finTourLen_unitSquare_le {n : ℕ} (x : Fin n → ℝ × ℝ)
-    (hx : ∀ i, x i ∈ Icc (0 : ℝ) 1 ×ˢ Icc (0 : ℝ) 1) :
-    finTourLen x ≤ 4 * Real.sqrt (n : ℝ) + 4 := by
-  cases n with
-  | zero =>
-    have h0 : finTourLen x ≤ 0 := by
-      simpa using finTourLen_le_perm x 1
-    simp only [Nat.cast_zero, Real.sqrt_zero, mul_zero, zero_add]
-    linarith
-  | succ m =>
-    let n := m + 1
-    let k : ℕ := Nat.sqrt n + 1
-    have hk_pos : 0 < k := Nat.succ_pos _
-    have hkR_pos : (0 : ℝ) < (k : ℝ) := by exact_mod_cast hk_pos
-    let strip : Fin n → ℕ := fun i => min (k - 1) ⌊(k : ℝ) * (x i).2⌋₊
-    have hstrip_lt : ∀ i, strip i < k := fun i => by dsimp only [strip]; omega
-    have hstrip_y : ∀ i, ((strip i : ℕ) : ℝ) / (k : ℝ) ≤ (x i).2 ∧
-        (x i).2 ≤ (((strip i : ℕ) + 1 : ℕ) : ℝ) / (k : ℝ) := by
-      intro i
-      have hy0 : 0 ≤ (x i).2 := (hx i).2.1
-      have hy1 : (x i).2 ≤ 1 := (hx i).2.2
-      dsimp only [strip]
-      by_cases hle : ⌊(k : ℝ) * (x i).2⌋₊ ≤ k - 1
-      · rw [min_eq_right hle]
-        constructor
-        · rw [div_le_iff₀ hkR_pos]
-          have := Nat.floor_le (mul_nonneg (le_of_lt hkR_pos) hy0)
-          linarith
-        · rw [le_div_iff₀ hkR_pos]
-          have := Nat.lt_floor_add_one ((k : ℝ) * (x i).2)
-          push_cast; linarith
-      · rw [min_eq_left (by omega)]
-        have hfl : k ≤ ⌊(k : ℝ) * (x i).2⌋₊ := by omega
-        have hksub : (((k - 1 : ℕ) : ℝ)) = (k : ℝ) - 1 := by
-          rw [Nat.cast_sub (by omega)]; simp
-        constructor
-        · rw [div_le_iff₀ hkR_pos, hksub]
-          have := (Nat.le_floor_iff (mul_nonneg (le_of_lt hkR_pos) hy0)).mp hfl
-          linarith
-        · rw [le_div_iff₀ hkR_pos]
-          have : ((k - 1 + 1 : ℕ) : ℝ) = (k : ℝ) := by exact_mod_cast (by omega : k - 1 + 1 = k)
-          rw [this]; nlinarith
-    let key : Fin n → ℕ ×ₗ ℝ := fun i => toLex (strip i, (x i).1)
-    let σ : Equiv.Perm (Fin n) := Tuple.sort key
-    have hmono : Monotone (key ∘ σ) := Tuple.monotone_sort key
-    have hle_perm := finTourLen_le_perm x σ
-    refine hle_perm.trans ?_
-    rw [Fin.sum_univ_castSucc]
-    have hclose : ptDist (x (σ (Fin.last m))) (x (σ (finRotate n (Fin.last m)))) ≤ 2 :=
-      ptDist_unitSquare_le_two (hx _) (hx _)
-    have hstep : ∀ i : Fin m,
-        ptDist (x (σ i.castSucc)) (x (σ (finRotate n i.castSucc))) ≤
-          (if strip (σ i.castSucc) = strip (σ i.succ) then
-            ((x (σ i.succ)).1 - (x (σ i.castSucc)).1) + 1 / (k : ℝ)
-          else
-            2 * (((strip (σ i.succ) : ℝ) - (strip (σ i.castSucc) : ℝ)))) := by
-      intro i
-      rw [finRotate_castSucc_eq i]
-      have hmi := hmono (show i.castSucc ≤ i.succ by simp [Fin.le_def])
-      have hs_le : strip (σ i.castSucc) ≤ strip (σ i.succ) := by
-        rcases (Prod.Lex.le_iff.mp hmi) with hlt | ⟨heq, _⟩
-        · exact le_of_lt hlt
-        · exact le_of_eq heq
-      split_ifs with heq
-      · have hx_le : (x (σ i.castSucc)).1 ≤ (x (σ i.succ)).1 := by
-          rcases (Prod.Lex.le_iff.mp hmi) with hlt | ⟨_, hle⟩
-          · exact absurd heq (ne_of_lt hlt)
-          · exact hle
-        have hxa : |(x (σ i.castSucc)).1 - (x (σ i.succ)).1| = (x (σ i.succ)).1 - (x (σ i.castSucc)).1 := by
-          rw [abs_sub_comm, abs_of_nonneg (sub_nonneg.mpr hx_le)]
-        have hy1 := hstrip_y (σ i.castSucc)
-        have hy2 := hstrip_y (σ i.succ)
-        rw [heq] at hy1
-        have hya : |(x (σ i.castSucc)).2 - (x (σ i.succ)).2| ≤ 1 / (k : ℝ) := by
-          rw [abs_sub_le_iff]
-          have hstep_div : (((strip (σ i.succ) + 1 : ℕ) : ℝ) / (k : ℝ)) - ((strip (σ i.succ) : ℕ) : ℝ) / (k : ℝ) =
-              1 / (k : ℝ) := by push_cast; ring
-          constructor <;> linarith
-        linarith [ptDist_le_l1 (x (σ i.castSucc)) (x (σ i.succ))]
-      · have hslt : strip (σ i.castSucc) + 1 ≤ strip (σ i.succ) := by omega
-        have hsdiff : (1 : ℝ) ≤ (strip (σ i.succ) : ℝ) - (strip (σ i.castSucc) : ℝ) := by
-          have : ((strip (σ i.castSucc) + 1 : ℕ) : ℝ) ≤ (strip (σ i.succ) : ℝ) := by exact_mod_cast hslt
-          push_cast at this; linarith
-        linarith [ptDist_unitSquare_le_two (hx (σ i.castSucc)) (hx (σ i.succ))]
-    have hstep_uni : ∀ i : Fin m,
-        ptDist (x (σ i.castSucc)) (x (σ (finRotate n i.castSucc))) ≤
-          ((x (σ i.succ)).1 - (x (σ i.castSucc)).1) + 1 / (k : ℝ) +
-            3 * ((strip (σ i.succ) : ℝ) - (strip (σ i.castSucc) : ℝ)) := by
-      intro i
-      have hs := hstep i
-      split_ifs at hs with heq
-      · rw [heq]; linarith
-      · have hmi := hmono (show i.castSucc ≤ i.succ by simp [Fin.le_def])
-        have hs_le : strip (σ i.castSucc) ≤ strip (σ i.succ) := by
-          rcases (Prod.Lex.le_iff.mp hmi) with hlt | ⟨h, _⟩
-          · exact le_of_lt hlt
-          · exact le_of_eq h
-        have hsdiff : (1 : ℝ) ≤ (strip (σ i.succ) : ℝ) - (strip (σ i.castSucc) : ℝ) := by
-          have : ((strip (σ i.castSucc) + 1 : ℕ) : ℝ) ≤ (strip (σ i.succ) : ℝ) := by
-            exact_mod_cast (by omega : strip (σ i.castSucc) + 1 ≤ strip (σ i.succ))
-          push_cast at this; linarith
-        have hx1 := (hx (σ i.succ)).1
-        have hx0 := (hx (σ i.castSucc)).1
-        have hk0 : (0 : ℝ) ≤ 1 / (k : ℝ) := by positivity
-        linarith [hx1.1, hx0.2]
-    have hsum_le := Finset.sum_le_sum fun i (_ : i ∈ Finset.univ) => hstep_uni i
-    have hsum_eval : ∑ i : Fin m, (((x (σ i.succ)).1 - (x (σ i.castSucc)).1) + 1 / (k : ℝ) +
-          3 * ((strip (σ i.succ) : ℝ) - (strip (σ i.castSucc) : ℝ))) =
-        ((x (σ (Fin.last m))).1 - (x (σ 0)).1) + (m : ℝ) / (k : ℝ) +
-          3 * ((strip (σ (Fin.last m)) : ℝ) - (strip (σ 0) : ℝ)) := by
-      rw [Finset.sum_add_distrib, Finset.sum_add_distrib, ← Finset.mul_sum,
-        fin_sum_telescope m (fun i => (x (σ i)).1),
-        fin_sum_telescope m (fun i => (strip (σ i) : ℝ)),
-        Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul, mul_one_div]
-    rw [hsum_eval] at hsum_le
-    have hxdiff : (x (σ (Fin.last m))).1 - (x (σ 0)).1 ≤ 1 := by
-      linarith [(hx (σ (Fin.last m))).1.2, (hx (σ 0)).1.1]
-    have hsdiff : (strip (σ (Fin.last m)) : ℝ) - (strip (σ 0) : ℝ) ≤ (k : ℝ) - 1 := by
-      have h1 : (strip (σ (Fin.last m)) : ℝ) ≤ (k : ℝ) - 1 := by
-        have := hstrip_lt (σ (Fin.last m))
-        have : ((strip (σ (Fin.last m)) + 1 : ℕ) : ℝ) ≤ (k : ℝ) := by exact_mod_cast this
-        push_cast at this; linarith
-      have h0 : (0 : ℝ) ≤ (strip (σ 0) : ℝ) := Nat.cast_nonneg _
-      linarith
-    have hk_le : (k : ℝ) ≤ Real.sqrt (n : ℝ) + 1 := by
-      have hsq : (Nat.sqrt n : ℝ) ≤ Real.sqrt (n : ℝ) := by
-        rw [Real.le_sqrt (Nat.cast_nonneg _) (Nat.cast_nonneg _), sq]
-        exact_mod_cast Nat.sqrt_le n
-      dsimp only [k]; push_cast; linarith
-    have hmk_le : (m : ℝ) / (k : ℝ) ≤ Real.sqrt (n : ℝ) := by
-      rw [div_le_iff₀ hkR_pos]
-      have hlt : (n : ℝ) < (k : ℝ) ^ 2 := by
-        have : n < k * k := by dsimp only [k]; exact Nat.lt_succ_sqrt n
-        have : (n : ℝ) < (k : ℝ) * (k : ℝ) := by exact_mod_cast this
-        linarith [sq (k : ℝ)]
-      have hsq : Real.sqrt (n : ℝ) < (k : ℝ) := by
-        rw [Real.sqrt_lt' hkR_pos]; exact hlt
-      have hm_le : (m : ℝ) ≤ (n : ℝ) := by dsimp only [n]; push_cast; linarith
-      have hn_eq : (n : ℝ) = Real.sqrt (n : ℝ) * Real.sqrt (n : ℝ) := (Real.mul_self_sqrt (Nat.cast_nonneg n)).symm
-      nlinarith [Real.sqrt_nonneg (n : ℝ)]
-    linarith
 
 /-! ## Serpentine Stitching of `M` Strip Paths -/
 
@@ -490,9 +272,9 @@ lemma serpentine_listPathLen_le :
         (∑ s : Fin (M + 1), listPathLen (P s)) +
         ∑ s : Fin M,
           if s.val % 2 = 0 then
-            ptDist ((P s.castSucc).getLast (hne _)) ((P s.succ).getLast (hne _))
+            euclidDist ((P s.castSucc).getLast (hne _)) ((P s.succ).getLast (hne _))
           else
-            ptDist ((P s.castSucc).head (hne _)) ((P s.succ).head (hne _)) := by
+            euclidDist ((P s.castSucc).head (hne _)) ((P s.succ).head (hne _)) := by
   intro M
   induction M with
   | zero =>
@@ -535,15 +317,15 @@ lemma serpentine_listPathLen_le :
       rw [hlastLen, Fin.sum_univ_castSucc (f := fun s : Fin (M + 2) => listPathLen (P s)),
           Fin.sum_univ_castSucc (f := fun s : Fin (M + 1) =>
             if s.val % 2 = 0 then
-              ptDist ((P s.castSucc).getLast (hne _)) ((P s.succ).getLast (hne _))
+              euclidDist ((P s.castSucc).getLast (hne _)) ((P s.succ).getLast (hne _))
             else
-              ptDist ((P s.castSucc).head (hne _)) ((P s.succ).head (hne _)))]
-      have hjump : ptDist (if M % 2 = 0 then (P' (Fin.last M)).getLast (hne' _)
+              euclidDist ((P s.castSucc).head (hne _)) ((P s.succ).head (hne _)))]
+      have hjump : euclidDist (if M % 2 = 0 then (P' (Fin.last M)).getLast (hne' _)
               else (P' (Fin.last M)).head (hne' _)) (lastSeg.head hlastSeg_ne) =
           if (Fin.last M).val % 2 = 0 then
-            ptDist ((P (Fin.last M).castSucc).getLast (hne _)) ((P (Fin.last M).succ).getLast (hne _))
+            euclidDist ((P (Fin.last M).castSucc).getLast (hne _)) ((P (Fin.last M).succ).getLast (hne _))
           else
-            ptDist ((P (Fin.last M).castSucc).head (hne _)) ((P (Fin.last M).succ).head (hne _)) := by
+            euclidDist ((P (Fin.last M).castSucc).head (hne _)) ((P (Fin.last M).succ).head (hne _)) := by
         have hval : (Fin.last M).val = M := rfl
         have hsucc : (Fin.last M).succ = Fin.last (M + 1) := Fin.ext (by simp)
         rw [hval, hsucc]
@@ -555,11 +337,11 @@ lemma serpentine_listPathLen_le :
           simp only [hev, hev1, ↓reduceIte]
       rw [hjump]
       have hsum_eq : ∑ x : Fin M,
-            (if x.val % 2 = 0 then ptDist ((P' x.castSucc).getLast (hne' _)) ((P' x.succ).getLast (hne' _))
-            else ptDist ((P' x.castSucc).head (hne' _)) ((P' x.succ).head (hne' _))) =
+            (if x.val % 2 = 0 then euclidDist ((P' x.castSucc).getLast (hne' _)) ((P' x.succ).getLast (hne' _))
+            else euclidDist ((P' x.castSucc).head (hne' _)) ((P' x.succ).head (hne' _))) =
           ∑ x : Fin M,
-            (if x.castSucc.val % 2 = 0 then ptDist ((P x.castSucc.castSucc).getLast (hne _)) ((P x.castSucc.succ).getLast (hne _))
-            else ptDist ((P x.castSucc.castSucc).head (hne _)) ((P x.castSucc.succ).head (hne _))) := by
+            (if x.castSucc.val % 2 = 0 then euclidDist ((P x.castSucc.castSucc).getLast (hne _)) ((P x.castSucc.succ).getLast (hne _))
+            else euclidDist ((P x.castSucc.castSucc).head (hne _)) ((P x.castSucc.succ).head (hne _))) := by
         apply Finset.sum_congr rfl
         intro x _
         have hcs : x.succ.castSucc = x.castSucc.succ := Fin.ext (by simp)
@@ -575,10 +357,10 @@ theorem cycleLen_serpentine {M : ℕ} (P : Fin (M + 1) → List (ℝ × ℝ)) (h
       (∑ s : Fin (M + 1), listPathLen (P s)) +
       (∑ s : Fin M,
         if s.val % 2 = 0 then
-          ptDist ((P s.castSucc).getLast (hne _)) ((P s.succ).getLast (hne _))
+          euclidDist ((P s.castSucc).getLast (hne _)) ((P s.succ).getLast (hne _))
         else
-          ptDist ((P s.castSucc).head (hne _)) ((P s.succ).head (hne _))) +
-      ptDist (if M % 2 = 0 then (P (Fin.last M)).getLast (hne _) else (P (Fin.last M)).head (hne _))
+          euclidDist ((P s.castSucc).head (hne _)) ((P s.succ).head (hne _))) +
+      euclidDist (if M % 2 = 0 then (P (Fin.last M)).getLast (hne _) else (P (Fin.last M)).head (hne _))
         ((P 0).head (hne 0)) := by
   obtain ⟨hserp_ne, hhead, hlast, hlen⟩ := serpentine_listPathLen_le P hne
   rw [cycleLen_eq_pathLen_add_close _ hserp_ne, hlen, hhead, hlast]

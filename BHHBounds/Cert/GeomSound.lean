@@ -3,18 +3,10 @@ import BHHBounds.Geometry.DiskIntersection
 import BHHBounds.Geometry.ThreeDiskArea
 
 /-!
-# Soundness of Geometric Fixed-Point Primitives
+# Soundness of the geometric bounds in `Cert.Kernel`
 
-Proves that every geometric bounding function in `BHHBounds.Cert.Kernel` is sound with respect to
-the exact real geometric quantities in `BHHBounds.Geometry`:
-1. `segEvalHi_sound`: `segArea (toR c) ≤ toR (segEvalHi c)` for `c ∈ [-S, S]`.
-2. `circleInterHi_sound`: `diskInterArea (toR d) (toR r₁) (toR r₂) ≤ toR (circleInterHi d r₁ r₂)`.
-3. `chordPoly6Hi_sound`, `excessXHi_sound`, `triAreaHi_sound`:
-   `unionDiskArea ![(0,0), (L,0), (L*w.1, L*w.2)] (toR rad) ≤ toR (triAreaHi l0 l1 x0 x1 y0 y1 rad)`.
-4. `jointSurvReal` & `jointSurvHi_sound`: exact Poisson joint survival upper bound (using only
-   elementary `1 + x ≤ exp x`).
-5. `boxNorm2LoHi_sound`, `cornerDotLoHi_sound`, `dotIntervalInt_sound`: squared-norm and
-   angle-addition dot-product interval soundness on axis-aligned boxes.
+Each integer bound (circular segment, two-disk intersection, three-disk union, joint Poisson
+survival, dot products over a box) is compared with the real quantity from `BHHBounds.Geometry`.
 -/
 
 open MeasureTheory Set Real
@@ -275,7 +267,7 @@ lemma segBinSlopeHi_sound {k : Nat} (hk : k < 512) :
           div_le_div_of_nonneg_right hsr (by norm_num)
       _ ≤ toR ((sqrtSqHi (4 * (256 * 256 - tMinAbs * tMinAbs) * S * S) + 255) / 256) := hdiv
 
-/-- **Certified Circular Segment Upper Bound**: for all `c ∈ [-S, S]`,
+/-- For all `c ∈ [-S, S]`,
 `segArea (toR c) ≤ toR (segEvalHi c)`. -/
 theorem segEvalHi_sound {c : Int} (hc1 : -S ≤ c) (hc2 : c ≤ S) :
     segArea (toR c) ≤ toR (segEvalHi c) := by
@@ -716,7 +708,7 @@ lemma excessXHi_sound {r : ℝ} {w : Pt} {r0 r1 x0 x1 y0 : Int}
     calc toR (mulLo r0 y0) ≤ toR r0 * toR y0 := mulLo_le
       _ ≤ r * w.2 := mul_le_mul hr0_le hy0 (toR_nonneg hy0_nn) (le_of_lt hr_pos)
   split_ifs with htriv
-  · -- Integrand is identically 0 on `[0, 1]`!
+  · -- Integrand is identically 0 on `[0, 1]`
     rw [toR_zero]
     have hzero : ∫ t in (0 : ℝ)..1, g t = 0 := by
       have hcongr : ∫ t in (0 : ℝ)..1, g t = ∫ _ in (0 : ℝ)..1, (0 : ℝ) := by
@@ -789,7 +781,7 @@ lemma excessXHi_sound {r : ℝ} {w : Pt} {r0 r1 x0 x1 y0 : Int}
           mul_le_mul hr1_ge hsum_le hint_nn hr1_nn
       _ ≤ toR (mulHi r1 (excessXSum r0 r1 x0 x1 y0 8)) := le_mulHi
 
-/-- **Certified Three-Disk Union Area Upper Bound**: for any triangle `(L, w)` in the box
+/-- For any triangle `(L, w)` in the box
 `[l0/S, l1/S] × [x0/S, x1/S] × [y0/S, y1/S]` with `w ∈ quarterLens` and `0 < L < rad / S`,
 `unionDiskArea ![(0,0), (L,0), (L*w.1, L*w.2)] (toR rad) ≤ toR (triAreaHi l0 l1 x0 x1 y0 y1 rad)`. -/
 theorem triAreaHi_sound {l0 l1 x0 x1 y0 y1 rad : Int} {L : ℝ} {w : Pt}
@@ -955,14 +947,14 @@ lemma jointSurvCore_symm (a₁ a₂ I : ℝ) (k₁ k₂ : Bool) :
     jointSurvCore a₁ a₂ I k₁ k₂ = jointSurvCore a₂ a₁ I k₂ k₁ := by
   cases k₁ <;> cases k₂ <;> unfold jointSurvCore <;> ring_nf
 
-/-- Elementary monotonicity of `jointSurvCore` in `(a₁, a₂, I)` using ONLY `1 + δ ≤ exp δ`! -/
+/-- Elementary monotonicity of `jointSurvCore` in `(a₁, a₂, I)` using only `1 + δ ≤ exp δ`. -/
 lemma jointSurvCore_mono {a₁ a₂ I a₁' a₂' I' : ℝ}
     (ha1 : a₁' ≤ a₁) (ha2 : a₂' ≤ a₂)
     (hI0 : 0 ≤ I) (hI1 : I ≤ a₁) (hI2 : I ≤ a₂)
     (hI0' : 0 ≤ I') (hI1' : I' ≤ a₁') (hI2' : I' ≤ a₂')
     (hI_case : I ≤ I' ∨ I' = min a₁' a₂') (k₁ k₂ : Bool) :
     jointSurvCore a₁ a₂ I k₁ k₂ ≤ jointSurvCore a₁' a₂' I' k₁ k₂ := by
-  -- Helper: `(A + Δ) * exp(-δ) ≤ A` whenever `0 ≤ δ`, `0 ≤ Δ ≤ δ * A`, `0 ≤ A`
+  -- `(A + Δ) * exp(-δ) ≤ A` whenever `0 ≤ δ`, `0 ≤ Δ ≤ δ * A`, `0 ≤ A`
   have hshift : ∀ A Δ δ : ℝ, 0 ≤ A → 0 ≤ δ → Δ ≤ δ * A →
       (A + Δ) * Real.exp (-δ) ≤ A := by
     intro A Δ δ hA hδ hΔ
@@ -1056,12 +1048,12 @@ lemma jointSurvCore_mono {a₁ a₂ I a₁' a₂' I' : ℝ}
       _ ≤ jointSurvCore a₂' a₁' I k₂ k₁ := hanti1 a₂ a₂' a₁' I k₂ k₁ hI0 hIa2' ha2 hIa1'
       _ = jointSurvCore a₁' a₂' I k₁ k₂ := jointSurvCore_symm _ _ _ _ _
       _ ≤ jointSurvCore a₁' a₂' I' k₁ k₂ := hmonoI a₁' a₂' I I' k₁ k₂ hI0 hIle hI1' hI2'
-  · -- Handle `I' = min a₁' a₂'` (WLOG `a₁' ≤ a₂'` by symmetry!)
+  · -- Handle `I' = min a₁' a₂'` (WLOG `a₁' ≤ a₂'` by symmetry)
     have hcase_le : ∀ (u₁ u₂ J u₁' u₂' : ℝ) (b₁ b₂ : Bool),
         u₁' ≤ u₁ → u₂' ≤ u₂ → 0 ≤ J → J ≤ u₁ → J ≤ u₂ → 0 ≤ u₁' → u₁' ≤ u₂' →
         jointSurvCore u₁ u₂ J b₁ b₂ ≤ jointSurvCore u₁' u₂' u₁' b₁ b₂ := by
       intro u₁ u₂ J u₁' u₂' b₁ b₂ hu1 hu2 hJ0 hJu1 hJu2 hu1'0 hu12'
-      -- First increase `J` to `min u₁ u₂`? No, compare directly against `au = u₂ + (u₁ - J)`!
+      -- Compare directly against `au = u₂ + (u₁ - J)`
       set u := u₁ - J
       set v := u₂ - J
       have hu : 0 ≤ u := by linarith
@@ -1129,7 +1121,7 @@ lemma jointSurvCore_mono {a₁ a₂ I a₁' a₂' I' : ℝ}
     · rw [hIeq, min_eq_right h21, jointSurvCore_symm a₁ a₂, jointSurvCore_symm a₁' a₂']
       exact hcase_le a₂ a₁ I a₂' a₁' k₂ k₁ ha2 ha1 hI0 hI2 hI1 (hI0'.trans hI2') h21
 
-/-- **Certified Joint Poisson Survival Upper Bound**: for all `0 ≤ d, r1, r2`,
+/-- For all `0 ≤ d, r1, r2`,
 `jointSurvReal (toR d) (toR r1) (toR r2) k1 k2 ≤ toR (jointSurvHi d r1 r2 k1 k2)`. -/
 theorem jointSurvHi_sound {d r1 r2 : Int} (hd : 0 ≤ d) (hr1 : 0 ≤ r1) (hr2 : 0 ≤ r2)
     (k1 k2 : Bool) :
@@ -1284,7 +1276,7 @@ lemma cornerDotLoHi_sound {qx qy clo chi slo shi ch sh : Int} {tm u : ℝ}
       (-toR qx * Real.sin tm + toR qy * Real.cos tm) * Real.sin u := by
     rw [Real.cos_add, Real.sin_add]; ring
   rw [hadd]
-  -- Helper: interval bound for `q * v` when `toR lo ≤ v ≤ toR hi`
+  -- Interval bound for `q * v` when `toR lo ≤ v ≤ toR hi`
   have hmul_int : ∀ (q lo hi : Int) (v : ℝ), toR lo ≤ v → v ≤ toR hi →
       ((min (q * lo) (q * hi) : Int) : ℝ) / (S : ℝ) ^ 2 ≤ toR q * v ∧
       toR q * v ≤ ((max (q * lo) (q * hi) : Int) : ℝ) / (S : ℝ) ^ 2 := by
@@ -1396,7 +1388,7 @@ lemma cornerDotLoHi_sound {qx qy clo chi slo shi ch sh : Int} {tm u : ℝ}
   rw [toR_sub, toR_add]
   exact ⟨by linarith, by linarith⟩
 
-/-- **Box Angle-Addition Dot Product Soundness**: for any `(x, y)` in `[toR x0, toR x1] × [toR y0, toR y1]`
+/-- For any `(x, y)` in `[toR x0, toR x1] × [toR y0, toR y1]`
 and any `u` with `toR ch ≤ cos u` (`0 ≤ ch`), `|sin u| ≤ toR sh`, the dot product
 `x * cos (tm + u) + y * sin (tm + u)` lies inside `dotIntervalInt`. -/
 theorem dotIntervalInt_sound {x0 x1 y0 y1 clo chi slo shi ch sh : Int} {x y tm u : ℝ}
@@ -1413,7 +1405,7 @@ theorem dotIntervalInt_sound {x0 x1 y0 y1 clo chi slo shi ch sh : Int} {x y tm u
   have h11 := cornerDotLoHi_sound (qx := x1) (qy := y1) hclo hchi hslo hshi hch_nn hch hsh
   set c := Real.cos (tm + u)
   set s := Real.sin (tm + u)
-  -- Affine function on a rectangle achieves its min and max at one of the 4 corners!
+  -- Affine function on a rectangle achieves its min and max at one of the 4 corners
   have hxc : min (toR x0 * c) (toR x1 * c) ≤ x * c ∧ x * c ≤ max (toR x0 * c) (toR x1 * c) := by
     rcases le_total 0 c with hc | hc
     · exact ⟨(min_le_left _ _).trans (mul_le_mul_of_nonneg_right hx0 hc),
